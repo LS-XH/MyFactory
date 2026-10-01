@@ -16,9 +16,17 @@
                     "radius":6371
                 },
                 "surface":{
-                    "resource":{
-                        
-                    }
+                    "resource":[
+                        {
+                            "resourceType":"OreVein",
+                            "item":"Fe",
+                            "position":{
+                                "x":100,
+                                "y":200
+                            },
+                            "reserves":2000
+                        }
+                    ]
                 },
                 "planet":{
                     "Moon":{
@@ -31,6 +39,18 @@
                         "planet":{}
                     }
                 }
+            },
+            "Marks":{
+                "planetType":"TerrestrialPlanet",
+                "position":{
+                    "orbitalRadius":227392000,
+                    "orbitalPeriod":687,
+                    "radius":3390
+                },
+                "surface":{
+                    "resource":[]
+                },
+                "planet":{}
             }
         }
     },

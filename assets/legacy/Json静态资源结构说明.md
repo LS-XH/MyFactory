@@ -76,4 +76,27 @@
 
 请动态读取  [factoryType.json](factoryType.json) 
 
-地图：星图/地表视图
+### 地图：星图/地表视图
+
+ [spaceMap.json](spaceMap.json) ，对于内部的对象，key为恒星ID
+
+- "displayName"：显示名称，即为恒星系的中文名
+- "starType"：恒星类型，详见 [starType.json](starType.json) 
+- "position"：内部有x，y元素，恒星系相对星图中心的直角坐标系位置
+- "surface"：表面的情况
+- "planet"：环绕的行星，是一个列表，对于内部的对象，key为行星ID
+     - "planetType"：行星类型，详见 [planetType.json](planetType.json) 
+     - "position"：行星天体物理参数
+          - "orbitalRadius"：围绕其父星球的轨道半径，单位为km
+          - "orbitalPeriod"：围绕其父星球的公转周期，单位为s
+          - "radius"：星球半径，单位为km
+     - "surface"：行星表面情况
+          - "resource"：行星表面资源
+               - "resourceType"：资源类型，详见 [resourceType.json](resourceType.json) 
+               - "item"：资源蕴含的纯净物，详见 [item.json](item.json) 
+               - "position"：内部有x，y元素，代表相对左下角行星原点的直角坐标系位置，单位km
+               - "reserves"：资源储量，单位为t
+     - "planet"：行星的卫星，内部的格式同行星一样
+
+
+
