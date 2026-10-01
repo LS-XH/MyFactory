@@ -1,0 +1,18 @@
+{
+    "TerrestrialPlanet": {
+      "displayName": "类地星球",
+      "planetAdjustment": {}
+    },
+    "LavalPlanet": {
+      "displayName": "熔岩星球",
+      "planetAdjustment": {}
+    },
+    "OceanlPlanet": {
+      "displayName": "海洋星球",
+      "planetAdjustment": {}
+    },
+    "LifelessPlanet": {
+      "displayName": "荒芜星球",
+      "planetAdjustment": {}
+    }
+}

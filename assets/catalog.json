@@ -11,8 +11,8 @@
       { "id": "nyx", "name": "尼克斯带", "type": "asteroid", "orbit": 3, "color": "#9aa6bc", "status": "未勘探", "population": "—", "hasSurface": false }
     ],
     "entities": [
-      { "id": "station-horizon", "kind": "station", "name": "地平线 · 铁壁", "orbit": 2, "faction": "人类联邦" },
-      { "id": "ship-imicus", "kind": "ship", "name": "伊米卡斯级 · 侦察 01", "orbit": 1, "faction": "人类联邦" }
+      { "id": "station-horizon", "kind": "station", "name": "地平线 · 铁壁", "starId": "Solar", "position": { "x": 32, "y": -18 }, "orbit": 2, "faction": "人类联邦" },
+      { "id": "ship-imicus", "kind": "ship", "name": "伊米卡斯级 · 侦察 01", "starId": "Solar", "position": { "x": 42, "y": 22 }, "orbit": 1, "faction": "人类联邦" }
     ]
   },
   "factoryTypes": [

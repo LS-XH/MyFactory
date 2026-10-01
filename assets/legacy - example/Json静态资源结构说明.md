@@ -82,7 +82,7 @@
 
 - "displayName"：显示名称，即为恒星系的中文名
 - "starType"：恒星类型，详见 [starType.json](starType.json) 
-- "position"：内部有x，y元素，恒星系相对星图中心的直角坐标系位置，单位为ly，即1光年
+- "position"：内部有x，y元素，恒星系相对星图中心的直角坐标系位置，单位为Au，即1亿km
 - "surface"：表面的情况
 - "planet"：环绕的行星，是一个列表，对于内部的对象，key为行星ID
      - "planetType"：行星类型，详见 [planetType.json](planetType.json) 
