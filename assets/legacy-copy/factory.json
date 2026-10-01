@@ -1,0 +1,6 @@
+{
+    "ProcessingStation":{
+        "displayName":"加工站",
+        "factoryType":"Production"
+    }
+}

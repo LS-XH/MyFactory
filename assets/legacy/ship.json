@@ -1,0 +1,62 @@
+{
+    "Imicus": {
+        "displayName": "伊米卡斯级",
+        "shipType": "Frigate",
+        "faction": "Terran",
+        "slots": {
+            "turretSlots": [
+                {
+                    "slotSize":"S",
+                    "shipAttribute":{
+
+                    }
+                }
+            ],
+            "engineSlots": [
+                {
+                    "slotSize":"S",
+                    "shipAttribute":{
+
+                    }
+                },
+                {
+                    "slotSize":"S",
+                    "shipAttribute":{
+
+                    }
+                }
+            ],
+            "defenseSlots": [],
+            "utilitySlots": [],
+            "moduleSlots": [
+                {
+                    "slotSize":"S",
+                    "shipAttribute":{
+
+                    }
+                }
+            ]
+        },
+        "HP": {
+            "shieldHP": {
+                "maxHp": 1000,
+                "autoRegeneration": true,
+                "regenerationRate": 0.05
+            },
+            "armorHP": {
+                "maxHp": 1500,
+                "autoRegeneration": false
+            },
+            "structureHP": {
+                "maxHp": 2000,
+                "autoRegeneration": false
+            }
+        },
+        "movement": {
+            "acceleration": 20,
+            "maxSpeed": 300,
+            "turnSpeed": 45,
+            "warpSpeed": 50000000
+        }
+    }
+}

@@ -1,0 +1,48 @@
+{
+    "Solar":{
+        "displayName":"太阳系",
+        "starType":"GTypeYellowDwarf",
+        "position":{
+            "x":90000,
+            "y":80000
+        },
+        "surface":{},
+        "planet":{
+            "Earth":{
+                "planetType":"TerrestrialPlanet",
+                "position":{
+                    "orbitalRadius":149600000,
+                    "orbitalPeriod":365,
+                    "radius":6371
+                },
+                "surface":{
+                    "resource":{
+                        
+                    }
+                },
+                "planet":{
+                    "Moon":{
+                        "planetType":"LifelessPlanet",
+                        "position":{
+                            "orbitalRadius":384400,
+                            "orbitalPeriod":27.32,
+                            "radius":1737
+                        },
+                        "planet":{}
+                    }
+                }
+            }
+        }
+    },
+    "Orion":{
+        "displayName":"猎户座",
+        "position":{
+            "x":-2000,
+            "y":60000
+        },
+        "surface":{},
+        "planet":{
+                    
+        }
+    }
+}

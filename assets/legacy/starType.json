@@ -1,0 +1,50 @@
+{
+  "OTypeBlueSupergiant": {
+    "displayName": "O 型蓝超巨星",
+    "planetAdjustment": {}
+  },
+  "BTypeBlueGiant": {
+    "displayName": "B 型蓝巨星",
+    "planetAdjustment": {}
+  },
+  "ATypeWhiteStar": {
+    "displayName": "A 型白星",
+    "planetAdjustment": {}
+  },
+  "FTypeYellowWhiteStar": {
+    "displayName": "F 型黄白星",
+    "planetAdjustment": {}
+  },
+  "GTypeYellowDwarf": {
+    "displayName": "G 型黄矮星",
+    "planetAdjustment": {}
+  },
+  "KTypeOrangeDwarf": {
+    "displayName": "K 型橙矮星",
+    "planetAdjustment": {}
+  },
+  "MTypeRedDwarf": {
+    "displayName": "M 型红矮星",
+    "planetAdjustment": {}
+  },
+  "RedGiant": {
+    "displayName": "红巨星",
+    "planetAdjustment": {}
+  },
+  "RedSupergiant": {
+    "displayName": "红超巨星",
+    "planetAdjustment": {}
+  },
+  "WhiteDwarf": {
+    "displayName": "白矮星",
+    "planetAdjustment": {}
+  },
+  "NeutronStar": {
+    "displayName": "中子星",
+    "planetAdjustment": {}
+  },
+  "BlackHole": {
+    "displayName": "黑洞",
+    "planetAdjustment": {}
+  }
+}

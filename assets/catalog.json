@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "starSystem": {
+    "id": "orionis-gate",
+    "name": "猎户门 · 07",
+    "subtitle": "ORIONIS GATE / OUTER ARM",
+    "star": { "name": "猎户门 A", "class": "G2V", "temperature": "5,780 K" },
+    "bodies": [
+      { "id": "aurelia", "name": "奥瑞利亚", "type": "planet", "orbit": 1, "color": "#f2a65a", "status": "已殖民", "population": "2.4 B", "hasSurface": true },
+      { "id": "khepri", "name": "凯普里", "type": "planet", "orbit": 2, "color": "#62d4c8", "status": "资源丰富", "population": "0.3 B", "hasSurface": true, "moons": [{ "id": "khepri-moon", "name": "凯普里 I", "color": "#8794ad" }] },
+      { "id": "nyx", "name": "尼克斯带", "type": "asteroid", "orbit": 3, "color": "#9aa6bc", "status": "未勘探", "population": "—", "hasSurface": false }
+    ],
+    "entities": [
+      { "id": "station-horizon", "kind": "station", "name": "地平线 · 铁壁", "orbit": 2, "faction": "人类联邦" },
+      { "id": "ship-imicus", "kind": "ship", "name": "伊米卡斯级 · 侦察 01", "orbit": 1, "faction": "人类联邦" }
+    ]
+  },
+  "factoryTypes": [
+    { "id": "power", "label": "电力", "icon": "zap", "color": "#f7c85b" },
+    { "id": "mining", "label": "开采", "icon": "pickaxe", "color": "#e58b5c" },
+    { "id": "production", "label": "生产", "icon": "factory", "color": "#53d5c4" },
+    { "id": "logistics", "label": "物流", "icon": "route", "color": "#6da9ff" },
+    { "id": "transport", "label": "运输", "icon": "rocket", "color": "#b18cff" },
+    { "id": "megascale", "label": "巨构", "icon": "orbit", "color": "#ff7a9a" }
+  ],
+  "factories": [
+    { "id": "wind-turbine", "name": "风力发电机", "type": "power", "color": "#f7c85b", "status": "可用", "power": 120 },
+    { "id": "ore-mine", "name": "矿脉开采站", "type": "mining", "color": "#e58b5c", "status": "可用", "outputs": ["ferrite-ore"], "rate": 1.2 },
+    { "id": "refinery", "name": "精炼厂", "type": "production", "color": "#53d5c4", "status": "可用", "recipe": "refine-ferrite", "inputs": ["ferrite-ore"], "outputs": ["iron-ingot"], "rate": 1 },
+    { "id": "storage", "name": "仓储节点", "type": "logistics", "color": "#6da9ff", "status": "可用", "inputs": ["iron-ingot"], "capacity": 240 },
+    { "id": "belt-mk1", "name": "一级传送带", "type": "logistics", "color": "#6da9ff", "status": "可用", "rate": 2 },
+    { "id": "drone-port", "name": "无人机站", "type": "transport", "color": "#b18cff", "status": "锁定" },
+    { "id": "space-elevator", "name": "太空电梯", "type": "megascale", "color": "#ff7a9a", "status": "锁定" }
+  ],
+  "items": [
+    { "id": "ferrite-ore", "name": "赤铁矿", "symbol": "Fe₂O₃", "kind": "chemical", "state": "solid", "color": "#799f7e" },
+    { "id": "iron-ingot", "name": "铁锭", "symbol": "Fe", "kind": "material", "state": "solid", "color": "#c8876c" },
+    { "id": "steel-ingot", "name": "钢锭", "symbol": "Fe·C", "kind": "material", "state": "solid", "color": "#9ba8b8" }
+  ],
+  "recipes": [
+    { "id": "refine-ferrite", "name": "高温还原精炼", "duration": 4, "inputs": [{ "item": "ferrite-ore", "amount": 2 }], "outputs": [{ "item": "iron-ingot", "amount": 1 }] }
+  ]
+}
