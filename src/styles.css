@@ -1,10 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import './styles/tokens.css';
 
-:root { font-family: 'Space Grotesk', 'Microsoft YaHei', sans-serif; color: #dbe7f5; background: #070c12; font-synthesis: none; text-rendering: optimizeLegibility; }
+:root { font-family: var(--font-interface); color: var(--color-text-primary); background: var(--color-bg-root); font-synthesis: none; text-rendering: optimizeLegibility; }
 * { box-sizing: border-box; }
-body { margin: 0; min-width: 1180px; min-height: 720px; overflow: hidden; background: #070c12; }
+body { margin: 0; min-width: 1180px; min-height: 720px; overflow: hidden; background: var(--color-bg-root); }
 button { border: 0; color: inherit; font: inherit; cursor: pointer; }
-.app-shell { --ui-scale: 1; height: 100vh; min-height: 720px; display: grid; grid-template-columns: 252px minmax(660px, 1fr) 286px; grid-template-rows: 68px 1fr 126px; background: #080e16; color: #dbe7f5; letter-spacing: .01em; }
+.app-shell { --ui-scale: 1; height: 100vh; min-height: 720px; display: grid; grid-template-columns: 252px minmax(660px, 1fr) 286px; grid-template-rows: 68px 1fr 126px; background: var(--color-bg-shell); color: var(--color-text-primary); letter-spacing: .01em; }
 .topbar { grid-column: 1 / -1; display: flex; align-items: center; gap: 42px; height: 68px; padding: 0 22px; border-bottom: 1px solid #243243; background: linear-gradient(180deg, #0d151f, #0a111a); z-index: 10; }
 .brand-mark { display: flex; align-items: center; width: 205px; gap: 11px; }
 .brand-glyph { width: 31px; height: 31px; display: grid; place-items: center; color: #071017; background: #59d6c4; font: 700 11px 'DM Mono'; clip-path: polygon(0 0, 100% 0, 82% 100%, 0 100%); }
@@ -62,3 +63,15 @@ button { border: 0; color: inherit; font: inherit; cursor: pointer; }
 .factor-controls label { display: grid; grid-template-columns: 1fr 82px; align-items: center; gap: 8px; color: #7890a1; font: 8px 'DM Mono'; }
 .factor-controls input { width: 82px; padding: 6px 7px; color: #d8e7ef; background: #0a151e; border: 1px solid #34505e; outline: 0; font: 9px 'DM Mono'; }
 .factor-controls input:focus { border-color: #59d6c4; }
+
+/* Space-map palette is sourced from styles/tokens.css. */
+.map-star-core, .map-star.selected .map-star-core { fill: var(--color-star); }
+.planet-core { fill: var(--color-planet); }
+.moon-core { fill: var(--color-moon); }
+.map-star-label, .body-label, .entity-label { fill: var(--color-map-label); }
+.orbit-line, .moon-orbit { stroke: var(--color-orbit); }
+.map-star:hover .celestial-frame, .body-group:hover .celestial-frame { stroke: var(--color-hover-frame); }
+.map-star.selected .celestial-frame, .body-group.selected .celestial-frame { stroke: var(--color-selected-frame); }
+.entity-glyph { color: var(--color-station); stroke: var(--color-station); }
+.ship-entity .entity-glyph { color: var(--color-ship); stroke: var(--color-ship); }
+.space-entity.selected .entity-glyph { color: var(--color-selected-frame); stroke: var(--color-selected-frame); }

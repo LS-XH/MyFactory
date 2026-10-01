@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { DEFAULT_AU_LENGTH_FACTOR, DEFAULT_DISPLAY_RADIUS, GAME_SETTING_LIMITS } from '../config/gameplay'
 import { content, defaultEdges, defaultNodes, FactoryEdgeState, FactoryNodeState } from '../domain/content'
 import { SimulationEngine } from '../domain/simulation'
 
@@ -57,18 +58,18 @@ type PersistedGameState = Pick<GameState,
   'starAuLengthFactor' | 'planetAuLengthFactor' | 'moonAuLengthFactor' | 'zoomLevel'
 >
 
-const initial = { scene: 'system' as SceneId, selectedId: null, selectedKind: null, overlay: null as OverlayId, surfacePlanet: 'aurelia', nodes: defaultNodes, edges: defaultEdges, speed: 1 as 0 | 1 | 2, orbitAnimation: true, orbitFps: 120, starDisplayRadius: 7, planetDisplayRadius: 4, moonDisplayRadius: 2.5, orbitalEntityDisplayRadius: 5, overviewMarkerMinZoom: 0.125, starAuLengthFactor: 0.6, planetAuLengthFactor: 24, moonAuLengthFactor: 16, zoomLevel: 1 }
+const initial = { scene: 'system' as SceneId, selectedId: null, selectedKind: null, overlay: null as OverlayId, surfacePlanet: 'aurelia', nodes: defaultNodes, edges: defaultEdges, speed: 1 as 0 | 1 | 2, orbitAnimation: true, orbitFps: GAME_SETTING_LIMITS.orbitFps.default, starDisplayRadius: DEFAULT_DISPLAY_RADIUS.star, planetDisplayRadius: DEFAULT_DISPLAY_RADIUS.planet, moonDisplayRadius: DEFAULT_DISPLAY_RADIUS.moon, orbitalEntityDisplayRadius: DEFAULT_DISPLAY_RADIUS.orbitalEntity, overviewMarkerMinZoom: GAME_SETTING_LIMITS.overviewMarkerMinZoom.default, starAuLengthFactor: DEFAULT_AU_LENGTH_FACTOR.star, planetAuLengthFactor: DEFAULT_AU_LENGTH_FACTOR.planet, moonAuLengthFactor: DEFAULT_AU_LENGTH_FACTOR.moon, zoomLevel: 1 }
 
 function clampDisplayRadius(radius: number, fallback: number) {
-  return Math.min(8, Math.max(0.2, Number.isFinite(radius) ? radius : fallback))
+  return Math.min(GAME_SETTING_LIMITS.displayRadius.max, Math.max(GAME_SETTING_LIMITS.displayRadius.min, Number.isFinite(radius) ? radius : fallback))
 }
 
 function clampOverviewMarkerMinZoom(zoom: number) {
-  return Math.min(1, Math.max(0.03125, Number.isFinite(zoom) ? zoom : initial.overviewMarkerMinZoom))
+  return Math.min(GAME_SETTING_LIMITS.overviewMarkerMinZoom.max, Math.max(GAME_SETTING_LIMITS.overviewMarkerMinZoom.min, Number.isFinite(zoom) ? zoom : initial.overviewMarkerMinZoom))
 }
 
 function clampAuLengthFactor(factor: number, fallback: number) {
-  return Math.min(1_000_000_000, Math.max(0.000000000001, Number.isFinite(factor) ? factor : fallback))
+  return Math.min(GAME_SETTING_LIMITS.auLengthFactor.max, Math.max(GAME_SETTING_LIMITS.auLengthFactor.min, Number.isFinite(factor) ? factor : fallback))
 }
 
 export const useGameStore = create<GameState>()(persist((set) => ({
@@ -83,7 +84,7 @@ export const useGameStore = create<GameState>()(persist((set) => ({
   removeNode: (id) => set((state) => ({ nodes: state.nodes.filter((node) => node.id !== id), edges: state.edges.filter((edge) => edge.source !== id && edge.target !== id), selectedId: state.selectedId === id ? null : state.selectedId })),
   setSpeed: (speed) => set({ speed }),
   toggleOrbitAnimation: () => set((state) => ({ orbitAnimation: !state.orbitAnimation })),
-  setOrbitFps: (fps) => set({ orbitFps: Math.round(Math.min(240, Math.max(10, Number.isFinite(fps) ? fps : 120))) }),
+  setOrbitFps: (fps) => set({ orbitFps: Math.round(Math.min(GAME_SETTING_LIMITS.orbitFps.max, Math.max(GAME_SETTING_LIMITS.orbitFps.min, Number.isFinite(fps) ? fps : GAME_SETTING_LIMITS.orbitFps.default))) }),
   setStarDisplayRadius: (radius) => set({ starDisplayRadius: clampDisplayRadius(radius, initial.starDisplayRadius) }),
   setPlanetDisplayRadius: (radius) => set({ planetDisplayRadius: clampDisplayRadius(radius, initial.planetDisplayRadius) }),
   setMoonDisplayRadius: (radius) => set({ moonDisplayRadius: clampDisplayRadius(radius, initial.moonDisplayRadius) }),

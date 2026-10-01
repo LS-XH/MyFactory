@@ -1,0 +1,27 @@
+:root {
+  --color-bg-root: #070c12;
+  --color-bg-shell: #080e16;
+  --color-text-primary: #dbe7f5;
+  --color-map-label: #e6edf3;
+  --color-accent: #59d6c4;
+  --color-star: #f7c85b;
+  --color-planet: #f2a65a;
+  --color-moon: #d8e1e8;
+  --color-station: #53d5c4;
+  --color-ship: #b18cff;
+  --color-transport: #69a7ff;
+  --color-mining: #e58b5c;
+  --color-logistics: #6da9ff;
+  --color-star-info: #ffd37a;
+  --color-planet-info: #8cb6e8;
+  --color-moon-info: #cbd4df;
+  --color-edge-label: #a9bad0;
+  --color-edge-label-background: #0c131d;
+  --color-surface-grid: #1a2b3a;
+  --color-minimap-mask: rgba(7,12,18,.8);
+  --color-orbit: rgba(255,255,255,.32);
+  --color-hover-frame: rgba(255,255,255,.55);
+  --color-selected-frame: #fff;
+  --font-interface: 'Space Grotesk', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
