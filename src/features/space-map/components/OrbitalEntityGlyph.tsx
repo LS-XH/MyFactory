@@ -1,7 +1,7 @@
-import { Radio, Rocket } from 'lucide-react'
+import { EntityIcon } from '../../../shared/icons/EntityIcon'
 
-export function OrbitalEntityGlyph({ kind, radius }: { kind: 'station' | 'ship'; radius: number }) {
-  const geometry = { className: 'entity-glyph', x: -radius, y: -radius, width: radius * 2, height: radius * 2, strokeWidth: 1.6 }
-  return kind === 'station' ? <Radio {...geometry} /> : <Rocket {...geometry} />
+export function OrbitalEntityGlyph({ kind, definitionId, ownerFactionId, radius }: { kind: 'station' | 'ship'; definitionId?: string; ownerFactionId?: string; radius: number }) {
+  return <g transform={`translate(${-radius} ${-radius})`}>
+    <EntityIcon kind={kind} definitionId={definitionId} ownerFactionId={ownerFactionId} className="entity-glyph" size={radius * 2} />
+  </g>
 }
-

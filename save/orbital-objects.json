@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "entities": [
+    {
+      "id": "station-horizon",
+      "kind": "station",
+      "definitionId": "Horizon Fortizar",
+      "name": "地平线 · 铁壁",
+      "starId": "Solar",
+      "position": {
+        "x": 32,
+        "y": -18
+      },
+      "orbit": 2,
+      "ownerFactionId": "Player",
+      "dockingCapacity": 12,
+      "communicationDelayMs": 24,
+      "status": "online",
+      "health": {
+        "shieldHp": 100000,
+        "armorHp": 200000,
+        "structureHp": 200000
+      },
+      "damage": [
+        {
+          "equipmentId": "LaserEmitter",
+          "amount": 100
+        }
+      ],
+      "installedEquipment": []
+    },
+    {
+      "id": "ship-imicus",
+      "kind": "ship",
+      "definitionId": "Imicus",
+      "name": "伊米卡斯级 · 侦察 01",
+      "starId": "Solar",
+      "position": {
+        "x": 24.16823049595041,
+        "y": -10.224184974531
+      },
+      "orbit": 1,
+      "ownerFactionId": "Player",
+      "communicationDelayMs": 24,
+      "status": "online",
+      "health": {
+        "shieldHp": 1000,
+        "armorHp": 1500,
+        "structureHp": 2000
+      },
+      "damage": [
+        {
+          "equipmentId": "LaserEmitter",
+          "amount": 100
+        }
+      ],
+      "installedEquipment": [],
+      "movement": {
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "headingDegrees": 97.62979864425381
+      }
+    },
+    {
+      "id": "ship-imicus2",
+      "kind": "ship",
+      "definitionId": "Imicus",
+      "name": "攻击",
+      "starId": "Solar",
+      "position": {
+        "x": 24.171501690807872,
+        "y": -10.49896778435641
+      },
+      "orbit": 1,
+      "ownerFactionId": "Player",
+      "communicationDelayMs": 24,
+      "status": "online",
+      "health": {
+        "shieldHp": 500,
+        "armorHp": 1500,
+        "structureHp": 2000
+      },
+      "damage": [
+        {
+          "equipmentId": "LaserEmitter",
+          "amount": 100
+        },
+        {
+          "equipmentId": "LaserEmitter",
+          "amount": 100
+        }
+      ],
+      "installedEquipment": [
+        {
+          "group": "turretSlots",
+          "size": "S",
+          "index": 0,
+          "equipmentId": "LaserEmitter"
+        }
+      ],
+      "movement": {
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "headingDegrees": -45.586092606258205
+      }
+    }
+  ]
+}

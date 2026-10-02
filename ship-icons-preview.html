@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>舰船图标预览</title>
+    <style>
+      body { margin: 0; padding: 28px; background: #08121d; color: #d9e4f0; font: 14px system-ui; }
+      h1 { margin: 0 0 20px; font-size: 20px; }
+      main { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+      article { min-width: 0; padding: 12px; border: 1px solid #304353; background: #102032; }
+      .row { display: flex; align-items: center; gap: 14px; }
+      .icon { width: 64px; height: 64px; display: grid; place-items: center; border: 1px solid #344657; }
+      .icon svg { width: 48px; height: 48px; color: #ae91fa; }
+      .small svg { width: 20px; height: 20px; color: #ae91fa; }
+      .small { width: 28px; height: 28px; display: grid; place-items: center; border: 1px solid #344657; }
+      strong { display: block; font-size: 13px; }
+      small { color: #8297aa; }
+    </style>
+  </head>
+  <body>
+    <h1>舰船图标 · 设计校验</h1>
+    <main id="root"></main>
+    <script type="module">
+      import React from 'react'
+      import { createRoot } from 'react-dom/client'
+      import types from './assets/legacy/shipType.json'
+      import { shipTypeIconRegistry } from './src/shared/icons/shipTypeIconRegistry.tsx'
+
+      const entries = Object.entries(types).flatMap(([family, variants]) =>
+        Object.entries(variants).map(([id, data]) => ({ family, id, name: data.displayName }))
+      )
+      createRoot(document.getElementById('root')).render(
+        React.createElement(React.Fragment, null, ...entries.map(({ family, id, name }) => {
+          const Icon = shipTypeIconRegistry[id]
+          return React.createElement('article', { key: id },
+            React.createElement('div', { className: 'row' },
+              React.createElement('div', { className: 'icon' }, React.createElement(Icon)),
+              React.createElement('div', null,
+                React.createElement('strong', null, name),
+                React.createElement('small', null, family + ' / ' + id),
+                React.createElement('div', { className: 'small' }, React.createElement(Icon))
+              )
+            )
+          )
+        }))
+      )
+    </script>
+  </body>
+</html>

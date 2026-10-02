@@ -1,25 +1,34 @@
 import type { CSSProperties } from 'react'
-import { Factory, Orbit, Radio, Rocket } from 'lucide-react'
+import { Factory, Orbit } from 'lucide-react'
 import { ICON_SIZES, UI_COLORS } from '../../config/visualTokens'
 import { getFactory } from '../../domain/content'
+import { getOrbitalDisplayInfo, getOrbitalObjects } from '../../domain/objects'
+import { getFactionDisplayName } from '../../domain/factions'
 import { useGameStore } from '../../state/gameStore'
+import { EntityIcon } from '../../shared/icons/EntityIcon'
+import { resolveEntityVisualColor } from '../../shared/icons/entityVisualRegistry'
 import type { SpaceSelectionKind } from '../space-map/types'
 
-const SYSTEM_ASSETS = [
-  { id: 'aurelia', name: '奥瑞利亚', meta: '类地行星 · 已殖民', color: UI_COLORS.planet, kind: 'body' as const },
-  { id: 'station-horizon', name: '地平线 · 铁壁', meta: '空间站 · 人类联邦', color: UI_COLORS.station, kind: 'station' as const },
-  { id: 'ship-imicus', name: '伊米卡斯级 · 侦察 01', meta: '护卫舰 · 运行中', color: UI_COLORS.ship, kind: 'ship' as const }
-] as const
+const BODY_ASSETS = [
+  { id: 'aurelia', name: '奥瑞利亚', meta: '类地行星 · 已殖民', color: UI_COLORS.planet, kind: 'body' as const, visualId: undefined, ownerFactionId: undefined }
+]
 
-export function SystemAssetList({ onSelect, selectedId, onEnterSurface }: { onSelect: (id: string, kind: SpaceSelectionKind) => void; selectedId: string | null; onEnterSurface: (id: string) => void }) {
-  return <div className="asset-list">{SYSTEM_ASSETS.map((asset) => <button className={`asset-item ${selectedId === asset.id ? 'selected' : ''}`} key={asset.id} onClick={() => onSelect(asset.id, asset.kind)} onDoubleClick={() => asset.kind === 'body' && onEnterSurface(asset.id)}><span className="asset-icon" style={{ '--asset-color': asset.color } as CSSProperties}>{asset.kind === 'body' ? <Orbit size={ICON_SIZES.asset} /> : asset.kind === 'station' ? <Radio size={ICON_SIZES.asset} /> : <Rocket size={ICON_SIZES.asset} />}</span><span className="asset-copy"><strong>{asset.name}</strong><small>{asset.meta}</small></span><span className="item-arrow">›</span></button>)}</div>
+export function SystemAssetList({ onSelect, selectedIds, onEnterSurface, onFocusObject }: { onSelect: (id: string, kind: SpaceSelectionKind, additive?: boolean) => void; selectedIds: string[]; onEnterSurface: (id: string) => void; onFocusObject: (id: string) => void }) {
+  useGameStore((state) => state.objectRevision)
+  const assets = [...BODY_ASSETS, ...getOrbitalObjects().map((entity) => {
+    const { typeName } = getOrbitalDisplayInfo(entity)
+    const metaSuffix = entity.kind === 'ship'
+      ? entity.state.status === 'destroyed' ? '已摧毁' : '运行中'
+      : getFactionDisplayName(entity.ownerFactionId)
+    return { id: entity.id, name: entity.displayName, meta: `${typeName} · ${metaSuffix}`, color: resolveEntityVisualColor(entity.kind, entity.ownerFactionId), kind: entity.kind, visualId: entity.definitionId, ownerFactionId: entity.ownerFactionId }
+  })]
+  return <div className="asset-list">{assets.map((asset) => <button className={`asset-item ${selectedIds.includes(asset.id) ? 'selected' : ''}`} key={asset.id} onClick={(event) => onSelect(asset.id, asset.kind, event.ctrlKey || event.metaKey)} onDoubleClick={() => { if (asset.kind === 'body') onEnterSurface(asset.id); else onFocusObject(asset.id) }}><span className="asset-icon" style={{ '--asset-color': asset.color } as CSSProperties}>{asset.kind === 'body' ? <Orbit size={ICON_SIZES.asset} /> : <EntityIcon kind={asset.kind} definitionId={asset.visualId} ownerFactionId={asset.ownerFactionId} size={ICON_SIZES.asset} />}</span><span className="asset-copy"><strong>{asset.name}</strong><small>{asset.meta}</small></span><span className="item-arrow">›</span></button>)}</div>
 }
 
-export function FactoryAssetList({ onSelect, selectedId }: { onSelect: (id: string, kind: 'factory') => void; selectedId: string | null }) {
+export function FactoryAssetList({ onSelect, selectedIds }: { onSelect: (id: string, kind: 'factory', additive?: boolean) => void; selectedIds: string[] }) {
   const nodes = useGameStore((state) => state.nodes)
   return <div className="asset-list">{nodes.map((node) => {
     const factory = getFactory(node.factoryId)
-    return <button className={`asset-item ${selectedId === node.id ? 'selected' : ''}`} key={node.id} onClick={() => onSelect(node.id, 'factory')}><span className="asset-icon" style={{ '--asset-color': factory?.color } as CSSProperties}><Factory size={ICON_SIZES.asset} /></span><span className="asset-copy"><strong>{factory?.name}</strong><small>{node.status === 'blocked' ? '物流堵塞' : node.status === 'online' ? '运行中' : '待机'} · {node.buffer.toFixed(0)} 单位</small></span><span className={`mini-status ${node.status}`} /></button>
+    return <button className={`asset-item ${selectedIds.includes(node.id) ? 'selected' : ''}`} key={node.id} onClick={(event) => onSelect(node.id, 'factory', event.ctrlKey || event.metaKey)}><span className="asset-icon" style={{ '--asset-color': factory?.color } as CSSProperties}><Factory size={ICON_SIZES.asset} /></span><span className="asset-copy"><strong>{factory?.name}</strong><small>{node.status === 'blocked' ? '物流堵塞' : node.status === 'online' ? '运行中' : '待机'} · {node.buffer.toFixed(0)} 单位</small></span><span className={`mini-status ${node.status}`} /></button>
   })}</div>
 }
-

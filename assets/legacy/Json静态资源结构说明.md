@@ -5,7 +5,7 @@
 - Imicus
      - "displayName"：飞船型号，也就是其父Key的中文翻译
      - "shipType"：舰船类型，请从 [shipType.json](shipType.json) 的子类别选择
-     - "faction"：其所属的势力，请从 [faction.json](faction.json) 的类别中选择
+     - "faction"：设计、生产该型号的势力（生产商），请从 [faction.json](faction.json) 的类别中选择；实例所属势力由存档中的 `ownerFactionId` 决定
      - "slots"：飞船槽位，有五种槽位，每个槽位数组的对象数量即为当前种类槽位个数
           - "turretSlots"
           - "engineSlots"
@@ -19,6 +19,8 @@
           - "maxSpeed"：最大速度
           - "turnSpeed"：角速度，单位为度
           - "warpSpeed": 跃迁速度
+     - "storage"：仓储属性
+          - "itemstorage"：可储存的物品体积上限，单位为立方米
 
 ### 舰型
 
@@ -41,7 +43,13 @@
 
 ### 装备
 
-请动态读取  [equipment.json](equipment.json) 
+请动态读取  [equipment.json](equipment.json) ，key为
+
+- "displayName"：装备名称，也就是其父Key的中文翻译
+- 
+
+
+
 
 ### 装备类别
 
@@ -54,7 +62,7 @@
 - Horizon Fortizar
      - "displayName"：空间站型号，也就是其父Key的中文翻译
      - "stationType"：空间站类型，请从 [stationType.json](stationType.json) 的类别选择
-     - "faction"：其所属的势力，请从 [faction.json](faction.json) 的类别中选择
+     - "faction"：设计、生产该型号的势力（生产商），请从 [faction.json](faction.json) 的类别中选择；实例所属势力由存档中的 `ownerFactionId` 决定
      - "slots"：空间站槽位，有五种槽位，每个槽位数组的对象数量即为当前种类槽位个数
           - "turretSlots"
           - "engineSlots"

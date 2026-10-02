@@ -1,4 +1,7 @@
 {
+    "Player":{
+        "displayName":"玩家"
+    },
     "Terran":{
         "displayName":"人类联邦"
     },

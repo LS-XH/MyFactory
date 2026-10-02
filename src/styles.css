@@ -38,9 +38,10 @@ button { border: 0; color: inherit; font: inherit; cursor: pointer; }
 .map-star-overview-dot { fill: url(#overviewStarDot); }
 .entity-glyph { overflow: visible; color: #53d5c4; fill: none; stroke: #53d5c4; transition: color .16s ease, stroke .16s ease; }
 .ship-entity .entity-glyph { color: #b18cff; stroke: #b18cff; }
-.ship-entity .entity-glyph path { fill: none; }
-.space-entity:hover .entity-glyph { color: rgba(255,255,255,.72); stroke: rgba(255,255,255,.72); }
-.space-entity.selected .entity-glyph { color: #fff; stroke: #fff; }
+.ship-entity .entity-glyph path { fill: none; stroke: currentColor; }
+.space-entity .celestial-frame { fill: none; stroke: transparent; stroke-width: 1.2; }
+.space-entity:hover .celestial-frame { stroke: var(--color-hover-frame); }
+.space-entity.selected .celestial-frame { stroke: var(--color-selected-frame); }
 .palette-items { scrollbar-width: thin; scrollbar-color: #385363 #101c27; }
 .palette-items::-webkit-scrollbar { height: 4px; }
 .palette-items::-webkit-scrollbar-track { background: #101c27; }
@@ -65,6 +66,18 @@ button { border: 0; color: inherit; font: inherit; cursor: pointer; }
 .factor-controls input:focus { border-color: #59d6c4; }
 
 /* Space-map palette is sourced from styles/tokens.css. */
+.overlay-card { max-height: calc(100vh - 48px); overflow-y: auto; }
+.celestial-name, .orbital-name { pointer-events: none; transition: opacity .18s ease; }
+.map-galaxy.celestial-names-hover-only .celestial-name,
+.map-galaxy.object-names-hover-only .orbital-name { opacity: 0; }
+.map-galaxy.celestial-names-hover-only .map-star:hover .celestial-name,
+.map-galaxy.celestial-names-hover-only .map-star.selected .celestial-name,
+.map-galaxy.celestial-names-hover-only .body-group.selected > .celestial-name,
+.map-galaxy.celestial-names-hover-only .body-group > .body-hit:hover ~ .celestial-name,
+.map-galaxy.celestial-names-hover-only .body-group > .planet-core:hover ~ .celestial-name,
+.map-galaxy.celestial-names-hover-only .body-group > .moon-core:hover ~ .celestial-name,
+.map-galaxy.object-names-hover-only .space-entity:hover > .orbital-name,
+.map-galaxy.object-names-hover-only .space-entity.selected > .orbital-name { opacity: 1; }
 .map-star-core, .map-star.selected .map-star-core { fill: var(--color-star); }
 .planet-core { fill: var(--color-planet); }
 .moon-core { fill: var(--color-moon); }
@@ -74,4 +87,19 @@ button { border: 0; color: inherit; font: inherit; cursor: pointer; }
 .map-star.selected .celestial-frame, .body-group.selected .celestial-frame { stroke: var(--color-selected-frame); }
 .entity-glyph { color: var(--color-station); stroke: var(--color-station); }
 .ship-entity .entity-glyph { color: var(--color-ship); stroke: var(--color-ship); }
-.space-entity.selected .entity-glyph { color: var(--color-selected-frame); stroke: var(--color-selected-frame); }
+.space-entity .entity-glyph path { stroke: currentColor; }
+
+.selection-box { position: fixed; z-index: 18; border: 1px solid #59d6c4; background: rgba(53, 213, 196, .12); pointer-events: none; }
+
+.object-name-row { display: flex; align-items: center; min-width: 0; }
+.object-name-button { display: flex; align-items: center; gap: 6px; max-width: 100%; min-width: 0; padding: 0; text-align: left; background: transparent; }
+.object-name-text { display: block; min-width: 0; overflow: hidden; color: #e2edf3; font-size: 12px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.object-name-pencil { flex: none; color: #8091a0; opacity: 0; transition: opacity .15s ease, color .15s ease; }
+.object-name-button:hover .object-name-pencil, .object-name-button:focus-visible .object-name-pencil, .object-name-row.is-editing .object-name-pencil { opacity: 1; }
+.object-name-row.is-editing .object-name-pencil { color: #fff; margin-left: 6px; }
+.object-name-input { width: 100%; min-width: 0; padding: 3px 5px; color: #e2edf3; background: #112330; border: 1px solid #8092a2; border-radius: 2px; font: 500 12px var(--font-interface); outline: none; }
+.object-name-input:focus { border-color: #fff; }
+.object-name-row.is-heading .object-name-text { font-size: 19px; }
+.object-name-row.is-heading .object-name-input { font-size: 19px; }
+.inspector-head > div { min-width: 0; }
+

@@ -119,15 +119,17 @@ function findPlanet(
   starName: string,
   parentId?: string,
   parentName?: string,
-  depth = 0
+  depth = 0,
+  parentPath = starId
 ): CelestialObject | undefined {
   for (const [planetId, planet] of Object.entries(planets)) {
+    const bodyPath = `${parentPath}/${planetId}`
     const children = (planet.planet ?? {}) as Record<string, PlanetMapEntry>
     const resources = (planet.surface?.resource ?? []) as RawResource[]
-    if (planetId === selectedId) {
+    if (bodyPath === selectedId || planetId === selectedId) {
       const childSummary = summarizePlanets(children)
       return {
-        id: planetId,
+        id: selectedId,
         kind: depth === 0 ? 'planet' : 'moon',
         displayName: getCelestialDisplayName(planetId),
         typeName: planetTypes[planet.planetType ?? '']?.displayName ?? '未分类天体',
@@ -143,7 +145,7 @@ function findPlanet(
         hasSurface: resources.length > 0
       }
     }
-    const nested = findPlanet(selectedId, children, starId, starName, planetId, getCelestialDisplayName(planetId), depth + 1)
+    const nested = findPlanet(selectedId, children, starId, starName, planetId, getCelestialDisplayName(planetId), depth + 1, bodyPath)
     if (nested) return nested
   }
   return undefined

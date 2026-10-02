@@ -1,0 +1,123 @@
+.ship-inspector {
+  display: grid;
+  gap: 10px;
+  padding-top: 10px;
+}
+
+.ship-detail-section {
+  padding: 12px;
+  border: 1px solid #284052;
+  background: linear-gradient(155deg, #102333, #0b1825 68%);
+}
+
+.ship-detail-section h3 {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0 0 10px;
+  color: #d9e8f2;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.ship-detail-section h3 small {
+  color: #628195;
+  font: 8px 'DM Mono', monospace;
+  letter-spacing: .08em;
+}
+
+.ship-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 0;
+  border-top: 1px solid #203344;
+  font-size: 10px;
+}
+
+.ship-detail-row span,
+.ship-gauge-caption span,
+.ship-heading-value span {
+  flex: none;
+  color: #7790a4;
+}
+
+.ship-detail-row strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: #d6e5ee;
+  font-weight: 500;
+  text-align: right;
+}
+
+.ship-gauge {
+  --meter-color: #61d1cf;
+  --meter-glow: rgba(97, 209, 207, .5);
+  margin-top: 12px;
+}
+
+.ship-gauge:first-of-type { margin-top: 0; }
+.ship-gauge-shield { --meter-color: #50aaff; --meter-glow: rgba(80, 170, 255, .75); }
+.ship-gauge-armor { --meter-color: #f6d26b; --meter-glow: rgba(246, 210, 107, .65); }
+.ship-gauge-structure { --meter-color: #cdd9e0; --meter-glow: rgba(205, 217, 224, .5); }
+
+.ship-gauge-caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+  margin-bottom: 6px;
+  font-size: 10px;
+}
+
+.ship-gauge-caption strong {
+  color: #e2edf3;
+  font: 10px 'DM Mono', monospace;
+  white-space: nowrap;
+}
+
+.ship-gauge-caption em { color: #60798b; font-style: normal; }
+
+.ship-gauge-track {
+  height: 8px;
+  overflow: hidden;
+  border: 1px solid #2b4051;
+  background: #09131d;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .5);
+}
+
+.ship-gauge-fill {
+  display: block;
+  width: var(--gauge-fill);
+  height: 100%;
+  background: var(--meter-color);
+  box-shadow: 0 0 6px 1px var(--meter-glow), 0 0 12px var(--meter-glow);
+  transition: width .16s ease-out;
+}
+
+.ship-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid #203344;
+}
+
+.ship-compass { flex: none; width: 88px; height: 88px; overflow: visible; }
+.ship-compass-outer { fill: #0a1c2a; stroke: #56798a; stroke-width: 1.5; }
+.ship-compass-inner { fill: none; stroke: #2b4c60; stroke-width: 1; stroke-dasharray: 2 4; }
+.ship-compass-cross { fill: none; stroke: #7695a5; stroke-width: 1.5; }
+.ship-compass text { fill: #96aeba; font: 8px 'DM Mono', monospace; }
+.ship-compass-needle { fill: #8de0dd; stroke: #8de0dd; stroke-width: 1; filter: drop-shadow(0 0 3px rgba(141, 224, 221, .65)); }
+.ship-compass-center { fill: #e2f8f5; }
+
+.ship-heading-value { display: grid; gap: 6px; }
+.ship-heading-value span { font-size: 10px; }
+.ship-heading-value strong { color: #e3f4f4; font: 19px 'DM Mono', monospace; }
+.ship-heading-value small { color: #6f8a9b; font: 8px 'DM Mono', monospace; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ship-gauge-fill { transition: none; }
+}

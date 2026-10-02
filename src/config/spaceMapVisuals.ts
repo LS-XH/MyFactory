@@ -36,9 +36,11 @@ export const SPACE_MAP_VISUAL = {
   starCornerLength: 5,
   bodyCornerPadding: 5,
   bodyCornerLength: 3.5,
+  entityCornerPadding: 5,
+  entityCornerLength: 3.5,
   bodyHitPadding: 6,
   fontSize: { primary: 12, label: 10, meta: 9, moon: 8 },
-  textOffset: { overviewLabel: 16, overviewMeta: 30, starLabel: 14, starMeta: 28, planetLabel: 12, moonLabel: 9, selectedMeta: 24, entityLabel: 13 },
+  textOffset: { overviewLabel: 16, overviewMeta: 30, starLabel: 14, starMeta: 28, planetLabel: 12, moonLabel: 9, selectedMeta: 24, entityLabel: 18 },
   overviewGradient: [
     { offset: '0', color: UI_COLORS.star, opacity: 0.78 },
     { offset: '.55', color: UI_COLORS.star, opacity: 0.78 },
@@ -59,4 +61,3 @@ export const SPACE_MAP_LABEL = {
   minimumZoomPercent: SPACE_MAP_ZOOM.levels[0] * 100,
   maximumZoomPercent: SPACE_MAP_ZOOM.levels[SPACE_MAP_ZOOM.levels.length - 1] * 100
 } as const
-

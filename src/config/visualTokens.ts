@@ -6,6 +6,7 @@ export const UI_COLORS = {
   moon: 'var(--color-moon)',
   station: 'var(--color-station)',
   ship: 'var(--color-ship)',
+  playerOwnedObject: 'var(--color-player-owned-object)',
   transport: 'var(--color-transport)',
   mining: 'var(--color-mining)',
   logistics: 'var(--color-logistics)',

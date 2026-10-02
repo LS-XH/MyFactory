@@ -4,7 +4,7 @@ import type { ContentRepository } from './contracts'
 
 const itemSchema = z.object({ id: z.string(), name: z.string(), symbol: z.string(), kind: z.string(), state: z.string(), color: z.string() })
 const factorySchema = z.object({ id: z.string(), name: z.string(), type: z.string(), color: z.string(), status: z.string(), power: z.number().optional(), recipe: z.string().optional(), inputs: z.array(z.string()).optional(), outputs: z.array(z.string()).optional(), rate: z.number().optional(), capacity: z.number().optional() })
-const catalogSchema = z.object({ schemaVersion: z.number(), starSystem: z.object({ id: z.string(), name: z.string(), subtitle: z.string(), star: z.object({ name: z.string(), class: z.string(), temperature: z.string() }), bodies: z.array(z.any()), entities: z.array(z.any()) }), factoryTypes: z.array(z.object({ id: z.string(), label: z.string(), icon: z.string(), color: z.string() })), factories: z.array(factorySchema), items: z.array(itemSchema), recipes: z.array(z.any()) })
+const catalogSchema = z.object({ schemaVersion: z.number(), starSystem: z.object({ id: z.string(), name: z.string(), subtitle: z.string(), star: z.object({ name: z.string(), class: z.string(), temperature: z.string() }), bodies: z.array(z.any()) }), factoryTypes: z.array(z.object({ id: z.string(), label: z.string(), icon: z.string(), color: z.string() })), factories: z.array(factorySchema), items: z.array(itemSchema), recipes: z.array(z.any()) })
 
 export type Catalog = z.infer<typeof catalogSchema>
 export type FactoryDefinition = Catalog['factories'][number]

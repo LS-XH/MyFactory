@@ -1,10 +1,15 @@
-import type { CSSProperties } from 'react'
-import { CircleHelp, Factory, GitBranch, Maximize2, Orbit, Pickaxe, Radio, Rocket, SlidersHorizontal, Sparkles, Target, X } from 'lucide-react'
+import { useState, type CSSProperties } from 'react'
+import { CircleHelp, Factory, GitBranch, Maximize2, Orbit, Pencil, Pickaxe, SlidersHorizontal, Sparkles, Target, X } from 'lucide-react'
 import { ICON_SIZES, UI_COLORS } from '../../config/visualTokens'
 import { content, getFactory, getItem, getRecipe, type FactoryDefinition, type FactoryNodeState } from '../../domain/content'
 import { findCelestialObject, getResourcePoints, getStar } from '../../domain/spaceMap'
 import { useGameStore, type SceneId } from '../../state/gameStore'
-import { orbitalEntities } from '../space-map/content'
+import { getOrbitalDisplayInfo, objectRepository, type DamageableCapability } from '../../domain/objects'
+import { getFactionDisplayName, PLAYER_FACTION_ID } from '../../domain/factions'
+import { EntityIcon } from '../../shared/icons/EntityIcon'
+import { resolveEntityVisualColor } from '../../shared/icons/entityVisualRegistry'
+import { ShipInspector } from './ShipInspector'
+import { buildShipInspectorData, type ShipInspectorData } from './shipInspectorModel'
 
 type InspectorProps = {
   selectedId: string | null
@@ -15,13 +20,15 @@ type InspectorProps = {
 }
 
 export function Inspector({ selectedId, scene, onClose, onNotify, onEnterSurface }: InspectorProps) {
+  useGameStore((state) => state.objectRevision)
   const nodes = useGameStore((state) => state.nodes)
   const surfacePlanet = useGameStore((state) => state.surfacePlanet)
   const node = nodes.find((item) => item.id === selectedId)
   const factory = node && getFactory(node.factoryId)
   const spaceDetails = selectedId ? resolveSpaceInspectorDetails(selectedId, surfacePlanet) : undefined
   const title = factory?.name ?? spaceDetails?.name ?? '未知对象'
-  return <>{selectedId ? <><div className="inspector-head"><div><small>OBJECT INSPECTOR / 04</small><h2>{title}</h2></div><button className="icon-button" onClick={onClose}><X size={ICON_SIZES.topBar} /></button></div><div className="inspector-tabs"><button className="active">详情</button><button>配置</button><button>日志</button></div>{factory ? <FactoryInspector node={node!} factory={factory} onNotify={onNotify} /> : spaceDetails ? <SpaceInspector details={spaceDetails} onEnterSurface={onEnterSurface} /> : <UnknownObjectInspector selectedId={selectedId} />}</> : <EmptyInspector scene={scene} />}</>
+  const canRename = (spaceDetails?.kind === 'ship' || spaceDetails?.kind === 'station') && spaceDetails.ownerFactionId === PLAYER_FACTION_ID
+  return <>{selectedId ? <><div className="inspector-head"><div><small>OBJECT INSPECTOR / 04</small>{canRename ? <EditableOrbitalName key={`heading-${selectedId}`} id={selectedId} name={title} heading /> : <h2>{title}</h2>}</div><button className="icon-button" onClick={onClose}><X size={ICON_SIZES.topBar} /></button></div><div className="inspector-tabs"><button className="active">详情</button><button>配置</button><button>日志</button></div>{factory ? <FactoryInspector node={node!} factory={factory} onNotify={onNotify} /> : spaceDetails ? <SpaceInspector key={spaceDetails.id} details={spaceDetails} onEnterSurface={onEnterSurface} /> : <UnknownObjectInspector selectedId={selectedId} />}</> : <EmptyInspector scene={scene} />}</>
 }
 
 function EmptyInspector({ scene }: { scene: SceneId }) {
@@ -35,6 +42,8 @@ function FactoryInspector({ node, factory, onNotify }: { node: FactoryNodeState;
 
 type SpaceInspectorDetails = {
   id: string
+  definitionId?: string
+  ownerFactionId?: string
   kind: 'star' | 'planet' | 'moon' | 'station' | 'ship' | 'resource'
   name: string
   subtitle: string
@@ -42,6 +51,7 @@ type SpaceInspectorDetails = {
   color: string
   metrics: { label: string; value: string }[]
   facts: { label: string; value: string }[]
+  ship?: ShipInspectorData
   surfaceTarget?: string
 }
 
@@ -89,27 +99,40 @@ function resolveSpaceInspectorDetails(selectedId: string, surfacePlanet: string)
       color: celestial.kind === 'star' ? UI_COLORS.starInfo : celestial.kind === 'planet' ? UI_COLORS.planetInfo : UI_COLORS.moonInfo,
       metrics,
       facts,
-      surfaceTarget: celestial.hasSurface ? celestial.id : undefined
+      surfaceTarget: celestial.hasSurface ? celestial.id.split('/').at(-1) : undefined
     }
   }
 
-  const entity = orbitalEntities.find((item) => item.id === selectedId)
-  if (entity) {
+  const entity = objectRepository.get(selectedId)
+  if (entity && (entity.kind === 'ship' || entity.kind === 'station')) {
     const isStation = entity.kind === 'station'
+    const { modelName, typeName } = getOrbitalDisplayInfo(entity)
+    const damage = entity.getCapability<DamageableCapability>('damageable')
+    const hp = entity.staticData.HP as { shieldHP?: { maxHp?: number }; armorHP?: { maxHp?: number }; structureHP?: { maxHp?: number } } | undefined
+    const percent = (current: number | undefined, maximum: number | undefined) => `${Math.round((current ?? 0) / Math.max(maximum ?? 0, 1) * 100)}%`
     return {
       id: entity.id,
+      definitionId: entity.definitionId,
+      ownerFactionId: entity.ownerFactionId,
       kind: entity.kind,
-      name: entity.name,
-      subtitle: isStation ? 'Fortizar · 轨道空间站' : '伊米卡斯级 · 侦察护卫舰',
-      status: '在线',
-      color: isStation ? UI_COLORS.station : UI_COLORS.ship,
-      metrics: isStation
-        ? [{ label: '护盾', value: '100%' }, { label: '装甲', value: '86%' }, { label: '结构', value: '100%' }, { label: '停泊位', value: '12' }]
-        : [{ label: '护盾', value: '100%' }, { label: '装甲', value: '86%' }, { label: '结构', value: '100%' }, { label: '航行状态', value: '巡航' }],
+      name: entity.displayName,
+      subtitle: `${modelName} · ${typeName}`,
+      status: entity.state.status === 'destroyed' ? '已摧毁' : '在线',
+      color: resolveEntityVisualColor(entity.kind, entity.ownerFactionId),
+      ship: entity.kind === 'ship' ? buildShipInspectorData(entity as typeof entity & { kind: 'ship' }) : undefined,
+      metrics: [
+        { label: '护盾', value: percent(damage?.shieldHp, hp?.shieldHP?.maxHp) },
+        { label: '装甲', value: percent(damage?.armorHp, hp?.armorHP?.maxHp) },
+        { label: '结构', value: percent(damage?.structureHp, hp?.structureHP?.maxHp) },
+        { label: isStation ? '停泊位' : '航行状态', value: isStation ? String(entity.staticData.dockingCapacity ?? '—') : String(entity.getCapability<{ speed: number }>('movement')?.speed ?? 0) }
+      ],
       facts: [
-        { label: '所属势力', value: entity.faction },
-        { label: '轨道位置', value: `${getStar(entity.starId)?.displayName ?? entity.starId} / ORBIT ${entity.orbit}` },
-        { label: '通信延迟', value: '24 ms' },
+        ...(isStation ? [
+          { label: '生产商', value: getFactionDisplayName(typeof entity.staticData.faction === 'string' ? entity.staticData.faction : undefined) },
+          { label: '所属势力', value: getFactionDisplayName(entity.ownerFactionId) }
+        ] : []),
+        { label: '轨道位置', value: `${getStar(String(entity.staticData.starId))?.displayName ?? entity.staticData.starId} / ORBIT ${entity.staticData.orbit}` },
+        { label: '通信延迟', value: typeof entity.staticData.communicationDelayMs === 'number' ? `${entity.staticData.communicationDelayMs} ms` : '—' },
         { label: '对象编号', value: entity.id }
       ]
     }
@@ -143,9 +166,41 @@ function resolveSpaceInspectorDetails(selectedId: string, surfacePlanet: string)
   return undefined
 }
 
+function EditableOrbitalName({ id, name, heading = false }: { id: string; name: string; heading?: boolean }) {
+  const [draftName, setDraftName] = useState<string | null>(null)
+  const renameOrbitalObject = useGameStore((state) => state.renameOrbitalObject)
+  const className = `object-name-row${draftName !== null ? ' is-editing' : ''}${heading ? ' is-heading' : ''}`
+  const content = draftName === null
+    ? <button className="object-name-button" type="button" aria-label={`重命名${name}`} onClick={() => setDraftName(name)}><span className="object-name-text">{name}</span><Pencil className="object-name-pencil" size={12} aria-hidden="true" /></button>
+    : <><input className="object-name-input" aria-label="对象名称" value={draftName} autoFocus onFocus={(event) => event.currentTarget.select()} onChange={(event) => setDraftName(event.target.value)} onBlur={() => setDraftName(null)} onKeyDown={(event) => {
+      if (event.key === 'Escape') { setDraftName(null); return }
+      if (event.key !== 'Enter' || event.nativeEvent.isComposing) return
+      if (renameOrbitalObject(id, draftName)) setDraftName(null)
+    }} /><Pencil className="object-name-pencil" size={12} aria-hidden="true" /></>
+  return heading ? <h2 className={className}>{content}</h2> : <div className={className}>{content}</div>
+}
+
 function SpaceInspector({ details, onEnterSurface }: { details: SpaceInspectorDetails; onEnterSurface: (id: string) => void }) {
-  const Icon = details.kind === 'star' ? Sparkles : details.kind === 'station' ? Radio : details.kind === 'ship' ? Rocket : details.kind === 'resource' ? Pickaxe : Orbit
-  return <div className="inspector-content"><div className="object-identity"><span className="large-object-icon" style={{ '--node-color': details.color } as CSSProperties}><Icon size={ICON_SIZES.inspector} /></span><div><strong>{details.name}</strong><small>{details.subtitle}</small></div><span className="status-tag online">{details.status}</span></div><div className="metric-grid">{details.metrics.map((metric) => <Metric key={metric.label} label={metric.label} value={metric.value} />)}</div><div className="info-list">{details.facts.map((fact) => <div key={fact.label}><span>{fact.label}</span><strong>{fact.value}</strong></div>)}</div>{details.surfaceTarget && <button className="enter-surface-button" onClick={() => onEnterSurface(details.surfaceTarget!)}><Orbit size={ICON_SIZES.action} />进入地表操作视图 <span>↗</span></button>}</div>
+  const canRename = (details.kind === 'ship' || details.kind === 'station') && details.ownerFactionId === PLAYER_FACTION_ID
+  const Icon = details.kind === 'star' ? Sparkles : details.kind === 'resource' ? Pickaxe : Orbit
+  const identityIcon = details.kind === 'ship' || details.kind === 'station'
+    ? <EntityIcon kind={details.kind} definitionId={details.definitionId} ownerFactionId={details.ownerFactionId} size={ICON_SIZES.inspector} />
+    : <Icon size={ICON_SIZES.inspector} />
+  return <div className="inspector-content">
+    <div className="object-identity">
+      <span className="large-object-icon" style={{ '--node-color': details.color } as CSSProperties}>{identityIcon}</span>
+      <div className="object-name-block">
+        {canRename ? <EditableOrbitalName id={details.id} name={details.name} /> : <strong>{details.name}</strong>}
+        <small>{details.subtitle}</small>
+      </div>
+      <span className="status-tag online">{details.status}</span>
+    </div>
+    {details.ship ? <ShipInspector data={details.ship} facts={details.facts} /> : <>
+      <div className="metric-grid">{details.metrics.map((metric) => <Metric key={metric.label} label={metric.label} value={metric.value} />)}</div>
+      <div className="info-list">{details.facts.map((fact) => <div key={fact.label}><span>{fact.label}</span><strong>{fact.value}</strong></div>)}</div>
+    </>}
+    {details.surfaceTarget && <button className="enter-surface-button" onClick={() => onEnterSurface(details.surfaceTarget!)}><Orbit size={ICON_SIZES.action} />进入地表操作视图 <span>↗</span></button>}
+  </div>
 }
 
 function UnknownObjectInspector({ selectedId }: { selectedId: string }) {

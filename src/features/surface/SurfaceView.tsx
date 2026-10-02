@@ -1,5 +1,5 @@
 import { useMemo, useState, type WheelEvent } from 'react'
-import { Background, Controls, Handle, MiniMap, Position, ReactFlow, ReactFlowProvider, useReactFlow, type Connection, type Edge, type Node, type NodeProps } from '@xyflow/react'
+import { Background, Controls, Handle, MiniMap, Position, ReactFlow, ReactFlowProvider, SelectionMode, useReactFlow, type Connection, type Edge, type Node, type NodeProps } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { Box, GitBranch, Maximize2, SlidersHorizontal, Trash2 } from 'lucide-react'
 import { SURFACE_VIEW } from '../../config/gameplay'
@@ -8,6 +8,7 @@ import { content, getFactory, getItem, type FactoryDefinition, type FactoryNodeS
 import { getResourcePoints } from '../../domain/spaceMap'
 import { useGameStore } from '../../state/gameStore'
 import { resolveFactoryIcon } from '../../shared/icons/iconRegistry'
+import { objectRepository } from '../../domain/objects'
 
 type FactoryNodeData = { factory: FactoryDefinition; node: FactoryNodeState }
 
@@ -33,6 +34,7 @@ function SurfaceFlowView({ planet, onNotify }: { planet: string; onNotify: (mess
   const nodes = useGameStore((state) => state.nodes)
   const edges = useGameStore((state) => state.edges)
   const selectedId = useGameStore((state) => state.selectedId)
+  const selectedIds = useGameStore((state) => state.selectedIds)
   const select = useGameStore((state) => state.select)
   const moveNode = useGameStore((state) => state.moveNode)
   const addEdgeToStore = useGameStore((state) => state.addEdge)
@@ -41,10 +43,10 @@ function SurfaceFlowView({ planet, onNotify }: { planet: string; onNotify: (mess
   const [context, setContext] = useState<{ x: number; y: number; nodeId?: string } | null>(null)
   const resourcePoints = useMemo(() => getResourcePoints('Solar', planet === 'aurelia' ? 'Earth' : planet), [planet])
   const flowNodes = useMemo(() => {
-    const factoryNodes = nodes.map((node) => ({ id: node.id, type: 'factory', position: { x: node.x, y: node.y }, data: { factory: getFactory(node.factoryId)!, node }, selected: selectedId === node.id }))
-    const resources = resourcePoints.map((resource, index) => ({ id: resource.id, type: 'resource', position: { x: 470 + resource.position.x * 0.55, y: 380 - resource.position.y * 0.55 - index * 8 }, data: { resource }, draggable: false, selectable: true, selected: selectedId === resource.id }))
+    const factoryNodes = nodes.map((node) => { objectRepository.ensureFactory(node.id, node.factoryId, getFactory(node.factoryId)?.name ?? node.factoryId, { ...node }); return { id: node.id, type: 'factory', position: { x: node.x, y: node.y }, data: { factory: getFactory(node.factoryId)!, node }, selected: selectedIds.includes(node.id) } })
+    const resources = resourcePoints.map((resource, index) => { const position = { x: 470 + resource.position.x * 0.55, y: 380 - resource.position.y * 0.55 - index * 8 }; objectRepository.ensureResource(resource.id, resource.displayName, resource, position); return { id: resource.id, type: 'resource', position, data: { resource }, draggable: false, selectable: true, selected: selectedIds.includes(resource.id) } })
     return [...factoryNodes, ...resources]
-  }, [nodes, selectedId, resourcePoints])
+  }, [nodes, selectedIds, resourcePoints])
   const flowEdges = useMemo(() => edges.map((edge) => ({ id: edge.id, source: edge.source, target: edge.target, animated: true, type: 'smoothstep', style: { stroke: getItem(edge.itemId)?.color ?? UI_COLORS.logistics, strokeWidth: 2 }, label: `${edge.flow.toFixed(1)} /s`, labelStyle: { fill: UI_COLORS.edgeLabel, fontSize: 10 }, labelBgStyle: { fill: UI_COLORS.edgeLabelBackground, fillOpacity: 0.92 } })), [edges])
   const onConnect = (connection: Connection) => {
     if (!connection.source || !connection.target) return
@@ -72,7 +74,7 @@ function SurfaceFlowView({ planet, onNotify }: { planet: string; onNotify: (mess
   return <div className="surface-canvas" onContextMenu={(event) => event.preventDefault()}>
     <div className="surface-backdrop" /><div className="scene-label"><span className="scene-kicker">SURFACE / AURELIA-01</span><strong>奥瑞利亚 · 生产区 A-03</strong><small>昼面 · 北纬 18.2° · 工业许可等级 IV</small></div>
     <div className="surface-grid-label"><span>生产网络 / NETWORK 03</span><span className="cyan">{nodes.length} 个实体 · {edges.length} 条链路</span></div>
-    <ReactFlow nodes={flowNodes} edges={flowEdges as Edge[]} nodeTypes={nodeTypes} onWheel={onSurfaceWheel} onNodeClick={(_, node) => { select(node.id, node.type === 'resource' ? 'body' : 'factory'); setContext(null) }} onNodeDragStop={(_, node) => { if (node.type !== 'resource') moveNode(node.id, node.position.x, node.position.y) }} onConnect={onConnect} onPaneClick={() => { select(null); setContext(null) }} onNodeContextMenu={(event, node) => { event.preventDefault(); setContext({ x: event.clientX, y: event.clientY, nodeId: node.id }); select(node.id, node.type === 'resource' ? 'body' : 'factory') }} onPaneContextMenu={(event) => { event.preventDefault(); setContext({ x: event.clientX, y: event.clientY }) }} panOnDrag={[2]} zoomOnScroll={false} fitView fitViewOptions={{ padding: SURFACE_VIEW.fitPadding }} minZoom={SURFACE_VIEW.minZoom} maxZoom={SURFACE_VIEW.maxZoom} proOptions={{ hideAttribution: true }}>
+    <ReactFlow nodes={flowNodes} edges={flowEdges as Edge[]} nodeTypes={nodeTypes} onWheel={onSurfaceWheel} onNodeClick={(event, node) => { select(node.id, node.type === 'resource' ? 'body' : 'factory', event.ctrlKey || event.metaKey); setContext(null) }} onSelectionChange={({ nodes: selectedNodes }) => { if (selectedNodes.length) selectedNodes.forEach((node, index) => select(node.id, node.type === 'resource' ? 'body' : 'factory', index > 0)) }} selectionMode={SelectionMode.Partial} multiSelectionKeyCode="Control" onNodeDragStop={(_, node) => { if (node.type !== 'resource') moveNode(node.id, node.position.x, node.position.y) }} onConnect={onConnect} onPaneClick={(event) => { if (!event.shiftKey) select(null); setContext(null) }} onNodeContextMenu={(event, node) => { event.preventDefault(); setContext({ x: event.clientX, y: event.clientY, nodeId: node.id }); select(node.id, node.type === 'resource' ? 'body' : 'factory') }} onPaneContextMenu={(event) => { event.preventDefault(); setContext({ x: event.clientX, y: event.clientY }) }} panOnDrag={[2]} selectionKeyCode="Shift" zoomOnScroll={false} fitView fitViewOptions={{ padding: SURFACE_VIEW.fitPadding }} minZoom={SURFACE_VIEW.minZoom} maxZoom={SURFACE_VIEW.maxZoom} proOptions={{ hideAttribution: true }}>
       <Background color={UI_COLORS.surfaceGrid} gap={SURFACE_VIEW.gridGap} size={SURFACE_VIEW.gridSize} /><Controls showInteractive={false} /><MiniMap nodeColor={(node) => (node.data as FactoryNodeData).factory?.color ?? UI_COLORS.station} maskColor={UI_COLORS.minimapMask} />
     </ReactFlow>
     <div className="surface-status"><span className="status-dot" />网格同步 <span className="muted">·</span> 带宽 72% <span className="muted">·</span> 电网余量 14%</div>
@@ -84,4 +86,3 @@ function SurfaceFlowView({ planet, onNotify }: { planet: string; onNotify: (mess
 function MouseIcon() {
   return <span className="mouse-icon"><span /></span>
 }
-

@@ -2,21 +2,10 @@ export type SpaceSelectionKind = 'body' | 'station' | 'ship'
 
 export type WorldPoint = { x: number; y: number }
 
-export type OrbitalEntityDefinition = {
-  id: string
-  kind: 'station' | 'ship'
-  name: string
-  starId: string
-  position: WorldPoint
-  orbit: number
-  faction: string
-}
-
 export type SystemViewProps = {
-  selectedId: string | null
-  orbitAnimation: boolean
-  orbitFps: number
-  onSelect: (id: string | null, kind?: SpaceSelectionKind) => void
+  selectedIds: string[]
+  focusRequest: { objectId: string; requestId: number } | null
+  onSelect: (id: string | null, kind?: SpaceSelectionKind, additive?: boolean, targetPosition?: WorldPoint) => void
   onEnterSurface: (id: string) => void
+  onNotify: (message: string) => void
 }
-

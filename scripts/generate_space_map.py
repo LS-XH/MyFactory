@@ -17,30 +17,58 @@ DEFAULT_STAR_TYPES = ROOT / "assets" / "legacy" / "starType.json"
 DEFAULT_PLANET_TYPES = ROOT / "assets" / "legacy" / "planetType.json"
 DEFAULT_OUTPUT = ROOT / "assets" / "legacy" / "spaceMap.json"
 
-STAR_NAMES = [
-    ("Solar", "太阳系"), ("AlphaCentauri", "南门二"), ("ProximaCentauri", "比邻星"),
-    ("BarnardsStar", "巴纳德星"), ("Sirius", "天狼星"), ("Procyon", "南河三"),
-    ("TauCeti", "天仓五"), ("EpsilonEridani", "波江座ε"), ("Vega", "织女星"),
-    ("Altair", "河鼓二"), ("Lalande21185", "拉兰德21185"), ("Wolf359", "沃夫359"),
-    ("Ross128", "罗斯128"), ("EpsilonIndi", "印第安座ε"), ("61Cygni", "天鹅座61"),
-    ("TRAPPIST1", "TRAPPIST-1"), ("GJ581", "格利泽581"), ("GJ876", "格利泽876"),
-    ("GJ436", "格利泽436"), ("GJ887", "格利泽887"), ("Kepler22", "开普勒-22"),
-    ("Kepler62", "开普勒-62"), ("Kepler186", "开普勒-186"), ("Kepler452", "开普勒-452"),
-    ("55Cancri", "巨蟹座55"), ("51Pegasi", "飞马座51"), ("HD20794", "HD 20794"),
-    ("Fomalhaut", "北落师门"), ("Arcturus", "大角星"), ("Aldebaran", "毕宿五"),
+# Keep each system and its planets together. Known Solar System names and
+# confirmed exoplanet letter designations are grouped here as complete sets.
+SYSTEM_GROUPS = [
+    ("Solar", "太阳系", [("Mercury", "水星"), ("Venus", "金星"), ("Earth", "地球"), ("Mars", "火星"), ("Jupiter", "木星"), ("Saturn", "土星"), ("Uranus", "天王星"), ("Neptune", "海王星")]),
+    ("ProximaCentauri", "比邻星系", [("ProximaB", "比邻星 b"), ("ProximaD", "比邻星 d")]),
+    ("TRAPPIST1", "TRAPPIST-1 系", [("TrappistB", "TRAPPIST-1 b"), ("TrappistC", "TRAPPIST-1 c"), ("TrappistD", "TRAPPIST-1 d"), ("TrappistE", "TRAPPIST-1 e"), ("TrappistF", "TRAPPIST-1 f"), ("TrappistG", "TRAPPIST-1 g"), ("TrappistH", "TRAPPIST-1 h")]),
+    ("Kepler186", "开普勒-186 系", [("Kepler186B", "开普勒-186 b"), ("Kepler186C", "开普勒-186 c"), ("Kepler186D", "开普勒-186 d"), ("Kepler186E", "开普勒-186 e"), ("Kepler186F", "开普勒-186 f")]),
+    ("Kepler62", "开普勒-62 系", [("Kepler62B", "开普勒-62 b"), ("Kepler62C", "开普勒-62 c"), ("Kepler62D", "开普勒-62 d"), ("Kepler62E", "开普勒-62 e"), ("Kepler62F", "开普勒-62 f")]),
+    ("Kepler90", "开普勒-90 系", [(f"Kepler90{letter.upper()}", f"开普勒-90 {letter}") for letter in "bcdefghi"]),
 ]
-PLANET_NAMES = [
-    ("Mercury", "水星"), ("Venus", "金星"), ("Earth", "地球"), ("Mars", "火星"),
-    ("Jupiter", "木星"), ("Saturn", "土星"), ("Uranus", "天王星"), ("Neptune", "海王星"),
-    ("Kepler", "开普勒"), ("Aurelia", "奥瑞莉亚"), ("Eden", "伊甸"), ("Hestia", "赫斯提亚"),
-    ("Nereid", "涅瑞伊得"), ("Borealis", "博雷阿利斯"), ("Cinder", "烬星"), ("Pelagia", "佩拉吉亚"),
+
+SYNTHETIC_SYSTEM_PREFIXES = [
+    "星澜", "天枢", "苍穹", "远烬", "云岫", "玄潮", "曜石", "霜环", "烛海", "长垣",
+    "青岚", "暮光", "赤霄", "望舒", "流火", "北辰", "织梦", "沧溟", "逐日", "微光",
+    "天狼", "银湾", "虹桥", "寒星", "深空", "晨昏", "天琴", "玉衡", "归墟", "寰宇",
+    "星舟", "蓝烁", "昴宿", "辰砂", "月桂", "风暴", "静海", "曜灵", "天穹", "星门",
 ]
-MOON_NAMES = [
-    ("Moon", "月球"), ("Phobos", "福波斯"), ("Deimos", "得摩斯"), ("Io", "木卫一"),
-    ("Europa", "木卫二"), ("Ganymede", "木卫三"), ("Callisto", "木卫四"), ("Titan", "土卫六"),
-    ("Enceladus", "土卫二"), ("Rhea", "土卫五"), ("Dione", "土卫四"), ("Tethys", "土卫三"),
-    ("Oberon", "天卫四"), ("Titania", "天卫三"), ("Triton", "海卫一"), ("Charon", "卡戎"),
+SYNTHETIC_SYSTEM_SUFFIXES = [
+    "座", "环", "湾", "原", "海", "门", "庭", "域", "港", "脊", "冠", "谷", "穹", "界", "链",
+    "星群", "星域", "星带", "星港", "星环", "星庭", "星海", "星门", "星脊", "星原",
 ]
+SYNTHETIC_PLANET_NAMES = [
+    "阿卡迪亚", "维斯塔", "卡利斯托", "伊俄", "塞勒涅", "塔洛斯", "阿特拉斯", "弥涅耳瓦",
+    "奥德赛", "伊卡洛斯", "忒弥斯", "阿斯特拉", "涅墨西斯", "欧律狄刻", "珀耳塞福涅", "赫利俄斯",
+]
+
+
+CURATED_SYSTEM_COUNT = len(SYSTEM_GROUPS)
+
+
+def synthetic_system(index: int) -> tuple[str, str, list[tuple[str, str]]]:
+    """Return a unique fictional system with a reusable set of 12 linked planet names."""
+    offset = index - CURATED_SYSTEM_COUNT
+    prefix = SYNTHETIC_SYSTEM_PREFIXES[(offset // len(SYNTHETIC_SYSTEM_SUFFIXES)) % len(SYNTHETIC_SYSTEM_PREFIXES)]
+    suffix = SYNTHETIC_SYSTEM_SUFFIXES[offset % len(SYNTHETIC_SYSTEM_SUFFIXES)]
+    number = index + 1
+    key = f"FictionalSystem{number:04d}"
+    display_name = f"{prefix}{suffix}星系 {number:04d}"
+    planet_names = [
+        (f"Fictional{number:04d}Planet{planet_index:02d}", f"{display_name}·{SYNTHETIC_PLANET_NAMES[(planet_index - 1) % len(SYNTHETIC_PLANET_NAMES)]} {planet_index:02d}")
+        for planet_index in range(1, 13)
+    ]
+    return key, display_name, planet_names
+
+
+def build_system_name_library(size: int = 1000) -> list[tuple[str, str, list[tuple[str, str]]]]:
+    if size < CURATED_SYSTEM_COUNT:
+        raise ValueError(f"名称库至少需要 {CURATED_SYSTEM_COUNT} 组")
+    return SYSTEM_GROUPS + [synthetic_system(index) for index in range(CURATED_SYSTEM_COUNT, size)]
+
+
+SYSTEM_GROUPS = build_system_name_library()
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -71,10 +99,9 @@ def draw_count(mode: str, low: int, high: int, mean: float, std: float) -> int:
     return int(round(draw_number(mode, low, high, mean, std)))
 
 
-def unique_name(names: list[tuple[str, str]], index: int, prefix: str) -> tuple[str, str]:
-    if index < len(names):
-        return names[index]
-    return f"{prefix}{index + 1:03d}", f"{prefix} {index + 1}"
+def fallback_system(index: int) -> tuple[str, str, list[tuple[str, str]]]:
+    """Create additional unique fictional groups when count exceeds the preset 1000."""
+    return synthetic_system(index)
 
 
 def prompt_args(args: argparse.Namespace) -> None:
@@ -214,18 +241,27 @@ def generate(args: argparse.Namespace) -> dict[str, Any]:
     star_keys = list(stars)
     planet_keys = list(planets)
     output: dict[str, Any] = {}
+    selected_groups = random.sample(SYSTEM_GROUPS, min(args.count, len(SYSTEM_GROUPS)))
 
     for system_index in range(args.count):
-        star_key, star_name = unique_name(STAR_NAMES, system_index, "Star")
-        if star_key in output:
-            star_key = f"Star{system_index + 1:03d}"
+        if system_index < len(selected_groups):
+            star_key, star_name, name_group = selected_groups[system_index]
+        else:
+            star_key, star_name, name_group = fallback_system(system_index)
         star_type = random.choice(star_keys)
         planet_count = draw_count(args.rc, args.minc, args.maxc, args.rce, args.rcs)
         orbits = sample_orbits(args, planet_count)
         system_planets: dict[str, Any] = {}
+        if planet_count <= len(name_group):
+            chosen_planets = random.sample(name_group, planet_count)
+        else:
+            chosen_planets = list(name_group)
+            chosen_planets.extend(
+                (f"{star_key}World{extra_index:02d}", f"{star_name} 行星 {extra_index:02d}")
+                for extra_index in range(len(name_group) + 1, planet_count + 1)
+            )
         for planet_index, orbit in enumerate(orbits):
-            planet_key, planet_name = unique_name(PLANET_NAMES, planet_index, "World")
-            planet_key = f"{planet_key}{planet_index + 1:02d}"
+            planet_key, planet_name = chosen_planets[planet_index]
             planet_type = random.choice(planet_keys)
             body = make_body(planet_key, planet_name, planet_type, orbit, args)
 
@@ -254,8 +290,8 @@ def generate(args: argparse.Namespace) -> dict[str, Any]:
                     step = span / (moon_count - 1)
                     moon_orbits = [0.0001 + i * step for i in range(moon_count)]
             for moon_index in range(moon_count):
-                moon_key, moon_name = unique_name(MOON_NAMES, moon_index, "Moon")
-                moon_key = f"{moon_key}{moon_index + 1:02d}"
+                moon_key = f"Moon{moon_index + 1:02d}"
+                moon_name = f"{planet_name}·卫星 {moon_index + 1}"
                 moon_orbit = moon_orbits[moon_index]
                 moon = make_body(moon_key, moon_name, random.choice(planet_keys), moon_orbit, args)
                 # A compact game-scale lunar orbit usually completes in several days.
