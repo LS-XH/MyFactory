@@ -1,0 +1,40 @@
+.item-codex-view { position: absolute; inset: 0; display: flex; flex-direction: column; min-height: 0; background: #09131d; }
+.item-codex-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 24px 14px; border-bottom: 1px solid #243d4b; }
+.item-codex-heading { display: flex; align-items: center; gap: 13px; color: #5bd8c6; }
+.item-codex-heading small { color: #627f90; font: 9px 'DM Mono', monospace; letter-spacing: .15em; }
+.item-codex-heading h1 { margin: 4px 0 0; color: #dfedf3; font-size: 18px; font-weight: 500; }
+.item-codex-back { display: grid; place-items: center; width: 30px; height: 30px; color: #9bb8c4; background: #102531; border: 1px solid #315361; }
+.item-codex-back:hover { color: #5bd8c6; border-color: #5bd8c6; }
+.item-codex-count { flex: none; color: #668798; font: 10px 'DM Mono', monospace; }
+.item-codex-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 24px; border-bottom: 1px solid #1c3240; }
+.item-codex-filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.item-codex-filters button { padding: 6px 8px; color: #819aab; background: #10212c; border: 1px solid #274454; font-size: 10px; }
+.item-codex-filters button:hover, .item-codex-filters button.active { color: #5bd8c6; border-color: #438f88; }
+.item-codex-filters small { margin-left: 3px; color: #668798; font: 9px 'DM Mono', monospace; }
+.item-codex-search { display: flex; align-items: center; gap: 7px; margin-left: auto; padding: 5px 8px; color: #6c8b9c; background: #0c1b25; border: 1px solid #294454; }
+.item-codex-search input { width: 135px; color: #dcecf1; background: transparent; border: 0; outline: 0; font: 10px 'DM Mono', monospace; }
+.item-codex-scroll { min-height: 0; flex: 1; overflow: auto; scrollbar-color: #2e5866 #0d1c26; }
+.item-codex-svg { display: block; font-family: 'DM Mono', monospace; }
+.item-codex-section-title { fill: #bcd8df; font-size: 14px; font-weight: 500; }
+.item-codex-section-count { fill: #628292; font-size: 9px; }
+.item-codex-section-note { fill: #6a8b99; font-size: 10px; }
+.item-codex-rule { stroke: #294958; }
+.item-codex-empty { fill: #6f8e9e; font-size: 11px; }
+.item-codex-tile { display: flex; align-items: center; gap: 10px; width: 100%; height: 100%; padding: 8px 10px; cursor: pointer; }
+.item-codex-tile:hover, .item-codex-tile.selected { background: rgba(88, 213, 193, .09); box-shadow: inset 0 0 0 1px #58d5c1; }
+.item-codex-tile > div { min-width: 0; }
+.item-codex-tile > .item-glyph--inventory { flex: none; }
+.item-codex-tile strong { display: block; overflow: hidden; color: #dce9ef; font-size: 11px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.item-codex-tile small { display: block; overflow: hidden; margin-top: 6px; color: #698b9a; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.item-formula-name { fill: #d5e7ec; font-size: 12px; }
+.item-formula-arrow { fill: none; stroke: #58d5c1; stroke-width: 1.5; }
+.item-formula-items { display: flex; align-items: center; gap: 6px; width: 100%; height: 100%; }
+.item-formula-item { display: flex; align-items: center; gap: 5px; min-width: 0; max-width: 33%; padding: 5px; color: #b9d0d8; background: #0b1b25; border: 1px solid #294454; font-size: 9px; }
+.item-formula-item .item-glyph--chip:is(.chemical-solid, .chemical-liquid, .chemical-gas) { box-shadow: 0 0 6px 1px color-mix(in srgb, var(--item-color) 58%, transparent); }
+.item-formula-item .item-glyph--chip:not(:is(.chemical-solid, .chemical-liquid, .chemical-gas)) svg { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--item-color) 55%, transparent)); }
+.item-formula-item > span:last-child { display: flex; flex-direction: column; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item-formula-item small { margin-top: 3px; color: #78a1ac; font-size: 8px; }
+.item-inspector-icon { display: flex; align-items: center; justify-content: center; width: 52px; height: 52px; flex: none; border: 1px solid #335762; background: #102531; }
+.item-inspector-icon .item-glyph--inventory { flex: none; transform: scale(.72); }
+.item-inspector-action { width: 100%; margin-top: 15px; padding: 9px 11px; color: #65d8c6; background: #102b31; border: 1px solid #36766f; text-align: left; font-size: 11px; }
+.item-inspector-action:hover { background: #163a3d; }

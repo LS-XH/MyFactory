@@ -95,6 +95,9 @@
                 "maxHp": 200000,
                 "autoRegeneration": false
             }
+        },
+        "storage": {
+            "itemstorage": 100000
         }
     }
 }

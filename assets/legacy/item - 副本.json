@@ -1,0 +1,787 @@
+{
+    "Fe": {
+        "displayName": "铁",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.007116,
+        "weight": 56
+    },
+    "Fe2O3": {
+        "displayName": "氧化铁",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.030476,
+        "weight": 160
+    },
+    "Fe3O4": {
+        "displayName": "四氧化三铁",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.044874,
+        "weight": 232
+    },
+    "CO": {
+        "displayName": "一氧化碳",
+        "kind": "chemical",
+        "state": "gas",
+        "volume": 24.055117,
+        "weight": 28
+    },
+    "CO2": {
+        "displayName": "二氧化碳",
+        "kind": "chemical",
+        "state": "gas",
+        "volume": 24.055117,
+        "weight": 44
+    },
+    "O2": {
+        "displayName": "氧气",
+        "kind": "chemical",
+        "state": "gas",
+        "volume": 24.055117,
+        "weight": 32
+    },
+    "C": {
+        "displayName": "碳（石墨）",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.005455,
+        "weight": 12
+    },
+    "Na": {
+        "displayName": "钠",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.02376,
+        "weight": 23
+    },
+    "Mg": {
+        "displayName": "镁",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.013809,
+        "weight": 24
+    },
+    "Al": {
+        "displayName": "铝",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.01,
+        "weight": 27
+    },
+    "Si": {
+        "displayName": "硅",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.012022,
+        "weight": 28
+    },
+    "S8": {
+        "displayName": "硫",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.123671,
+        "weight": 256
+    },
+    "K": {
+        "displayName": "钾",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.045244,
+        "weight": 39
+    },
+    "Ca": {
+        "displayName": "钙",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.025974,
+        "weight": 40
+    },
+    "Ti": {
+        "displayName": "钛",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.010652,
+        "weight": 48
+    },
+    "Cr": {
+        "displayName": "铬",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.007232,
+        "weight": 52
+    },
+    "Mn": {
+        "displayName": "锰",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.007534,
+        "weight": 55
+    },
+    "Ni": {
+        "displayName": "镍",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.006623,
+        "weight": 59
+    },
+    "Cu": {
+        "displayName": "铜",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.007087,
+        "weight": 63.5
+    },
+    "Zn": {
+        "displayName": "锌",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.009111,
+        "weight": 65
+    },
+    "Ag": {
+        "displayName": "银",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.010296,
+        "weight": 108
+    },
+    "Sn": {
+        "displayName": "锡",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.016279,
+        "weight": 119
+    },
+    "W": {
+        "displayName": "钨",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.009558,
+        "weight": 184
+    },
+    "Au": {
+        "displayName": "金",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.010197,
+        "weight": 197
+    },
+    "Pb": {
+        "displayName": "铅",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.018254,
+        "weight": 207
+    },
+    "H2": {
+        "displayName": "氢气",
+        "kind": "chemical",
+        "state": "gas",
+        "volume": 24.055117,
+        "weight": 2
+    },
+    "N2": {
+        "displayName": "氮气",
+        "kind": "chemical",
+        "state": "gas",
+        "volume": 24.055117,
+        "weight": 28
+    },
+    "F2": {
+        "displayName": "氟气",
+        "kind": "chemical",
+        "state": "gas",
+        "volume": 24.055117,
+        "weight": 38
+    },
+    "Cl2": {
+        "displayName": "氯气",
+        "kind": "chemical",
+        "state": "gas",
+        "volume": 24.055117,
+        "weight": 71.0
+    },
+    "He": {
+        "displayName": "氦气",
+        "kind": "chemical",
+        "state": "gas",
+        "volume": 24.055117,
+        "weight": 4
+    },
+    "Ne": {
+        "displayName": "氖气",
+        "kind": "chemical",
+        "state": "gas",
+        "volume": 24.055117,
+        "weight": 20
+    },
+    "Ar": {
+        "displayName": "氩气",
+        "kind": "chemical",
+        "state": "gas",
+        "volume": 24.055117,
+        "weight": 40
+    },
+    "CH4": {
+        "displayName": "甲烷",
+        "kind": "chemical",
+        "state": "gas",
+        "volume": 24.055117,
+        "weight": 16
+    },
+    "C2H6": {
+        "displayName": "乙烷",
+        "kind": "chemical",
+        "state": "gas",
+        "volume": 24.055117,
+        "weight": 30
+    },
+    "C3H8": {
+        "displayName": "丙烷",
+        "kind": "chemical",
+        "state": "gas",
+        "volume": 24.055117,
+        "weight": 44
+    },
+    "C4H10": {
+        "displayName": "丁烷",
+        "kind": "chemical",
+        "state": "gas",
+        "volume": 24.055117,
+        "weight": 58
+    },
+    "C2H4": {
+        "displayName": "乙烯",
+        "kind": "chemical",
+        "state": "gas",
+        "volume": 24.055117,
+        "weight": 28
+    },
+    "C2H2": {
+        "displayName": "乙炔",
+        "kind": "chemical",
+        "state": "gas",
+        "volume": 24.055117,
+        "weight": 26
+    },
+    "NH3": {
+        "displayName": "氨气",
+        "kind": "chemical",
+        "state": "gas",
+        "volume": 24.055117,
+        "weight": 17
+    },
+    "SO2": {
+        "displayName": "二氧化硫",
+        "kind": "chemical",
+        "state": "gas",
+        "volume": 24.055117,
+        "weight": 64
+    },
+    "NO": {
+        "displayName": "一氧化氮",
+        "kind": "chemical",
+        "state": "gas",
+        "volume": 24.055117,
+        "weight": 30
+    },
+    "NO2": {
+        "displayName": "二氧化氮",
+        "kind": "chemical",
+        "state": "gas",
+        "volume": 24.055117,
+        "weight": 46
+    },
+    "N2O": {
+        "displayName": "一氧化二氮",
+        "kind": "chemical",
+        "state": "gas",
+        "volume": 24.055117,
+        "weight": 44
+    },
+    "H2S": {
+        "displayName": "硫化氢",
+        "kind": "chemical",
+        "state": "gas",
+        "volume": 24.055117,
+        "weight": 34
+    },
+    "HCl": {
+        "displayName": "氯化氢",
+        "kind": "chemical",
+        "state": "gas",
+        "volume": 24.055117,
+        "weight": 36.5
+    },
+    "H2O": {
+        "displayName": "水",
+        "kind": "chemical",
+        "state": "liquid",
+        "volume": 0.018032,
+        "weight": 18
+    },
+    "Br2": {
+        "displayName": "溴",
+        "kind": "chemical",
+        "state": "liquid",
+        "volume": 0.051282,
+        "weight": 160
+    },
+    "CH3OH": {
+        "displayName": "甲醇",
+        "kind": "chemical",
+        "state": "liquid",
+        "volume": 0.040404,
+        "weight": 32
+    },
+    "C2H5OH": {
+        "displayName": "乙醇",
+        "kind": "chemical",
+        "state": "liquid",
+        "volume": 0.058302,
+        "weight": 46
+    },
+    "C3H6O": {
+        "displayName": "丙酮",
+        "kind": "chemical",
+        "state": "liquid",
+        "volume": 0.073325,
+        "weight": 58
+    },
+    "CH3COOH": {
+        "displayName": "乙酸",
+        "kind": "chemical",
+        "state": "liquid",
+        "volume": 0.057197,
+        "weight": 60
+    },
+    "H2SO4": {
+        "displayName": "硫酸",
+        "kind": "chemical",
+        "state": "liquid",
+        "volume": 0.053261,
+        "weight": 98
+    },
+    "HNO3": {
+        "displayName": "硝酸",
+        "kind": "chemical",
+        "state": "liquid",
+        "volume": 0.041639,
+        "weight": 63
+    },
+    "C6H6": {
+        "displayName": "苯",
+        "kind": "chemical",
+        "state": "liquid",
+        "volume": 0.088737,
+        "weight": 78
+    },
+    "C7H8": {
+        "displayName": "甲苯",
+        "kind": "chemical",
+        "state": "liquid",
+        "volume": 0.106113,
+        "weight": 92
+    },
+    "C2H6O2": {
+        "displayName": "乙二醇",
+        "kind": "chemical",
+        "state": "liquid",
+        "volume": 0.055705,
+        "weight": 62
+    },
+    "C3H8O3": {
+        "displayName": "甘油",
+        "kind": "chemical",
+        "state": "liquid",
+        "volume": 0.072958,
+        "weight": 92
+    },
+    "FeO": {
+        "displayName": "氧化亚铁",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.012533,
+        "weight": 72
+    },
+    "Al2O3": {
+        "displayName": "氧化铝",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.025823,
+        "weight": 102
+    },
+    "SiO2": {
+        "displayName": "二氧化硅（石英）",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.022642,
+        "weight": 60
+    },
+    "CaCO3": {
+        "displayName": "碳酸钙（方解石）",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.0369,
+        "weight": 100
+    },
+    "CaO": {
+        "displayName": "氧化钙",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.016766,
+        "weight": 56
+    },
+    "Ca(OH)2": {
+        "displayName": "氢氧化钙",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.033484,
+        "weight": 74
+    },
+    "MgO": {
+        "displayName": "氧化镁",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.011173,
+        "weight": 40
+    },
+    "Mg(OH)2": {
+        "displayName": "氢氧化镁",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.024576,
+        "weight": 58
+    },
+    "NaCl": {
+        "displayName": "氯化钠",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.026959,
+        "weight": 58.5
+    },
+    "KCl": {
+        "displayName": "氯化钾",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.03755,
+        "weight": 74.5
+    },
+    "NaOH": {
+        "displayName": "氢氧化钠",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.018779,
+        "weight": 40
+    },
+    "KOH": {
+        "displayName": "氢氧化钾",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.027397,
+        "weight": 56
+    },
+    "Na2CO3": {
+        "displayName": "碳酸钠（无水）",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.041732,
+        "weight": 106
+    },
+    "NaHCO3": {
+        "displayName": "碳酸氢钠",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.038182,
+        "weight": 84
+    },
+    "CaSO4": {
+        "displayName": "硫酸钙（无水）",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.045946,
+        "weight": 136
+    },
+    "CuO": {
+        "displayName": "氧化铜",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.012599,
+        "weight": 79.5
+    },
+    "Cu2O": {
+        "displayName": "氧化亚铜",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.023833,
+        "weight": 143.0
+    },
+    "ZnO": {
+        "displayName": "氧化锌",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.014449,
+        "weight": 81
+    },
+    "TiO2": {
+        "displayName": "二氧化钛（金红石）",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.018913,
+        "weight": 80
+    },
+    "MnO2": {
+        "displayName": "二氧化锰",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.01731,
+        "weight": 87
+    },
+    "FeS2": {
+        "displayName": "二硫化铁（黄铁矿）",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.023952,
+        "weight": 120
+    },
+    "CuSO4": {
+        "displayName": "硫酸铜（无水）",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.044306,
+        "weight": 159.5
+    },
+    "NH4Cl": {
+        "displayName": "氯化铵",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.035036,
+        "weight": 53.5
+    },
+    "(NH4)2SO4": {
+        "displayName": "硫酸铵",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.074576,
+        "weight": 132
+    },
+    "C6H12O6": {
+        "displayName": "葡萄糖",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.116883,
+        "weight": 180
+    },
+    "C12H22O11": {
+        "displayName": "蔗糖",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.215501,
+        "weight": 342
+    },
+    "CH4N2O": {
+        "displayName": "尿素",
+        "kind": "chemical",
+        "state": "solid",
+        "volume": 0.045455,
+        "weight": 60
+    },
+    "Magnetite": {
+        "displayName": "磁铁矿",
+        "kind": "material",
+        "state": "solid",
+        "volume": 10,
+        "weight": 232
+    },
+    "Hematite": {
+        "displayName": "赤铁矿",
+        "kind": "material",
+        "state": "solid",
+        "volume": 10,
+        "weight": 160
+    },
+    "GraphiteOre": {
+        "displayName": "石墨矿",
+        "kind": "material",
+        "state": "solid",
+        "volume": 10,
+        "weight": 12
+    },
+    "NativeSulfur": {
+        "displayName": "自然硫矿",
+        "kind": "material",
+        "state": "solid",
+        "volume": 10,
+        "weight": 256
+    },
+    "QuartzSand": {
+        "displayName": "石英砂",
+        "kind": "material",
+        "state": "solid",
+        "volume": 10,
+        "weight": 60
+    },
+    "Limestone": {
+        "displayName": "石灰岩",
+        "kind": "material",
+        "state": "solid",
+        "volume": 10,
+        "weight": 100
+    },
+    "Bauxite": {
+        "displayName": "铝土矿",
+        "kind": "material",
+        "state": "solid",
+        "volume": 10,
+        "weight": 102
+    },
+    "Corundum": {
+        "displayName": "刚玉矿",
+        "kind": "material",
+        "state": "solid",
+        "volume": 10,
+        "weight": 102
+    },
+    "Rutile": {
+        "displayName": "金红石矿",
+        "kind": "material",
+        "state": "solid",
+        "volume": 10,
+        "weight": 80
+    },
+    "Pyrolusite": {
+        "displayName": "软锰矿",
+        "kind": "material",
+        "state": "solid",
+        "volume": 10,
+        "weight": 87
+    },
+    "Pyrite": {
+        "displayName": "黄铁矿",
+        "kind": "material",
+        "state": "solid",
+        "volume": 10,
+        "weight": 120
+    },
+    "Halite": {
+        "displayName": "岩盐矿",
+        "kind": "material",
+        "state": "solid",
+        "volume": 10,
+        "weight": 58.5
+    },
+    "Sylvite": {
+        "displayName": "钾石盐矿",
+        "kind": "material",
+        "state": "solid",
+        "volume": 10,
+        "weight": 74.5
+    },
+    "Anhydrite": {
+        "displayName": "硬石膏矿",
+        "kind": "material",
+        "state": "solid",
+        "volume": 10,
+        "weight": 136
+    },
+    "Cuprite": {
+        "displayName": "赤铜矿",
+        "kind": "material",
+        "state": "solid",
+        "volume": 10,
+        "weight": 143.0
+    },
+    "Tenorite": {
+        "displayName": "黑铜矿",
+        "kind": "material",
+        "state": "solid",
+        "volume": 10,
+        "weight": 79.5
+    },
+    "Zincite": {
+        "displayName": "红锌矿",
+        "kind": "material",
+        "state": "solid",
+        "volume": 10,
+        "weight": 81
+    },
+    "Brucite": {
+        "displayName": "水镁石矿",
+        "kind": "material",
+        "state": "solid",
+        "volume": 10,
+        "weight": 58
+    },
+    "Periclase": {
+        "displayName": "方镁石矿",
+        "kind": "material",
+        "state": "solid",
+        "volume": 10,
+        "weight": 40
+    },
+    "Nahcolite": {
+        "displayName": "天然碳酸氢钠矿",
+        "kind": "material",
+        "state": "solid",
+        "volume": 10,
+        "weight": 84
+    },
+    "Trona": {
+        "displayName": "天然碱矿",
+        "kind": "material",
+        "state": "solid",
+        "volume": 10,
+        "weight": 106
+    },
+    "LaserEmitter": {
+        "displayName": "小型激光发射器",
+        "kind": "equipment",
+        "equipmentType": "LaserTurret",
+        "formula": {
+            "BlastFurnaceIronmaking": {}
+        },
+        "volume": 10,
+        "weight": 10
+    },
+    "MissileEmitter": {
+        "displayName": "小型导弹发射器",
+        "kind": "equipment",
+        "equipmentType": "MissileTurret",
+        "formula": {
+            "BlastFurnaceIronmaking": {}
+        },
+        "volume": 10,
+        "weight": 10
+    },
+    "CannonEmitter": {
+        "displayName": "小型加农炮",
+        "kind": "equipment",
+        "equipmentType": "CannonTurret",
+        "formula": {
+            "BlastFurnaceIronmaking": {}
+        },
+        "volume": 10,
+        "weight": 10
+    },
+    "RapidFireEmitter": {
+        "displayName": "小型疾速炮",
+        "kind": "equipment",
+        "equipmentType": "RapidFireTurret",
+        "formula": {
+            "BlastFurnaceIronmaking": {}
+        },
+        "volume": 10,
+        "weight": 10
+    },
+    "RailgunEmitter": {
+        "displayName": "小型轨道炮",
+        "kind": "equipment",
+        "equipmentType": "RailgunTurret",
+        "formula": {
+            "BlastFurnaceIronmaking": {}
+        },
+        "volume": 10,
+        "weight": 10
+    }
+}

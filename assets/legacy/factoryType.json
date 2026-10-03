@@ -1,4 +1,9 @@
 {
+    "Electric":"电力",
+    "Miner":"开采",
     "Production":"生产",
-    "Miner":"开采"
+    "Synthesis":"合成",
+    "Logistics":"物流",
+    "Transportation":"运输",
+    "Megastructure":"巨构"
 }

@@ -1,18 +1,809 @@
 {
-    "TerrestrialPlanet": {
-      "displayName": "类地星球",
-      "planetAdjustment": {}
-    },
-    "LavalPlanet": {
-      "displayName": "熔岩星球",
-      "planetAdjustment": {}
-    },
-    "OceanlPlanet": {
-      "displayName": "海洋星球",
-      "planetAdjustment": {}
-    },
-    "LifelessPlanet": {
-      "displayName": "荒芜星球",
-      "planetAdjustment": {}
+  "TerrestrialPlanet": {
+    "displayName": "类地星球",
+    "description": "类地星球，资源分布较为平均",
+    "planetAdjustment": {},
+    "resource": {
+      "Magnetite": {
+        "abundanceMean": 40,
+        "reservesMean": 10000
+      },
+      "Hematite": {
+        "abundanceMean": 50,
+        "reservesMean": 10000
+      },
+      "QuartzSand": {
+        "abundanceMean": 55,
+        "reservesMean": 18000
+      },
+      "Limestone": {
+        "abundanceMean": 38,
+        "reservesMean": 16000
+      },
+      "Bauxite": {
+        "abundanceMean": 22,
+        "reservesMean": 11000
+      },
+      "Pyrite": {
+        "abundanceMean": 18,
+        "reservesMean": 9000
+      },
+      "Chalcopyrite": {
+        "abundanceMean": 14,
+        "reservesMean": 8000
+      },
+      "Sphalerite": {
+        "abundanceMean": 12,
+        "reservesMean": 7500
+      },
+      "Galena": {
+        "abundanceMean": 9,
+        "reservesMean": 6500
+      },
+      "Cassiterite": {
+        "abundanceMean": 6,
+        "reservesMean": 5000
+      },
+      "Rutile": {
+        "abundanceMean": 9,
+        "reservesMean": 6500
+      },
+      "Magnesite": {
+        "abundanceMean": 12,
+        "reservesMean": 9000
+      },
+      "Halite": {
+        "abundanceMean": 16,
+        "reservesMean": 12000
+      },
+      "GraphiteOre": {
+        "abundanceMean": 10,
+        "reservesMean": 7000
+      },
+      "PhosphateRock": {
+        "abundanceMean": 12,
+        "reservesMean": 9000
+      },
+      "H2O": {
+        "abundanceMean": 45,
+        "reservesMean": 22000
+      }
     }
+  },
+  "LavalPlanet": {
+    "displayName": "熔岩星球",
+    "description": "熔岩星球，含有比较丰富的金属资源，有机物资源较少",
+    "planetAdjustment": {},
+    "resource": {
+      "Magnetite": {
+        "abundanceMean": 65,
+        "reservesMean": 24000
+      },
+      "Hematite": {
+        "abundanceMean": 50,
+        "reservesMean": 20000
+      },
+      "Ilmenite": {
+        "abundanceMean": 38,
+        "reservesMean": 19000
+      },
+      "Chromite": {
+        "abundanceMean": 30,
+        "reservesMean": 17000
+      },
+      "Pyrite": {
+        "abundanceMean": 32,
+        "reservesMean": 15000
+      },
+      "Chalcopyrite": {
+        "abundanceMean": 28,
+        "reservesMean": 15000
+      },
+      "Rutile": {
+        "abundanceMean": 35,
+        "reservesMean": 17000
+      },
+      "Millerite": {
+        "abundanceMean": 19,
+        "reservesMean": 11000
+      },
+      "Cassiterite": {
+        "abundanceMean": 12,
+        "reservesMean": 8500
+      },
+      "Galena": {
+        "abundanceMean": 11,
+        "reservesMean": 8000
+      },
+      "Bauxite": {
+        "abundanceMean": 17,
+        "reservesMean": 10000
+      },
+      "QuartzSand": {
+        "abundanceMean": 26,
+        "reservesMean": 13000
+      },
+      "NativeSulfur": {
+        "abundanceMean": 55,
+        "reservesMean": 23000
+      },
+      "Au": {
+        "abundanceMean": 3,
+        "reservesMean": 1800
+      }
+    }
+  },
+  "OceanlPlanet": {
+    "displayName": "海洋星球",
+    "description": "海洋星球，含有丰富的水资源，有机物资源、石油资源、烃类资源较多",
+    "planetAdjustment": {},
+    "resource": {
+      "H2O": {
+        "abundanceMean": 140,
+        "reservesMean": 70000
+      },
+      "NaCl": {
+        "abundanceMean": 80,
+        "reservesMean": 32000
+      },
+      "MgSO4": {
+        "abundanceMean": 34,
+        "reservesMean": 18000
+      },
+      "CaCO3": {
+        "abundanceMean": 28,
+        "reservesMean": 16000
+      },
+      "Limestone": {
+        "abundanceMean": 24,
+        "reservesMean": 17000
+      },
+      "Anhydrite": {
+        "abundanceMean": 18,
+        "reservesMean": 13000
+      },
+      "Halite": {
+        "abundanceMean": 16,
+        "reservesMean": 12000
+      },
+      "CH4": {
+        "abundanceMean": 55,
+        "reservesMean": 22000
+      },
+      "C2H6": {
+        "abundanceMean": 32,
+        "reservesMean": 15000
+      },
+      "C3H8": {
+        "abundanceMean": 20,
+        "reservesMean": 12000
+      },
+      "C4H10": {
+        "abundanceMean": 13,
+        "reservesMean": 9500
+      },
+      "C6H6": {
+        "abundanceMean": 5,
+        "reservesMean": 3000
+      },
+      "C7H8": {
+        "abundanceMean": 4,
+        "reservesMean": 2500
+      },
+      "C6H12O6": {
+        "abundanceMean": 24,
+        "reservesMean": 8500
+      },
+      "C3H8O3": {
+        "abundanceMean": 10,
+        "reservesMean": 5000
+      }
+    }
+  },
+  "LifelessPlanet": {
+    "displayName": "荒芜星球",
+    "description": "荒芜星球，含有比较丰富的岩石类",
+    "planetAdjustment": {},
+    "resource": {
+      "QuartzSand": {
+        "abundanceMean": 95,
+        "reservesMean": 35000
+      },
+      "Limestone": {
+        "abundanceMean": 52,
+        "reservesMean": 24000
+      },
+      "Dolomite": {
+        "abundanceMean": 38,
+        "reservesMean": 21000
+      },
+      "Magnesite": {
+        "abundanceMean": 34,
+        "reservesMean": 18000
+      },
+      "Anhydrite": {
+        "abundanceMean": 32,
+        "reservesMean": 18000
+      },
+      "Halite": {
+        "abundanceMean": 25,
+        "reservesMean": 15000
+      },
+      "Barite": {
+        "abundanceMean": 18,
+        "reservesMean": 9500
+      },
+      "Fluorite": {
+        "abundanceMean": 16,
+        "reservesMean": 9000
+      },
+      "PhosphateRock": {
+        "abundanceMean": 13,
+        "reservesMean": 8000
+      },
+      "Rutile": {
+        "abundanceMean": 16,
+        "reservesMean": 10000
+      },
+      "Hematite": {
+        "abundanceMean": 18,
+        "reservesMean": 9500
+      },
+      "GraphiteOre": {
+        "abundanceMean": 8,
+        "reservesMean": 4500
+      },
+      "Trona": {
+        "abundanceMean": 9,
+        "reservesMean": 6500
+      }
+    }
+  },
+  "MetalPlanet": {
+    "displayName": "金属星球",
+    "description": "金属星球，含有非常丰富的金属资源",
+    "planetAdjustment": {},
+    "resource": {
+      "Magnetite": {
+        "abundanceMean": 85,
+        "reservesMean": 45000
+      },
+      "Hematite": {
+        "abundanceMean": 90,
+        "reservesMean": 50000
+      },
+      "Chromite": {
+        "abundanceMean": 48,
+        "reservesMean": 27000
+      },
+      "Ilmenite": {
+        "abundanceMean": 45,
+        "reservesMean": 26000
+      },
+      "Chalcopyrite": {
+        "abundanceMean": 43,
+        "reservesMean": 24000
+      },
+      "Chalcocite": {
+        "abundanceMean": 32,
+        "reservesMean": 19000
+      },
+      "Millerite": {
+        "abundanceMean": 28,
+        "reservesMean": 17000
+      },
+      "Sphalerite": {
+        "abundanceMean": 39,
+        "reservesMean": 23000
+      },
+      "Galena": {
+        "abundanceMean": 31,
+        "reservesMean": 18000
+      },
+      "Cassiterite": {
+        "abundanceMean": 22,
+        "reservesMean": 14000
+      },
+      "Pyrite": {
+        "abundanceMean": 48,
+        "reservesMean": 25000
+      },
+      "Acanthite": {
+        "abundanceMean": 15,
+        "reservesMean": 7500
+      },
+      "Fe": {
+        "abundanceMean": 28,
+        "reservesMean": 16000
+      },
+      "Ni": {
+        "abundanceMean": 16,
+        "reservesMean": 8500
+      },
+      "Cu": {
+        "abundanceMean": 14,
+        "reservesMean": 7500
+      },
+      "Ag": {
+        "abundanceMean": 6,
+        "reservesMean": 2400
+      },
+      "Au": {
+        "abundanceMean": 4,
+        "reservesMean": 1500
+      }
+    }
+  },
+  "DiamondPlanet": {
+    "displayName": "钻石星球",
+    "description": "钻石星球，含有非常丰富的碳类资源",
+    "planetAdjustment": {},
+    "resource": {
+      "C": {
+        "abundanceMean": 95,
+        "reservesMean": 42000
+      },
+      "GraphiteOre": {
+        "abundanceMean": 105,
+        "reservesMean": 47000
+      },
+      "CH4": {
+        "abundanceMean": 85,
+        "reservesMean": 30000
+      },
+      "C2H6": {
+        "abundanceMean": 36,
+        "reservesMean": 15000
+      },
+      "CO2": {
+        "abundanceMean": 30,
+        "reservesMean": 15000
+      },
+      "CaCO3": {
+        "abundanceMean": 24,
+        "reservesMean": 12000
+      },
+      "MgCO3": {
+        "abundanceMean": 18,
+        "reservesMean": 9500
+      },
+      "C6H6": {
+        "abundanceMean": 8,
+        "reservesMean": 4000
+      }
+    }
+  },
+  "IcePlanet": {
+    "displayName": "寒冰星球",
+    "description": "寒冰星球，含有比较丰富的可燃冰类型资源，包括烷烃等",
+    "planetAdjustment": {},
+    "resource": {
+      "H2O": {
+        "abundanceMean": 120,
+        "reservesMean": 65000
+      },
+      "CH4": {
+        "abundanceMean": 95,
+        "reservesMean": 40000
+      },
+      "C2H6": {
+        "abundanceMean": 48,
+        "reservesMean": 23000
+      },
+      "C3H8": {
+        "abundanceMean": 27,
+        "reservesMean": 16000
+      },
+      "C4H10": {
+        "abundanceMean": 16,
+        "reservesMean": 11000
+      },
+      "CO2": {
+        "abundanceMean": 38,
+        "reservesMean": 20000
+      },
+      "NH3": {
+        "abundanceMean": 32,
+        "reservesMean": 16000
+      },
+      "N2": {
+        "abundanceMean": 22,
+        "reservesMean": 12000
+      },
+      "H2S": {
+        "abundanceMean": 12,
+        "reservesMean": 6000
+      }
+    }
+  },
+  "FrozenPlanet": {
+    "displayName": "冰封星球",
+    "description": "熔岩星球，含有比较丰富的可燃冰类型资源，包括烷烃等",
+    "planetAdjustment": {},
+    "resource": {
+      "H2O": {
+        "abundanceMean": 105,
+        "reservesMean": 48000
+      },
+      "CH4": {
+        "abundanceMean": 62,
+        "reservesMean": 27000
+      },
+      "C2H6": {
+        "abundanceMean": 28,
+        "reservesMean": 14000
+      },
+      "C3H8": {
+        "abundanceMean": 14,
+        "reservesMean": 9000
+      },
+      "CO2": {
+        "abundanceMean": 30,
+        "reservesMean": 16000
+      },
+      "NH3": {
+        "abundanceMean": 22,
+        "reservesMean": 12000
+      },
+      "QuartzSand": {
+        "abundanceMean": 24,
+        "reservesMean": 12000
+      },
+      "Hematite": {
+        "abundanceMean": 16,
+        "reservesMean": 8500
+      },
+      "Magnetite": {
+        "abundanceMean": 14,
+        "reservesMean": 8000
+      },
+      "Halite": {
+        "abundanceMean": 12,
+        "reservesMean": 7000
+      },
+      "Anhydrite": {
+        "abundanceMean": 10,
+        "reservesMean": 6000
+      },
+      "GraphiteOre": {
+        "abundanceMean": 8,
+        "reservesMean": 4500
+      }
+    }
+  },
+  "GasPlanet": {
+    "displayName": "气态星球",
+    "description": "气态星球，含有丰富的气体资源",
+    "planetAdjustment": {},
+    "resource": {
+      "H2": {
+        "abundanceMean": 140,
+        "reservesMean": 100000
+      },
+      "He": {
+        "abundanceMean": 110,
+        "reservesMean": 80000
+      },
+      "CH4": {
+        "abundanceMean": 48,
+        "reservesMean": 33000
+      },
+      "NH3": {
+        "abundanceMean": 35,
+        "reservesMean": 24000
+      },
+      "H2O": {
+        "abundanceMean": 26,
+        "reservesMean": 20000
+      },
+      "N2": {
+        "abundanceMean": 22,
+        "reservesMean": 14000
+      },
+      "C2H6": {
+        "abundanceMean": 12,
+        "reservesMean": 8000
+      },
+      "H2S": {
+        "abundanceMean": 10,
+        "reservesMean": 6500
+      },
+      "Ne": {
+        "abundanceMean": 9,
+        "reservesMean": 5000
+      },
+      "Ar": {
+        "abundanceMean": 7,
+        "reservesMean": 4000
+      }
+    }
+  },
+  "SilicatePlanet": {
+    "displayName": "硅基星球",
+    "description": "硅基星球，含有比较丰富的半导体",
+    "planetAdjustment": {},
+    "resource": {
+      "QuartzSand": {
+        "abundanceMean": 115,
+        "reservesMean": 52000
+      },
+      "SiO2": {
+        "abundanceMean": 85,
+        "reservesMean": 41000
+      },
+      "Si": {
+        "abundanceMean": 14,
+        "reservesMean": 6500
+      },
+      "Bauxite": {
+        "abundanceMean": 30,
+        "reservesMean": 18000
+      },
+      "Corundum": {
+        "abundanceMean": 24,
+        "reservesMean": 14000
+      },
+      "Rutile": {
+        "abundanceMean": 24,
+        "reservesMean": 14000
+      },
+      "Ilmenite": {
+        "abundanceMean": 19,
+        "reservesMean": 12000
+      },
+      "Spodumene": {
+        "abundanceMean": 16,
+        "reservesMean": 9000
+      },
+      "Fluorite": {
+        "abundanceMean": 13,
+        "reservesMean": 7000
+      },
+      "Magnesite": {
+        "abundanceMean": 13,
+        "reservesMean": 8000
+      },
+      "CaCO3": {
+        "abundanceMean": 11,
+        "reservesMean": 6000
+      }
+    }
+  },
+  "GrasslandPlanet": {
+    "displayName": "草原星球",
+    "description": "草原星球，含有比较丰富的有机物资源",
+    "planetAdjustment": {},
+    "resource": {
+      "H2O": {
+        "abundanceMean": 68,
+        "reservesMean": 30000
+      },
+      "C6H12O6": {
+        "abundanceMean": 52,
+        "reservesMean": 20000
+      },
+      "C12H22O11": {
+        "abundanceMean": 38,
+        "reservesMean": 15000
+      },
+      "C3H8O3": {
+        "abundanceMean": 20,
+        "reservesMean": 9000
+      },
+      "CH3COOH": {
+        "abundanceMean": 13,
+        "reservesMean": 7000
+      },
+      "C2H5OH": {
+        "abundanceMean": 10,
+        "reservesMean": 4500
+      },
+      "CO2": {
+        "abundanceMean": 26,
+        "reservesMean": 12000
+      },
+      "CH4": {
+        "abundanceMean": 21,
+        "reservesMean": 9000
+      },
+      "Limestone": {
+        "abundanceMean": 20,
+        "reservesMean": 10000
+      },
+      "PhosphateRock": {
+        "abundanceMean": 16,
+        "reservesMean": 8000
+      },
+      "NaNO3": {
+        "abundanceMean": 12,
+        "reservesMean": 6000
+      },
+      "KNO3": {
+        "abundanceMean": 10,
+        "reservesMean": 5000
+      }
+    }
+  },
+  "SakuraSea": {
+    "displayName": "樱林海",
+    "description": "樱林海，一处奇景，含有比较丰富的有机物资源，能够开采到一些奥秘物品",
+    "planetAdjustment": {},
+    "resource": {
+      "H2O": {
+        "abundanceMean": 75,
+        "reservesMean": 34000
+      },
+      "C6H12O6": {
+        "abundanceMean": 60,
+        "reservesMean": 26000
+      },
+      "C12H22O11": {
+        "abundanceMean": 46,
+        "reservesMean": 21000
+      },
+      "C3H8O3": {
+        "abundanceMean": 26,
+        "reservesMean": 12000
+      },
+      "CH3COOH": {
+        "abundanceMean": 17,
+        "reservesMean": 8000
+      },
+      "C2H5OH": {
+        "abundanceMean": 13,
+        "reservesMean": 6500
+      },
+      "CH4": {
+        "abundanceMean": 20,
+        "reservesMean": 9000
+      },
+      "PhosphateRock": {
+        "abundanceMean": 12,
+        "reservesMean": 6000
+      }
+    }
+  },
+  "Stonehenge": {
+    "displayName": "巨石阵",
+    "description": "巨石阵，一处奇景，含有比较丰富的无机物资源，能够开采到一些奥秘物品",
+    "planetAdjustment": {},
+    "resource": {
+      "QuartzSand": {
+        "abundanceMean": 68,
+        "reservesMean": 30000
+      },
+      "Limestone": {
+        "abundanceMean": 62,
+        "reservesMean": 29000
+      },
+      "Dolomite": {
+        "abundanceMean": 42,
+        "reservesMean": 21000
+      },
+      "Barite": {
+        "abundanceMean": 24,
+        "reservesMean": 13000
+      },
+      "Fluorite": {
+        "abundanceMean": 21,
+        "reservesMean": 11000
+      },
+      "Magnetite": {
+        "abundanceMean": 24,
+        "reservesMean": 13000
+      },
+      "Hematite": {
+        "abundanceMean": 22,
+        "reservesMean": 12000
+      },
+      "Corundum": {
+        "abundanceMean": 12,
+        "reservesMean": 6000
+      },
+      "CaCO3": {
+        "abundanceMean": 18,
+        "reservesMean": 9500
+      }
+    }
+  },
+  "ScorchedPlanet": {
+    "displayName": "焦土",
+    "description": "焦土，一处奇景，含有比较丰富的机械资源，表面有废墟资源点，能够开采到机械物品",
+    "planetAdjustment": {},
+    "resource": {
+      "CannonEmitter": {
+        "abundanceMean": 9,
+        "reservesMean": 20
+      },
+      "MissileEmitter": {
+        "abundanceMean": 7,
+        "reservesMean": 16
+      },
+      "RapidFireEmitter": {
+        "abundanceMean": 7,
+        "reservesMean": 14
+      },
+      "RailgunEmitter": {
+        "abundanceMean": 4,
+        "reservesMean": 8
+      },
+      "LaserEmitter": {
+        "abundanceMean": 3,
+        "reservesMean": 6
+      },
+      "Fe": {
+        "abundanceMean": 38,
+        "reservesMean": 6000
+      },
+      "Cu": {
+        "abundanceMean": 25,
+        "reservesMean": 4500
+      },
+      "Al": {
+        "abundanceMean": 20,
+        "reservesMean": 4000
+      },
+      "Si": {
+        "abundanceMean": 15,
+        "reservesMean": 2500
+      },
+      "C": {
+        "abundanceMean": 15,
+        "reservesMean": 2800
+      },
+      "Hematite": {
+        "abundanceMean": 22,
+        "reservesMean": 3500
+      }
+    }
+  },
+  "AncientCity": {
+    "displayName": "旧日之都",
+    "description": "旧日之都，一处奇景，含有比较丰富的电子资源，表面有废墟资源点，能够开采到电子物品",
+    "planetAdjustment": {},
+    "resource": {
+      "LaserEmitter": {
+        "abundanceMean": 9,
+        "reservesMean": 16
+      },
+      "RailgunEmitter": {
+        "abundanceMean": 5,
+        "reservesMean": 10
+      },
+      "MissileEmitter": {
+        "abundanceMean": 3,
+        "reservesMean": 6
+      },
+      "Si": {
+        "abundanceMean": 32,
+        "reservesMean": 5500
+      },
+      "Cu": {
+        "abundanceMean": 29,
+        "reservesMean": 4800
+      },
+      "Ag": {
+        "abundanceMean": 13,
+        "reservesMean": 2100
+      },
+      "Au": {
+        "abundanceMean": 6,
+        "reservesMean": 900
+      },
+      "Al": {
+        "abundanceMean": 18,
+        "reservesMean": 3500
+      },
+      "C": {
+        "abundanceMean": 16,
+        "reservesMean": 3000
+      }
+    }
+  },
+  "GodTumulus": {
+    "displayName": "神冢",
+    "description": "神冢，一处奇景，无资源点，能够开采到灵能物品",
+    "planetAdjustment": {},
+    "resource": {}
+  }
 }

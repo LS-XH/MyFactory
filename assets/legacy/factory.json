@@ -1,6 +1,67 @@
 {
+    "WindTurbine":{
+        "displayName":"风力发电机",
+        "factoryType":"Electric"
+    },
+    "SolarGenerator":{
+        "displayName":"太阳能发电机",
+        "factoryType":"Electric"
+    },
+    "NuclearPowerStation":{
+        "displayName":"核电站",
+        "factoryType":"Electric"
+    },
+    "GeothermalPowerStation":{
+        "displayName":"地热发电站",
+        "factoryType":"Electric"
+    },
+    "MiningStation":{
+        "displayName":"开采站",
+        "factoryType":"Miner"
+    },
+    "Refinery":{
+        "displayName":"精炼厂",
+        "factoryType":"Production"
+    },
+    "ChemicalPlant":{
+        "displayName":"化工厂",
+        "factoryType":"Production"
+    },
     "ProcessingStation":{
         "displayName":"加工站",
         "factoryType":"Production"
+    },
+    "ParticleCollider":{
+        "displayName":"粒子对撞机",
+        "factoryType":"Production"
+    },
+    "AssemblyStation":{
+        "displayName":"装配站",
+        "factoryType":"Synthesis"
+    },
+    "EquipmentManufacturing":{
+        "displayName":"装备制造厂",
+        "factoryType":"Synthesis"
+    },
+    "Belt":{
+        "displayName":"传送带",
+        "factoryType":"Logistics"
+    },
+    "Combiner":{
+        "displayName":"合并器",
+        "factoryType":"Logistics"
+    },
+    "Separator":{
+        "displayName":"分离器",
+        "factoryType":"Logistics"
+    },
+    "TruckStation":{
+        "displayName":"卡车站",
+        "factoryType":"Transportation"
+    },
+    "SpaceElevator":{
+        "displayName":"太空电梯",
+        "factoryType":"Megastructure"
     }
+    
 }

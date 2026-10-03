@@ -5,27 +5,64 @@ import shipDefinitions from '../../assets/legacy/ship.json'
 import shipTypeDefinitions from '../../assets/legacy/shipType.json'
 import stationDefinitions from '../../assets/legacy/station.json'
 import stationTypeDefinitions from '../../assets/legacy/stationType.json'
-import equipmentDefinitions from '../../assets/legacy/equipment.json'
+import { getEquipmentDefinition } from './equipment'
 import { PLAYER_FACTION_ID } from './factions'
+import { StorageCapability } from './storage'
+import { nearestStarId, orbitalLocalPosition, orbitalWorldPosition } from './orbitalSpace'
+import { DEFAULT_AU_LENGTH_FACTOR } from '../config/gameplay'
 
 export type SlotSize = 'S' | 'M' | 'L' | 'XL' | 'T'
 export type SlotGroup = 'turretSlots' | 'engineSlots' | 'defenseSlots' | 'utilitySlots' | 'moduleSlots'
-export type ObjectAction = { id: string; label: string; target?: boolean; targetCapability?: CapabilityId }
-export type CapabilityId = 'equipment' | 'movement' | 'damageable' | 'attack' | 'carrier' | 'production' | 'shipyard' | 'logistics' | 'mining'
+export const SLOT_GROUPS: readonly SlotGroup[] = ['turretSlots', 'engineSlots', 'defenseSlots', 'utilitySlots', 'moduleSlots']
+export const SLOT_SIZES: readonly SlotSize[] = ['S', 'M', 'L', 'XL', 'T']
+export type ObjectAction = { id: string; label: string; target?: boolean; targetCapability?: CapabilityId; kind?: 'operation' | 'task' }
+export type ObjectTask = { id: string; actionId: 'move'; targetId?: string; destination: { x: number; y: number } | { objectId: string }; destinationStarId?: string }
+export type CapabilityId = 'equipment' | 'movement' | 'damageable' | 'attack' | 'storage' | 'carrier' | 'production' | 'shipyard' | 'logistics' | 'mining' | 'taskQueue'
 export type ObjectCapability = { id: CapabilityId; getActions: () => ObjectAction[] }
+
+export class TaskQueueCapability implements ObjectCapability {
+  readonly id = 'taskQueue' as const
+  constructor(public tasks: ObjectTask[] = []) {}
+  getActions(): ObjectAction[] { return [] }
+  replace(task: ObjectTask) { this.tasks = [task] }
+  append(task: ObjectTask) { this.tasks.push(task) }
+  remove(taskId: string) { const index = this.tasks.findIndex(task => task.id === taskId); if (index < 0) return false; this.tasks.splice(index, 1); return true }
+  move(taskId: string, targetIndex: number) {
+    const index = this.tasks.findIndex(task => task.id === taskId)
+    if (index < 0 || targetIndex < 0 || targetIndex >= this.tasks.length || index === targetIndex) return false
+    const [task] = this.tasks.splice(index, 1)
+    this.tasks.splice(targetIndex, 0, task!)
+    return true
+  }
+  retarget(taskId: string, position: { x: number; y: number }, starId: string) {
+    const task = this.tasks.find(entry => entry.id === taskId)
+    if (!task || task.actionId !== 'move') return false
+    task.destination = { ...position }
+    task.destinationStarId = starId
+    delete task.targetId
+    return true
+  }
+  clear() { this.tasks = [] }
+  complete() { return this.tasks.shift() }
+}
 
 export class EquipmentCapability implements ObjectCapability {
   readonly id = 'equipment' as const
   readonly slots: Record<SlotGroup, Record<SlotSize, string[]>>
   constructor(slotData: Partial<Record<SlotGroup, Array<{ slotSize: SlotSize }>>> = {}) {
-    this.slots = Object.fromEntries((['turretSlots','engineSlots','defenseSlots','utilitySlots','moduleSlots'] as SlotGroup[]).map(group => [group, Object.fromEntries((['S','M','L','XL','T'] as SlotSize[]).map(size => [size, (slotData[group] ?? []).filter(slot => slot.slotSize === size).map(() => '')]))])) as Record<SlotGroup, Record<SlotSize, string[]>>
+    this.slots = Object.fromEntries(SLOT_GROUPS.map(group => [group, Object.fromEntries(SLOT_SIZES.map(size => [size, (slotData[group] ?? []).filter(slot => slot.slotSize === size).map(() => '')]))])) as Record<SlotGroup, Record<SlotSize, string[]>>
   }
   install(group: SlotGroup, size: SlotSize, index: number, equipmentId: string) {
-    const equipment = (equipmentDefinitions as Record<string, { size?: SlotSize; equipmentType?: string }>)[equipmentId]
-    const compatibleGroup: Record<string, SlotGroup> = { Turret: 'turretSlots', Engine: 'engineSlots', Shield: 'defenseSlots', Armor: 'defenseSlots', Module: 'moduleSlots', Utility: 'utilitySlots' }
-    if (!equipment || equipment.size !== size || compatibleGroup[equipment.equipmentType ?? ''] !== group || index < 0 || index >= this.slots[group][size].length) return false
+    const equipment = getEquipmentDefinition(equipmentId)
+    if (!equipment || equipment.size !== size || equipment.slotGroup !== group || !Number.isSafeInteger(index) || index < 0 || index >= this.slots[group][size].length || this.slots[group][size][index]) return false
     this.slots[group][size][index] = equipmentId
     return true
+  }
+  uninstall(group: SlotGroup, size: SlotSize, index: number) {
+    const installed = this.slots[group]?.[size]?.[index]
+    if (!installed) return undefined
+    this.slots[group][size][index] = ''
+    return installed
   }
   getActions() { return [{ id: 'fit-equipment', label: '装配装备' }] }
 }
@@ -33,13 +70,14 @@ export class EquipmentCapability implements ObjectCapability {
 export class MovementCapability implements ObjectCapability {
   readonly id = 'movement' as const
   destination?: { x: number; y: number } | { objectId: string }
+  destinationStarId?: string
   speed = 0
   velocity = { x: 0, y: 0 }
   headingDegrees = 0
   constructor(readonly maximumSpeed = 8, readonly acceleration = 1, readonly turnRate = 1, readonly warpSpeed = 0) {}
-  moveTo(target: { x: number; y: number } | { objectId: string }) { this.destination = target }
-  stop() { this.destination = undefined }
-  getActions() { return [{ id: 'move', label: '前往', target: true }, { id: 'warp-to', label: '跃迁到', target: true }, { id: 'stop', label: '停止' }] }
+  moveTo(target: { x: number; y: number } | { objectId: string }, starId?: string) { this.destination = target; this.destinationStarId = starId }
+  stop() { this.destination = undefined; this.destinationStarId = undefined }
+  getActions(): ObjectAction[] { return [{ id: 'move', label: '前往', target: true, kind: 'task' }, { id: 'warp-to', label: '跃迁到', target: true }, { id: 'stop', label: '停止' }] }
 }
 
 export class DamageableCapability implements ObjectCapability {
@@ -67,7 +105,7 @@ export class ProductionCapability implements ObjectCapability {
   getActions() { return [{ id: 'configure-production', label: '配置生产' }, { id: 'view-recipe', label: '查看配方' }] }
 }
 
-export type RuntimeObject = { id: string; kind: 'star'|'planet'|'moon'|'ship'|'station'|'factory'|'resource'; definitionId: string; displayName: string; staticData: Record<string, unknown>; ownerFactionId?: string; capabilities: ObjectCapability[]; position?: {x:number;y:number}; state: Record<string, unknown>; getCapability<T>(id: CapabilityId): T | undefined; addCapability(capability: ObjectCapability): void; removeCapability(id: CapabilityId): void; getActions(): ObjectAction[]; installEquipment(group: SlotGroup, size: SlotSize, index: number, equipmentId: string): boolean }
+export type RuntimeObject = { id: string; kind: 'star'|'planet'|'moon'|'ship'|'station'|'factory'|'resource'; definitionId: string; displayName: string; staticData: Record<string, unknown>; ownerFactionId?: string; capabilities: ObjectCapability[]; position?: {x:number;y:number}; state: Record<string, unknown>; getCapability<T>(id: CapabilityId): T | undefined; addCapability(capability: ObjectCapability): void; removeCapability(id: CapabilityId): void; getActions(): ObjectAction[]; installEquipment(group: SlotGroup, size: SlotSize, index: number, equipmentId: string): boolean; uninstallEquipment(group: SlotGroup, size: SlotSize, index: number): string | undefined }
 export function isPlayerControllable(object: Pick<RuntimeObject, 'kind' | 'ownerFactionId'> | undefined): boolean {
   return Boolean(object && ((object.kind !== 'ship' && object.kind !== 'station') || object.ownerFactionId === PLAYER_FACTION_ID))
 }
@@ -82,26 +120,27 @@ export class GameObject implements RuntimeObject {
   installEquipment(group: SlotGroup, size: SlotSize, index: number, equipmentId: string) {
     const equipment = this.getCapability<EquipmentCapability>('equipment')
     if (!equipment?.install(group, size, index, equipmentId)) return false
-    const definition = (equipmentDefinitions as Record<string, { attactDamage?: number; grants?: CapabilityId[] }>)[equipmentId]
+    const definition = getEquipmentDefinition(equipmentId)!
     const attack = this.getCapability<AttackCapability>('attack')
     if (attack && group === 'turretSlots') attack.damage.push({ equipmentId, amount: definition.attactDamage ?? 0 })
-    if (definition.grants?.includes('carrier')) this.addCapability(new CarrierCapability())
+    if (definition.grants?.includes('carrier') && !this.getCapability('carrier')) this.addCapability(new CarrierCapability())
     return true
   }
-}
-
-export function findInstallableEquipment(object: RuntimeObject) {
-  const slots = object.getCapability<EquipmentCapability>('equipment')
-  if (!slots) return undefined
-  const equipment = equipmentDefinitions as Record<string, { size?: SlotSize; equipmentType?: string }>
-  const groupForType: Record<string, SlotGroup> = { Turret: 'turretSlots', Engine: 'engineSlots', Shield: 'defenseSlots', Armor: 'defenseSlots', Module: 'moduleSlots', Utility: 'utilitySlots' }
-  for (const group of Object.keys(slots.slots) as SlotGroup[]) for (const size of ['S', 'M', 'L', 'XL', 'T'] as SlotSize[]) {
-    const index = slots.slots[group][size].findIndex(equipmentId => !equipmentId)
-    if (index < 0) continue
-    const equipmentId = Object.keys(equipment).find(id => equipment[id]?.size === size && groupForType[equipment[id]?.equipmentType ?? ''] === group)
-    if (equipmentId) return { group, size, index, equipmentId }
+  uninstallEquipment(group: SlotGroup, size: SlotSize, index: number) {
+    const equipment = this.getCapability<EquipmentCapability>('equipment')
+    const equipmentId = equipment?.uninstall(group, size, index)
+    if (!equipmentId) return undefined
+    if (group === 'turretSlots') {
+      const damage = this.getCapability<AttackCapability>('attack')?.damage
+      const entry = damage?.findIndex((item) => item.equipmentId === equipmentId) ?? -1
+      if (damage && entry >= 0) damage.splice(entry, 1)
+    }
+    if (getEquipmentDefinition(equipmentId)?.grants?.includes('carrier')) {
+      const hasOtherCarrierModule = Object.values(equipment!.slots).some((sizes) => Object.values(sizes).some((slots) => slots.some((id) => id && getEquipmentDefinition(id)?.grants?.includes('carrier'))))
+      if (!hasOtherCarrierModule) this.removeCapability('carrier')
+    }
+    return equipmentId
   }
-  return undefined
 }
 
 /** UI labels come from the referenced model and type definitions, never from instance saves. */
@@ -127,7 +166,7 @@ for (const [starId, star] of Object.entries(spaceMap)) {
 for (const body of content.starSystem.bodies as Array<{id:string;name:string;type:string;orbit:number;hasSurface:boolean;color:string;status:string;population:string}>) {
   if (!objects.has(body.id)) put(new GameObject(body.id, 'planet', body.type, body.name, body as unknown as Record<string, unknown>))
 }
-type OrbitalDefinition = { slots?: Partial<Record<SlotGroup, Array<{ slotSize: SlotSize }>>>; HP?: { shieldHP?: { maxHp: number }; armorHP?: { maxHp: number }; structureHP?: { maxHp: number } }; movement?: { maxSpeed: number; acceleration: number; turnSpeed: number; warpSpeed: number } }
+type OrbitalDefinition = { slots?: Partial<Record<SlotGroup, Array<{ slotSize: SlotSize }>>>; HP?: { shieldHP?: { maxHp: number }; armorHP?: { maxHp: number }; structureHP?: { maxHp: number } }; movement?: { maxSpeed: number; acceleration: number; turnSpeed: number; warpSpeed: number }; storage?: { itemstorage: number } }
 
 function createOrbitalObject(entity: OrbitalEntitySave): GameObject {
   const definitions = (entity.kind === 'ship' ? shipDefinitions : stationDefinitions) as Record<string, OrbitalDefinition>
@@ -139,9 +178,15 @@ function createOrbitalObject(entity: OrbitalEntitySave): GameObject {
   object.addCapability(new EquipmentCapability(definition.slots))
   object.addCapability(new DamageableCapability(entity.health?.shieldHp ?? definition.HP?.shieldHP?.maxHp ?? 100, entity.health?.armorHp ?? definition.HP?.armorHP?.maxHp ?? 100, entity.health?.structureHp ?? definition.HP?.structureHP?.maxHp ?? 100))
   object.addCapability(new AttackCapability())
+  const savedTasks: ObjectTask[] = entity.tasks?.map(task => ({ ...task, destination: { ...task.destination } })) ?? (entity.movement?.destination ? [{ id: `legacy-${entity.id}`, actionId: 'move', destination: { ...entity.movement.destination }, destinationStarId: entity.movement.destinationStarId ?? entity.starId }] : [])
+  object.addCapability(new TaskQueueCapability(savedTasks))
+  if (entity.storage && !definition.storage) throw new Error(`存档对象 ${entity.id} 的型号没有储存能力`)
+  if (definition.storage) object.addCapability(new StorageCapability(definition.storage.itemstorage, entity.storage?.slots ?? []))
   if (entity.kind === 'ship') {
     const movement = new MovementCapability(definition.movement?.maxSpeed, definition.movement?.acceleration, definition.movement?.turnSpeed, definition.movement?.warpSpeed)
-    if (entity.movement) { movement.destination = entity.movement.destination; movement.velocity = { ...entity.movement.velocity }; movement.speed = Math.hypot(movement.velocity.x, movement.velocity.y); movement.headingDegrees = entity.movement.headingDegrees }
+    if (entity.movement) { movement.velocity = { ...entity.movement.velocity }; movement.speed = Math.hypot(movement.velocity.x, movement.velocity.y); movement.headingDegrees = entity.movement.headingDegrees }
+    const activeTask = savedTasks[0]
+    if (activeTask) movement.moveTo(activeTask.destination, activeTask.destinationStarId)
     object.addCapability(movement)
   }
   for (const installed of entity.installedEquipment ?? []) {
@@ -151,12 +196,29 @@ function createOrbitalObject(entity: OrbitalEntitySave): GameObject {
   return object
 }
 
-export function loadOrbitalObjects(raw: unknown) {
+/** Re-anchor an object without changing its world position, velocity or destination. */
+export function reconcileOrbitalSystem(object: RuntimeObject, starAuLengthFactor: number): boolean {
+  if ((object.kind !== 'ship' && object.kind !== 'station') || !object.position) return false
+  const currentStarId = String(object.staticData.starId)
+  const world = orbitalWorldPosition(currentStarId, object.position, starAuLengthFactor)
+  if (!world) return false
+  const nextStarId = nearestStarId(world, starAuLengthFactor)
+  if (!nextStarId || nextStarId === currentStarId) return false
+  const nextPosition = orbitalLocalPosition(nextStarId, world, starAuLengthFactor)
+  if (!nextPosition) return false
+  object.staticData.starId = nextStarId
+  object.position = nextPosition
+  return true
+}
+
+export function loadOrbitalObjects(raw: unknown, starAuLengthFactor: number = DEFAULT_AU_LENGTH_FACTOR.star) {
   const save = orbitalSaveSchema.parse(raw)
   const loaded = save.entities.map(createOrbitalObject)
+  let reassigned = false
+  for (const object of loaded) if (reconcileOrbitalSystem(object, starAuLengthFactor)) reassigned = true
   for (const object of objects.values()) if (object.kind === 'ship' || object.kind === 'station') objects.delete(object.id)
   for (const object of loaded) put(object)
-  return loaded
+  return { objects: loaded, reassigned }
 }
 
 export function getOrbitalObjects() { return [...objects.values()].filter((object): object is RuntimeObject & { kind: 'ship' | 'station' } => object.kind === 'ship' || object.kind === 'station') }
@@ -167,9 +229,11 @@ export function serializeOrbitalObjects(): OrbitalSave {
     const health = object.getCapability<DamageableCapability>('damageable')
     const attack = object.getCapability<AttackCapability>('attack')
     const equipment = object.getCapability<EquipmentCapability>('equipment')
+    const storage = object.getCapability<StorageCapability>('storage')
     const movement = object.getCapability<MovementCapability>('movement')
+    const taskQueue = object.getCapability<TaskQueueCapability>('taskQueue')
     const installedEquipment = equipment ? (Object.entries(equipment.slots) as [SlotGroup, Record<SlotSize, string[]>][]).flatMap(([group, sizes]) => (Object.entries(sizes) as [SlotSize, string[]][]).flatMap(([size, slots]) => slots.flatMap((equipmentId, index) => equipmentId ? [{ group, size, index, equipmentId }] : []))) : []
-    return { id: object.id, kind: object.kind, definitionId: object.definitionId, name: object.displayName, starId: String(object.staticData.starId), position: { ...(object.position ?? { x: 0, y: 0 }) }, orbit: Number(object.staticData.orbit ?? 0), ownerFactionId: object.ownerFactionId, dockingCapacity: typeof object.staticData.dockingCapacity === 'number' ? object.staticData.dockingCapacity : undefined, communicationDelayMs: typeof object.staticData.communicationDelayMs === 'number' ? object.staticData.communicationDelayMs : undefined, status: String(object.state.status ?? 'online'), health: health ? { shieldHp: health.shieldHp, armorHp: health.armorHp, structureHp: health.structureHp } : undefined, damage: attack?.damage.map((entry) => ({ ...entry })), installedEquipment, movement: movement ? { destination: movement.destination, velocity: { ...movement.velocity }, headingDegrees: movement.headingDegrees } : undefined }
+    return { id: object.id, kind: object.kind, definitionId: object.definitionId, name: object.displayName, starId: String(object.staticData.starId), position: { ...(object.position ?? { x: 0, y: 0 }) }, orbit: Number(object.staticData.orbit ?? 0), ownerFactionId: object.ownerFactionId, dockingCapacity: typeof object.staticData.dockingCapacity === 'number' ? object.staticData.dockingCapacity : undefined, communicationDelayMs: typeof object.staticData.communicationDelayMs === 'number' ? object.staticData.communicationDelayMs : undefined, status: String(object.state.status ?? 'online'), health: health ? { shieldHp: health.shieldHp, armorHp: health.armorHp, structureHp: health.structureHp } : undefined, damage: attack?.damage.map((entry) => ({ ...entry })), installedEquipment, storage: storage ? { slots: storage.slots.map((stack) => ({ ...stack })) } : undefined, tasks: taskQueue?.tasks.map(task => ({ ...task, destination: { ...task.destination } })) ?? [], movement: movement ? { velocity: { ...movement.velocity }, headingDegrees: movement.headingDegrees } : undefined }
   })
   return { schemaVersion: 1, entities }
 }

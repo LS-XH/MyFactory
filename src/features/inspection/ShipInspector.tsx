@@ -72,7 +72,7 @@ export function ShipInspector({ data, facts }: { data: ShipInspectorData; facts:
     <section className="ship-detail-section">
       <h3>耐久 <small>HIT POINTS</small></h3>
       <Gauge label="护盾 HP" reading={data.shield} tone="shield" />
-      <Gauge label="船体 HP" reading={data.armor} tone="armor" />
+      <Gauge label="装甲 HP" reading={data.armor} tone="armor" />
       <Gauge label="结构 HP" reading={data.structure} tone="structure" />
     </section>
 

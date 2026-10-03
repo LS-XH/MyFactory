@@ -4,25 +4,28 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "node scripts/generate_item_icon_data.mjs && vite",
+    "build": "node scripts/generate_item_icon_data.mjs && tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "lint": "tsc -b --pretty false"
   },
   "dependencies": {
+    "@iconify/react": "^6.0.2",
     "@xyflow/react": "^12.8.5",
     "lucide-react": "^0.468.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "zustand": "^5.0.3",
-    "zod": "^3.24.1"
+    "zod": "^3.24.1",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
+    "@iconify-json/game-icons": "^1.2.4",
+    "@iconify-json/mdi": "^1.2.3",
+    "@playwright/test": "^1.49.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
-    "@playwright/test": "^1.49.1",
     "@vitejs/plugin-react": "^4.3.4",
     "typescript": "^5.7.2",
     "vite": "^6.0.5",

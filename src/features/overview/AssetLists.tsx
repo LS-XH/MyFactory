@@ -1,34 +1,77 @@
-import type { CSSProperties } from 'react'
-import { Factory, Orbit } from 'lucide-react'
-import { ICON_SIZES, UI_COLORS } from '../../config/visualTokens'
-import { getFactory } from '../../domain/content'
-import { getOrbitalDisplayInfo, getOrbitalObjects } from '../../domain/objects'
-import { getFactionDisplayName } from '../../domain/factions'
-import { useGameStore } from '../../state/gameStore'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { Orbit, Pickaxe } from 'lucide-react'
+import { OVERVIEW_VISUAL } from '../../config/overviewVisuals'
+import { ICON_SIZES } from '../../config/visualTokens'
 import { EntityIcon } from '../../shared/icons/EntityIcon'
-import { resolveEntityVisualColor } from '../../shared/icons/entityVisualRegistry'
-import type { SpaceSelectionKind } from '../space-map/types'
+import { GalaxyIcon } from '../../shared/icons/GalaxyIcon'
+import { FactoryGlyph } from '../../shared/icons/FactoryGlyph'
+import type { OverviewEntry } from './overviewModel'
 
-const BODY_ASSETS = [
-  { id: 'aurelia', name: '奥瑞利亚', meta: '类地行星 · 已殖民', color: UI_COLORS.planet, kind: 'body' as const, visualId: undefined, ownerFactionId: undefined }
-]
-
-export function SystemAssetList({ onSelect, selectedIds, onEnterSurface, onFocusObject }: { onSelect: (id: string, kind: SpaceSelectionKind, additive?: boolean) => void; selectedIds: string[]; onEnterSurface: (id: string) => void; onFocusObject: (id: string) => void }) {
-  useGameStore((state) => state.objectRevision)
-  const assets = [...BODY_ASSETS, ...getOrbitalObjects().map((entity) => {
-    const { typeName } = getOrbitalDisplayInfo(entity)
-    const metaSuffix = entity.kind === 'ship'
-      ? entity.state.status === 'destroyed' ? '已摧毁' : '运行中'
-      : getFactionDisplayName(entity.ownerFactionId)
-    return { id: entity.id, name: entity.displayName, meta: `${typeName} · ${metaSuffix}`, color: resolveEntityVisualColor(entity.kind, entity.ownerFactionId), kind: entity.kind, visualId: entity.definitionId, ownerFactionId: entity.ownerFactionId }
-  })]
-  return <div className="asset-list">{assets.map((asset) => <button className={`asset-item ${selectedIds.includes(asset.id) ? 'selected' : ''}`} key={asset.id} onClick={(event) => onSelect(asset.id, asset.kind, event.ctrlKey || event.metaKey)} onDoubleClick={() => { if (asset.kind === 'body') onEnterSurface(asset.id); else onFocusObject(asset.id) }}><span className="asset-icon" style={{ '--asset-color': asset.color } as CSSProperties}>{asset.kind === 'body' ? <Orbit size={ICON_SIZES.asset} /> : <EntityIcon kind={asset.kind} definitionId={asset.visualId} ownerFactionId={asset.ownerFactionId} size={ICON_SIZES.asset} />}</span><span className="asset-copy"><strong>{asset.name}</strong><small>{asset.meta}</small></span><span className="item-arrow">›</span></button>)}</div>
+type OverviewListProps = {
+  entries: OverviewEntry[]
+  resetKey: string
+  selectedIds: string[]
+  onSelect: (entry: OverviewEntry, additive: boolean, appendTask: boolean) => void
+  onDoubleClick: (entry: OverviewEntry) => void
 }
 
-export function FactoryAssetList({ onSelect, selectedIds }: { onSelect: (id: string, kind: 'factory', additive?: boolean) => void; selectedIds: string[] }) {
-  const nodes = useGameStore((state) => state.nodes)
-  return <div className="asset-list">{nodes.map((node) => {
-    const factory = getFactory(node.factoryId)
-    return <button className={`asset-item ${selectedIds.includes(node.id) ? 'selected' : ''}`} key={node.id} onClick={(event) => onSelect(node.id, 'factory', event.ctrlKey || event.metaKey)}><span className="asset-icon" style={{ '--asset-color': factory?.color } as CSSProperties}><Factory size={ICON_SIZES.asset} /></span><span className="asset-copy"><strong>{factory?.name}</strong><small>{node.status === 'blocked' ? '物流堵塞' : node.status === 'online' ? '运行中' : '待机'} · {node.buffer.toFixed(0)} 单位</small></span><span className={`mini-status ${node.status}`} /></button>
-  })}</div>
+function OverviewRow({ entry, selected, onSelect, onDoubleClick }: {
+  entry: OverviewEntry
+  selected: boolean
+  onSelect: (entry: OverviewEntry, additive: boolean, appendTask: boolean) => void
+  onDoubleClick: (entry: OverviewEntry) => void
+}) {
+  const icon = entry.category === 'ship' || entry.category === 'station'
+    ? <EntityIcon kind={entry.category} definitionId={entry.definitionId} ownerFactionId={entry.ownerFactionId} size={ICON_SIZES.asset} />
+    : entry.category === 'factory' ? <FactoryGlyph factoryId={entry.definitionId ?? entry.id} size={ICON_SIZES.asset} />
+      : entry.category === 'resource' ? <Pickaxe size={ICON_SIZES.asset} />
+        : entry.celestialKind === 'star' ? <GalaxyIcon size={ICON_SIZES.asset} />
+          : <Orbit size={ICON_SIZES.asset} />
+
+  return <button
+    className={`asset-item overview-item ${selected ? 'selected' : ''}`}
+    style={{ height: OVERVIEW_VISUAL.rowHeight }}
+    onClick={(event) => onSelect(entry, event.ctrlKey || event.metaKey, event.shiftKey)}
+    onDoubleClick={() => onDoubleClick(entry)}
+    type="button"
+    title={entry.name}
+  >
+    <span className="asset-icon" style={{ '--asset-color': entry.color } as CSSProperties}>{icon}</span>
+    <span className="asset-copy"><strong>{entry.name}</strong><small>{entry.meta}</small></span>
+    <span className="item-arrow">›</span>
+  </button>
+}
+
+/** A fixed-height window renders only rows near the scrollbar, even with thousands of systems. */
+export function OverviewList({ entries, resetKey, selectedIds, onSelect, onDoubleClick }: OverviewListProps) {
+  const scrollerRef = useRef<HTMLDivElement>(null)
+  const [scrollTop, setScrollTop] = useState(0)
+  const [listHeight, setListHeight] = useState<number>(OVERVIEW_VISUAL.initialListHeight)
+
+  useEffect(() => {
+    const element = scrollerRef.current
+    if (!element) return
+    const observer = new ResizeObserver(() => setListHeight(element.clientHeight))
+    observer.observe(element)
+    setListHeight(element.clientHeight)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const element = scrollerRef.current
+    if (element) element.scrollTop = 0
+    setScrollTop(0)
+  }, [resetKey])
+
+  const first = Math.max(0, Math.floor(scrollTop / OVERVIEW_VISUAL.rowHeight) - OVERVIEW_VISUAL.overscanRows)
+  const last = Math.min(entries.length, Math.ceil((scrollTop + listHeight) / OVERVIEW_VISUAL.rowHeight) + OVERVIEW_VISUAL.overscanRows)
+  const visible = entries.slice(first, last)
+
+  return <div className="overview-list-scroll" ref={scrollerRef} onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}>
+    {entries.length === 0 ? <div className="overview-empty">当前筛选下没有对象</div> : <>
+      <div aria-hidden="true" style={{ height: first * OVERVIEW_VISUAL.rowHeight }} />
+      <div className="asset-list">{visible.map((entry) => <OverviewRow key={entry.id} entry={entry} selected={selectedIds.includes(entry.id)} onSelect={onSelect} onDoubleClick={onDoubleClick} />)}</div>
+      <div aria-hidden="true" style={{ height: (entries.length - last) * OVERVIEW_VISUAL.rowHeight }} />
+    </>}
+  </div>
 }

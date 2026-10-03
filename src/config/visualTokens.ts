@@ -7,6 +7,7 @@ export const UI_COLORS = {
   station: 'var(--color-station)',
   ship: 'var(--color-ship)',
   playerOwnedObject: 'var(--color-player-owned-object)',
+  hostile: 'var(--color-hostile-filter)',
   transport: 'var(--color-transport)',
   mining: 'var(--color-mining)',
   logistics: 'var(--color-logistics)',
@@ -35,5 +36,6 @@ export const ICON_SIZES = {
 
 export const APP_TIMING = {
   simulationTickMs: 100,
+  frameRateSampleMs: 1000,
   toastDurationMs: 2400
 } as const

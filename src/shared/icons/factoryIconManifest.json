@@ -1,0 +1,18 @@
+{
+  "WindTurbine": "wind",
+  "SolarGenerator": "solar-panel",
+  "NuclearPowerStation": "radiation",
+  "GeothermalPowerStation": "flame",
+  "MiningStation": "pickaxe",
+  "Refinery": "factory",
+  "ChemicalPlant": "flask-conical",
+  "ProcessingStation": "cog",
+  "ParticleCollider": "atom",
+  "AssemblyStation": "circuit-board",
+  "EquipmentManufacturing": "robot-arm",
+  "Belt": "pinhead:three-chevrons-right-above-conveyor-belt",
+  "Combiner": "merge",
+  "Separator": "split",
+  "TruckStation": "truck",
+  "SpaceElevator": "cil:elevator"
+}

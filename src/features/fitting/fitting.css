@@ -1,0 +1,27 @@
+.fitting-view{position:relative;z-index:1;box-sizing:border-box;width:100%;height:100%;min-width:0;min-height:0;display:flex;flex-direction:column;gap:16px;padding:24px 28px;overflow:hidden;background:radial-gradient(circle at 50% 0%,#152b35 0%,#0a151e 55%)}
+.fitting-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;flex:1;min-height:0;min-width:0}
+.fitting-layout>.inventory-pane{height:100%;box-sizing:border-box}
+.fitting-slots-panel{display:flex;flex-direction:column;min-width:0;min-height:0;padding:16px;border:1px solid #2d4652;background:rgba(8,20,29,.92)}
+.fitting-slots-heading{display:flex;justify-content:space-between;gap:12px;color:#5fbdae}
+.fitting-slots-heading small{font:9px 'DM Mono',monospace;letter-spacing:.16em;color:#5f8d98}
+.fitting-slots-heading h2{margin:5px 0 0;color:#d6e4e9;font-size:16px;font-weight:500}
+.fitting-slots-heading p{margin:5px 0 0;color:#7999a5;font-size:11px}
+.fitting-selection-hint{margin:16px 0 12px;min-height:28px;color:#8eb4ba;font-size:11px}
+.fitting-groups{overflow:auto;min-height:0;flex:1;padding-right:3px}
+.fitting-group{margin-bottom:20px}
+.fitting-group h3{display:flex;justify-content:space-between;align-items:center;margin:0 0 8px;color:#b9d2d7;font-size:12px;font-weight:500}
+.fitting-group h3 span{color:#668693;font:10px 'DM Mono',monospace}
+.fitting-slot-list{display:grid;gap:7px}
+.fitting-slot{display:flex;align-items:stretch;min-width:0;border:1px solid #2e4651;background:#10222c}
+.fitting-slot.compatible{border-color:#56b7a9}
+.fitting-slot-target{display:flex;align-items:center;gap:11px;flex:1;min-width:0;min-height:80px;padding:6px;text-align:left;border:0;background:transparent;color:#d4e7ea;cursor:pointer}
+.fitting-slot-target:hover{background:#18343c}
+.fitting-slot-icon{display:grid;place-items:center;flex:none;width:68px;height:68px;color:#42606d}
+.fitting-slot-details{display:flex;flex-direction:column;gap:4px;min-width:0}
+.fitting-slot-details small{color:#5fc9b7;font:10px 'DM Mono',monospace}
+.fitting-slot-details strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:500}
+.fitting-slot-details em{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#7899a6;font-size:10px;font-style:normal}
+.fitting-uninstall{align-self:center;flex:none;margin-right:7px;padding:5px 7px;border:1px solid #41616b;background:#142b34;color:#9bb9c3;font-size:10px;cursor:pointer}
+.fitting-uninstall:hover{border-color:#e09d83;color:#f1b39d}
+.fitting-empty-group{margin:0;color:#526d79;font-size:10px}
+@media(max-width:1100px){.fitting-view{padding:17px 19px}.fitting-layout{gap:8px}.fitting-slot-target{gap:5px}.fitting-slot-icon{width:50px;height:62px}.fitting-slot-icon .item-glyph--inventory{transform:scale(.72)}}

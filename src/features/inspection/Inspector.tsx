@@ -1,26 +1,36 @@
-import { useState, type CSSProperties } from 'react'
-import { CircleHelp, Factory, GitBranch, Maximize2, Orbit, Pencil, Pickaxe, SlidersHorizontal, Sparkles, Target, X } from 'lucide-react'
+import { useEffect, useState, type CSSProperties } from 'react'
+import { CircleHelp, GitBranch, Maximize2, Orbit, Pencil, Pickaxe, SlidersHorizontal, Sparkles, Target, X } from 'lucide-react'
 import { ICON_SIZES, UI_COLORS } from '../../config/visualTokens'
+import { resolveItemColor } from '../../shared/icons/itemVisualRegistry'
 import { content, getFactory, getItem, getRecipe, type FactoryDefinition, type FactoryNodeState } from '../../domain/content'
+import { formulasForFactory } from '../../domain/surfaceContent'
 import { findCelestialObject, getResourcePoints, getStar } from '../../domain/spaceMap'
 import { useGameStore, type SceneId } from '../../state/gameStore'
 import { getOrbitalDisplayInfo, objectRepository, type DamageableCapability } from '../../domain/objects'
 import { getFactionDisplayName, PLAYER_FACTION_ID } from '../../domain/factions'
 import { EntityIcon } from '../../shared/icons/EntityIcon'
+import { ItemGlyph } from '../../shared/icons/ItemGlyph'
+import { FactoryGlyph } from '../../shared/icons/FactoryGlyph'
 import { resolveEntityVisualColor } from '../../shared/icons/entityVisualRegistry'
 import { ShipInspector } from './ShipInspector'
 import { buildShipInspectorData, type ShipInspectorData } from './shipInspectorModel'
+import { TaskQueuePanel } from './TaskQueuePanel'
+import type { FocusedTask } from '../space-map/types'
 
 type InspectorProps = {
   selectedId: string | null
+  focusedTask: FocusedTask | null
   scene: SceneId
   onClose: () => void
   onNotify: (message: string) => void
   onEnterSurface: (id: string) => void
 }
 
-export function Inspector({ selectedId, scene, onClose, onNotify, onEnterSurface }: InspectorProps) {
+export function Inspector({ selectedId, focusedTask, scene, onClose, onNotify, onEnterSurface }: InspectorProps) {
+  const [activeTab, setActiveTab] = useState<'details' | 'tasks'>('details')
+  useEffect(() => { setActiveTab(focusedTask?.objectId === selectedId ? 'tasks' : 'details') }, [selectedId, focusedTask?.requestId])
   useGameStore((state) => state.objectRevision)
+  useGameStore((state) => state.resourceReserves)
   const nodes = useGameStore((state) => state.nodes)
   const surfacePlanet = useGameStore((state) => state.surfacePlanet)
   const node = nodes.find((item) => item.id === selectedId)
@@ -28,7 +38,8 @@ export function Inspector({ selectedId, scene, onClose, onNotify, onEnterSurface
   const spaceDetails = selectedId ? resolveSpaceInspectorDetails(selectedId, surfacePlanet) : undefined
   const title = factory?.name ?? spaceDetails?.name ?? '未知对象'
   const canRename = (spaceDetails?.kind === 'ship' || spaceDetails?.kind === 'station') && spaceDetails.ownerFactionId === PLAYER_FACTION_ID
-  return <>{selectedId ? <><div className="inspector-head"><div><small>OBJECT INSPECTOR / 04</small>{canRename ? <EditableOrbitalName key={`heading-${selectedId}`} id={selectedId} name={title} heading /> : <h2>{title}</h2>}</div><button className="icon-button" onClick={onClose}><X size={ICON_SIZES.topBar} /></button></div><div className="inspector-tabs"><button className="active">详情</button><button>配置</button><button>日志</button></div>{factory ? <FactoryInspector node={node!} factory={factory} onNotify={onNotify} /> : spaceDetails ? <SpaceInspector key={spaceDetails.id} details={spaceDetails} onEnterSurface={onEnterSurface} /> : <UnknownObjectInspector selectedId={selectedId} />}</> : <EmptyInspector scene={scene} />}</>
+  const hasTaskQueue = spaceDetails?.kind === 'ship' || spaceDetails?.kind === 'station'
+  return <>{selectedId ? <><div className="inspector-head"><div><small>OBJECT INSPECTOR / 04</small>{canRename ? <EditableOrbitalName key={`heading-${selectedId}`} id={selectedId} name={title} heading /> : <h2>{title}</h2>}</div><button className="icon-button" onClick={onClose}><X size={ICON_SIZES.topBar} /></button></div><div className="inspector-tabs"><button className={activeTab === 'details' ? 'active' : ''} onClick={() => setActiveTab('details')}>详情</button>{hasTaskQueue && <button className={activeTab === 'tasks' ? 'active' : ''} onClick={() => setActiveTab('tasks')}>任务队列</button>}</div>{activeTab === 'tasks' && hasTaskQueue ? <TaskQueuePanel objectId={selectedId} focusedTaskId={focusedTask?.objectId === selectedId ? focusedTask.taskId : undefined} /> : factory ? <FactoryInspector node={node!} factory={factory} onNotify={onNotify} /> : spaceDetails ? <SpaceInspector key={spaceDetails.id} details={spaceDetails} onEnterSurface={onEnterSurface} /> : <UnknownObjectInspector selectedId={selectedId} />}</> : <EmptyInspector scene={scene} />}</>
 }
 
 function EmptyInspector({ scene }: { scene: SceneId }) {
@@ -36,8 +47,11 @@ function EmptyInspector({ scene }: { scene: SceneId }) {
 }
 
 function FactoryInspector({ node, factory, onNotify }: { node: FactoryNodeState; factory: FactoryDefinition; onNotify: (message: string) => void }) {
-  const recipe = factory.recipe ? getRecipe(factory.recipe) : null
-  return <div className="inspector-content"><div className="object-identity"><span className="large-object-icon" style={{ '--node-color': factory.color } as CSSProperties}><Factory size={ICON_SIZES.inspector} /></span><div><strong>{factory.name}</strong><small>{content.factoryTypes.find((type) => type.id === factory.type)?.label} · NODE-{node.id.slice(-3).toUpperCase()}</small></div><span className={`status-tag ${node.status}`}>{node.status === 'online' ? '运行中' : node.status === 'blocked' ? '堵塞' : '待机'}</span></div><div className="metric-grid"><Metric label="生产进度" value={`${Math.round(node.progress * 100)}%`} /><Metric label="缓存库存" value={`${node.buffer.toFixed(0)} / ${factory.capacity ?? 20}`} /><Metric label="输入速率" value={`${factory.rate?.toFixed(1) ?? '—'} /s`} /><Metric label="功率负载" value={factory.power ? `${factory.power} kW` : '—'} /></div>{recipe && <div className="recipe-card"><div className="card-heading"><span>当前配方</span><button onClick={() => onNotify('配方已置顶到操作台')}><Maximize2 size={13} /></button></div><strong>{recipe.name}</strong><div className="recipe-flow"><ItemChip itemId={recipe.inputs[0].item} amount={recipe.inputs[0].amount} /><span>→</span><ItemChip itemId={recipe.outputs[0].item} amount={recipe.outputs[0].amount} /></div><small>周期 {recipe.duration}s · 自动运行</small></div>}<div className="inspector-actions"><button onClick={() => onNotify('物流配置已打开')}><GitBranch size={ICON_SIZES.action} />配置物流</button><button onClick={() => onNotify('设备已切换为维护模式')}><SlidersHorizontal size={ICON_SIZES.action} />维护模式</button></div></div>
+  const setNodeRecipe = useGameStore((state) => state.setNodeRecipe)
+  const formulas = formulasForFactory(factory.id)
+  const recipe = getRecipe(node.recipeId ?? factory.recipe ?? '')
+  const Factory = ({ size }: { size: number }) => <FactoryGlyph factoryId={factory.id} size={size} fallbackCategoryIcon={content.factoryTypes.find((type) => type.id === factory.type)?.icon} />
+  return <div className="inspector-content"><div className="object-identity"><span className="large-object-icon" style={{ '--node-color': factory.color } as CSSProperties}><Factory size={ICON_SIZES.inspector} /></span><div><strong>{factory.name}</strong><small>{content.factoryTypes.find((type) => type.id === factory.type)?.label} · NODE-{node.id.slice(-3).toUpperCase()}</small></div><span className={`status-tag ${node.status}`}>{node.status === 'online' ? '运行中' : node.status === 'blocked' ? '堵塞' : '待机'}</span></div><div className="metric-grid"><Metric label="生产进度" value={`${Math.round(node.progress * 100)}%`} /><Metric label="缓存库存" value={node.surfaceId ? `${node.buffer.toFixed(0)} 件` : `${node.buffer.toFixed(0)} / ${factory.capacity ?? 20}`} /><Metric label="输入速率" value={`${factory.rate?.toFixed(1) ?? '—'} /s`} /><Metric label="功率负载" value={factory.power ? `${factory.power} kW` : '—'} /></div>{node.surfaceId && <div className="info-list">{Object.entries(node.inventory ?? {}).filter(([, count]) => count > 0).map(([item, count]) => <div key={item}><span>{getItem(item)?.name ?? item}</span><strong>{count} 件</strong></div>)}</div>}{formulas.length > 1 && <label className="surface-recipe-select">生产配方 <select value={node.recipeId ?? factory.recipe} onChange={(event) => setNodeRecipe(node.id, event.target.value)}>{formulas.map(([id, formula]) => <option key={id} value={id}>{formula.displayName}</option>)}</select></label>}{recipe && <div className="recipe-card"><div className="card-heading"><span>当前配方</span><button onClick={() => onNotify('配方已置顶到操作台')}><Maximize2 size={13} /></button></div><strong>{recipe.name}</strong><div className="recipe-flow">{recipe.inputs.map((input) => <ItemChip key={input.item} itemId={input.item} amount={input.amount} />)}<span>→</span>{recipe.outputs.map((output) => <ItemChip key={output.item} itemId={output.item} amount={output.amount} />)}</div>{recipe.duration > 0 && <small>周期 {recipe.duration}s · 自动运行</small>}</div>}<div className="inspector-actions"><button onClick={() => onNotify('物流配置已打开')}><GitBranch size={ICON_SIZES.action} />配置物流</button><button onClick={() => onNotify('设备已切换为维护模式')}><SlidersHorizontal size={ICON_SIZES.action} />维护模式</button></div></div>
 }
 
 type SpaceInspectorDetails = {
@@ -99,7 +113,7 @@ function resolveSpaceInspectorDetails(selectedId: string, surfacePlanet: string)
       color: celestial.kind === 'star' ? UI_COLORS.starInfo : celestial.kind === 'planet' ? UI_COLORS.planetInfo : UI_COLORS.moonInfo,
       metrics,
       facts,
-      surfaceTarget: celestial.hasSurface ? celestial.id.split('/').at(-1) : undefined
+      surfaceTarget: celestial.hasSurface ? celestial.id : undefined
     }
   }
 
@@ -151,8 +165,10 @@ function resolveSpaceInspectorDetails(selectedId: string, surfacePlanet: string)
     surfaceTarget: legacyBody.hasSurface ? legacyBody.id : undefined
   }
 
-  const resourcePlanetId = surfacePlanet === 'aurelia' ? 'Earth' : surfacePlanet
-  const resource = getResourcePoints('Solar', resourcePlanetId).find((item) => item.id === selectedId)
+  const [resourceStarId, ...resourcePath] = surfacePlanet.split('/')
+  const resourcePlanetId = resourcePath.join('/')
+  const resource = getResourcePoints(resourceStarId, resourcePlanetId).find((item) => item.id === selectedId)
+  const remaining = resource ? useGameStore.getState().resourceReserves[resource.id] ?? resource.reserves : 0
   if (resource) return {
     id: resource.id,
     kind: 'resource',
@@ -160,7 +176,7 @@ function resolveSpaceInspectorDetails(selectedId: string, surfacePlanet: string)
     subtitle: `地表资源点 · ${resource.item}`,
     status: '可开采',
     color: UI_COLORS.mining,
-    metrics: [{ label: '储量', value: `${formatNumber(resource.reserves)} t` }, { label: '资源物', value: resource.item }, { label: '地表 X', value: `${formatNumber(resource.position.x)} km` }, { label: '地表 Y', value: `${formatNumber(resource.position.y)} km` }],
+    metrics: [{ label: '储量', value: `${formatNumber(remaining)} t` }, { label: '资源物', value: resource.item }, { label: '地表 X', value: `${Math.round(resource.position.x)} km` }, { label: '地表 Y', value: `${Math.round(resource.position.y)} km` }],
     facts: [{ label: '资源类型', value: resource.resourceTypeName }, { label: '所属行星', value: resourcePlanetId }, { label: '对象编号', value: resource.id }]
   }
   return undefined
@@ -213,5 +229,5 @@ function Metric({ label, value }: { label: string; value: string }) {
 
 function ItemChip({ itemId, amount }: { itemId: string; amount: number }) {
   const item = getItem(itemId)
-  return <span className="item-chip" style={{ '--item-color': item?.color } as CSSProperties}><span>{item?.symbol}</span><small>×{amount}</small></span>
+  return <span className="item-chip" style={{ '--item-color': resolveItemColor(itemId, item) } as CSSProperties}><ItemGlyph itemId={itemId} item={item} variant="chip" /><small>×{amount}</small></span>
 }

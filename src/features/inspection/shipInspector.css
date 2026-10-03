@@ -96,6 +96,19 @@
   transition: width .16s ease-out;
 }
 
+/* Match the surface factory's slim progress line; keep overflow visible so the HP glow is not clipped. */
+:is(.ship-gauge-shield, .ship-gauge-armor, .ship-gauge-structure) .ship-gauge-track {
+  height: 3px;
+  overflow: visible;
+  border: 0;
+  background: #1a2b37;
+  box-shadow: none;
+}
+
+:is(.ship-gauge-shield, .ship-gauge-armor, .ship-gauge-structure) .ship-gauge-fill {
+  box-shadow: 0 0 7px var(--meter-glow), 0 0 12px var(--meter-glow);
+}
+
 .ship-heading {
   display: flex;
   align-items: center;

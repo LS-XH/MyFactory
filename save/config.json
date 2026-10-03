@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "settings": {
+    "orbitAnimation": true,
+    "celestialNamesAlwaysVisible": true,
+    "objectNamesAlwaysVisible": false,
+    "orbitFps": 120,
+    "inventoryScale": 0.5,
+    "starDisplayRadius": 4.9,
+    "planetDisplayRadius": 1,
+    "moonDisplayRadius": 0.3,
+    "orbitalEntityDisplayRadius": 0.8,
+    "overviewMarkerMinZoom": 0.03125,
+    "overviewFadeStartZoom": 0.06,
+    "overviewFadeEndZoom": 2,
+    "systemFadeStartZoom": 0.125,
+    "systemFadeEndZoom": 2,
+    "objectIconMinZoom": 16,
+    "objectIconMaxZoom": 128,
+    "surfaceCardCompactMaxZoom": 0.5,
+    "surfaceCardDetailMinZoom": 2,
+    "surfaceIconMinZoom": 0.5,
+    "starAuLengthFactor": 10,
+    "planetAuLengthFactor": 10,
+    "moonAuLengthFactor": 3
+  }
+}

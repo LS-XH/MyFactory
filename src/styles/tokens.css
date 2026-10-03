@@ -1,4 +1,6 @@
 :root {
+  --shell-header-height: 56px;
+  --shell-footer-height: 84px;
   --color-bg-root: #070c12;
   --color-bg-shell: #080e16;
   --color-text-primary: #dbe7f5;
@@ -9,7 +11,8 @@
   --color-moon: #d8e1e8;
   --color-station: #53d5c4;
   --color-ship: #b18cff;
-  --color-player-owned-object: #c6e765;
+  --color-player-owned-object: #5cf05a;
+  --color-hostile-filter: #ed8b80;
   --color-transport: #69a7ff;
   --color-mining: #e58b5c;
   --color-logistics: #6da9ff;
@@ -25,4 +28,11 @@
   --color-selected-frame: #fff;
   --font-interface: 'Space Grotesk', 'Microsoft YaHei', sans-serif;
   --font-mono: 'DM Mono', monospace;
+}
+
+@media (max-height: 820px) {
+  :root {
+    --shell-header-height: 52px;
+    --shell-footer-height: 76px;
+  }
 }

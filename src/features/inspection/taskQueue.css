@@ -1,0 +1,22 @@
+.task-queue-panel { color: #a8c0ce; }
+.task-queue-heading { display: flex; justify-content: space-between; align-items: center; margin: 3px 0 13px; font-size: 11px; }
+.task-queue-heading strong { color: #e0edf2; font-weight: 500; }
+.task-queue-heading span { color: #5ccfbd; font: 9px 'DM Mono'; }
+.task-queue-empty { padding: 24px 13px; color: #7390a1; background: #101e29; border: 1px dashed #314957; font-size: 10px; line-height: 1.7; }
+.task-queue-list { display: grid; gap: 7px; }
+.task-queue-row { display: flex; align-items: center; gap: 7px; min-width: 0; padding: 9px 7px; background: #101e29; border: 1px solid #2b4553; }
+.task-queue-row:first-child { border-color: #78cfff; background: #142c3b; }
+.task-queue-row.focused { border-color: #87efae; background: #173429; box-shadow: inset 0 0 5px rgba(135, 239, 174, .17), 0 0 4px rgba(135, 239, 174, .22); }
+.task-queue-row.dragging { opacity: .45; }
+.task-queue-grip { flex: none; color: #617f90; cursor: grab; }
+.task-queue-text { flex: 1; min-width: 0; }
+.task-queue-text span { display: block; color: #5ccfbd; font: 8px 'DM Mono'; }
+.task-queue-text strong { display: block; margin-top: 4px; color: #d5e6ec; font-size: 11px; font-weight: 500; }
+.task-queue-row:first-child .task-queue-text span, .task-queue-row:first-child .task-queue-text strong { color: #8bd8ff; }
+.task-queue-row.focused .task-queue-text span, .task-queue-row.focused .task-queue-text strong { color: #87efae; }
+.task-queue-text small { display: block; overflow: hidden; margin-top: 3px; color: #87a4b4; font: 8px 'DM Mono'; text-overflow: ellipsis; white-space: nowrap; }
+.task-queue-controls { display: flex; flex: none; gap: 1px; margin-left: auto; }
+.task-queue-controls button { display: grid; place-items: center; width: 20px; height: 22px; padding: 0; color: #8aa5b5; background: transparent; }
+.task-queue-controls button:hover:not(:disabled) { color: #5dd8c6; background: #203c43; }
+.task-queue-controls button:disabled { color: #3b5360; cursor: default; }
+.task-queue-panel p { margin-top: 14px; color: #5e7b8c; font-size: 9px; line-height: 1.7; }

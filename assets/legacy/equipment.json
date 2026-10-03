@@ -1,7 +1,7 @@
 {
     "LaserEmitter":{
         "displayName":"小型激光发射器",
-        "equipmentType":"Turret",
+        "equipmentType":"LaserTurret",
         "size":"S",
         "attackInterval":0.5,
         "attactRange":5000,
@@ -10,5 +10,49 @@
         "turnSpeed":90,
         "hitRate":0.8
 
+    },
+    "MissileEmitter": {
+        "displayName": "小型导弹发射器",
+        "equipmentType":"MissileTurret",
+        "size":"S",
+        "attackInterval":0.5,
+        "attactRange":5000,
+        "attactDamage":100,
+        "projectileSpeed":1000000,
+        "turnSpeed":90,
+        "hitRate":0.8
+    },
+    "CannonEmitter": {
+        "displayName": "小型加农炮",
+        "equipmentType":"CannonTurret",
+        "size":"S",
+        "attackInterval":0.5,
+        "attactRange":5000,
+        "attactDamage":100,
+        "projectileSpeed":1000000,
+        "turnSpeed":90,
+        "hitRate":0.8
+    },
+    "RapidFireEmitter": {
+        "displayName": "小型疾速炮",
+        "equipmentType":"RapidFireTurret",
+        "size":"S",
+        "attackInterval":0.5,
+        "attactRange":5000,
+        "attactDamage":100,
+        "projectileSpeed":1000000,
+        "turnSpeed":90,
+        "hitRate":0.8
+    },
+    "RailgunEmitter": {
+        "displayName": "小型轨道炮",
+        "equipmentType":"RailgunTurret",
+        "size":"S",
+        "attackInterval":0.5,
+        "attactRange":5000,
+        "attactDamage":100,
+        "projectileSpeed":1000000,
+        "turnSpeed":90,
+        "hitRate":0.8
     }
 }

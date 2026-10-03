@@ -64,7 +64,7 @@ describe('space object inspector', () => {
     expect(markup.match(/role="progressbar"/g)).toHaveLength(4)
     expect(markup).toContain('aria-label="速度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"')
     expect(markup).toContain('aria-label="护盾 HP" aria-valuemin="0" aria-valuemax="100" aria-valuenow="75"')
-    expect(markup).toContain('aria-label="船体 HP" aria-valuemin="0" aria-valuemax="100" aria-valuenow="80"')
+    expect(markup).toContain('aria-label="装甲 HP" aria-valuemin="0" aria-valuemax="100" aria-valuenow="80"')
     expect(markup).toContain('aria-label="结构 HP" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25"')
   })
 })

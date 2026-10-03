@@ -7,6 +7,7 @@ import resourceTypesJson from '../../assets/legacy/resourceType.json'
 const positionSchema = z.object({ x: z.number(), y: z.number() })
 const resourceSchema = z.object({ resourceType: z.string(), item: z.string(), position: positionSchema, reserves: z.number() })
 const planetSchema: z.ZodTypeAny = z.lazy(() => z.object({
+  displayName: z.string().optional(),
   planetType: z.string().optional(),
   position: z.object({ orbitalRadius: z.number(), orbitalPeriod: z.number(), radius: z.number() }).optional(),
   surface: z.object({ resource: z.array(resourceSchema).default([]) }).default({ resource: [] }),
@@ -39,7 +40,7 @@ export type CelestialObject = {
 
 export const spaceMap = z.record(starSchema).parse(spaceMapJson) as SpaceMap
 export const starTypes = starTypesJson as Record<string, { displayName: string }>
-export const planetTypes = planetTypesJson as Record<string, { displayName: string }>
+export const planetTypes = planetTypesJson as Record<string, { displayName?: string }>
 export const resourceTypes = resourceTypesJson as Record<string, string>
 
 // AU data remains untouched. Each hierarchy applies its user-configurable linear
@@ -131,7 +132,7 @@ function findPlanet(
       return {
         id: selectedId,
         kind: depth === 0 ? 'planet' : 'moon',
-        displayName: getCelestialDisplayName(planetId),
+        displayName: planet.displayName ?? getCelestialDisplayName(planetId),
         typeName: planetTypes[planet.planetType ?? '']?.displayName ?? '未分类天体',
         starId,
         starName,
@@ -145,7 +146,7 @@ function findPlanet(
         hasSurface: resources.length > 0
       }
     }
-    const nested = findPlanet(selectedId, children, starId, starName, planetId, getCelestialDisplayName(planetId), depth + 1, bodyPath)
+    const nested = findPlanet(selectedId, children, starId, starName, planetId, planet.displayName ?? getCelestialDisplayName(planetId), depth + 1, bodyPath)
     if (nested) return nested
   }
   return undefined
@@ -153,7 +154,10 @@ function findPlanet(
 
 /** Resolves a map object by the same ID used by SVG selection, including nested moons. */
 export function findCelestialObject(selectedId: string): CelestialObject | undefined {
-  for (const [starId, star] of Object.entries(spaceMap)) {
+  if (selectedId.startsWith('resource-')) return undefined
+  const requestedStarId = selectedId.includes('/') ? selectedId.split('/')[0] : undefined
+  const stars = requestedStarId ? (spaceMap[requestedStarId] ? [[requestedStarId, spaceMap[requestedStarId]] as const] : []) : Object.entries(spaceMap)
+  for (const [starId, star] of stars) {
     const planets = star.planet as Record<string, PlanetMapEntry>
     if (starId === selectedId) {
       const summary = summarizePlanets(planets)
@@ -180,11 +184,22 @@ export function findCelestialObject(selectedId: string): CelestialObject | undef
 }
 
 export function getStar(starId: string) { return spaceMap[starId] }
-export function getPlanet(starId: string, planetId: string) { return spaceMap[starId]?.planet[planetId] }
+export function getPlanet(starId: string, planetId: string): PlanetMapEntry | undefined {
+  const path = planetId.split('/').filter(Boolean)
+  if (path[0] === starId) path.shift()
+  let planets = spaceMap[starId]?.planet as Record<string, PlanetMapEntry> | undefined
+  for (const [index, id] of path.entries()) {
+    const planet = planets?.[id]
+    if (!planet) return undefined
+    if (index === path.length - 1) return planet
+    planets = planet.planet as Record<string, PlanetMapEntry>
+  }
+  return undefined
+}
 export function getResourcePoints(starId: string, planetId: string): ResourcePoint[] {
   const planet = getPlanet(starId, planetId)
   const resources = (planet?.surface?.resource ?? []) as RawResource[]
-  return resources.map((resource, index) => ({ ...resource, id: `resource-${starId}-${planetId}-${index}`, displayName: `${resourceTypes[resource.resourceType] ?? resource.resourceType} / ${resource.item}`, resourceTypeName: resourceTypes[resource.resourceType] ?? resource.resourceType }))
+  return resources.map((resource, index) => ({ ...resource, id: `resource-${starId}-${planetId.replaceAll('/', '-')}-${index}`, displayName: `${resourceTypes[resource.resourceType] ?? resource.resourceType} / ${resource.item}`, resourceTypeName: resourceTypes[resource.resourceType] ?? resource.resourceType }))
 }
 
 export function getDefaultPlanet() {

@@ -1,7 +1,71 @@
 {
-  "Shield": "护盾",
-  "Engine": "引擎",
-  "Turret": "炮塔",
-  "Armor": "装甲",
-  "Module": "模块"
+  "Shield": {
+    "displayName":"护盾",
+    "slotGroup":"defenseSlots",
+    "subEquipmentType":{}
+  },
+  "Engine": {
+    "displayName":"引擎",
+    "slotGroup":"engineSlots",
+    "subEquipmentType":{}
+  },
+  "Turret": {
+    "displayName":"炮塔",
+    "slotGroup":"turretSlots",
+    "subEquipmentType":{
+      "LaserTurret":{
+        "displayName":"激光炮塔",
+        "icon":"game-icons:laser-blast",
+        "attribute":{
+
+        }
+      },
+      "MissileTurret":{
+        "displayName":"导弹炮塔",
+        "icon":"game-icons:missile-launcher",
+        "attribute":{
+        }
+      },
+      "CannonTurret":{
+        "displayName":"加农炮",
+        "icon":"game-icons:pirate-cannon",
+        "attribute":{}
+      },
+      "RapidFireTurret":{
+        "displayName":"疾速炮",
+        "icon":"game-icons:anti-aircraft-gun",
+        "attribute":{}
+      },
+      "RailgunTurret":{
+        "displayName":"轨道炮",
+        "icon":"game-icons:turret",
+        "attribute":{}
+      },
+      "EntropicDisintegratorTurret":{
+        "displayName":"熵能分解者",
+        "icon":"game-icons:tesla-turret",
+        "attribute":{}
+      },
+      "EnergyProjectorTurret":{
+        "displayName":"能量投射器",
+        "icon":"game-icons:energy-breath",
+        "attribute":{}
+      },
+      "TachyonLanceTurret":{
+        "displayName":"快子光矛",
+        "icon":"game-icons:energy-sword",
+        "attribute":{}
+      }
+    }
+  },
+  "Armor": {
+    "displayName":"装甲",
+    "slotGroup":"defenseSlots",
+    "subEquipmentType":{}
+  },
+  "Module": {
+    "displayName":"模块",
+    "slotGroup":"moduleSlots",
+    "subEquipmentType":{}
+  }
 }

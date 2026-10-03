@@ -1,0 +1,171 @@
+import type { ItemKind } from '../../domain/items'
+
+/** Curated UI swatches for every chemical item. These are readable icon colors, not measured material colors. */
+export const CHEMICAL_ITEM_COLORS: Readonly<Record<string, string>> = {
+  // Elements and elemental gases
+  Fe: '#A6E8CB',
+  C: '#8997A3',
+  Na: '#D9C7E8',
+  Mg: '#CED9E0',
+  Al: '#DCE8F0',
+  Si: '#DCC9A5',
+  S8: '#F4D66B',
+  K: '#D8B8E7',
+  Ca: '#E8D8BE',
+  Ti: '#B9CFD6',
+  Cr: '#B6CDD0',
+  Mn: '#C8BDD7',
+  Ni: '#B9D1C7',
+  Cu: '#D9A08C',
+  Zn: '#CCD6D1',
+  Ag: '#E1E5EC',
+  Sn: '#CFD9E2',
+  W: '#B8C4D1',
+  Au: '#F4D579',
+  Pb: '#B9B4C9',
+  H2: '#B8E3F4',
+  N2: '#B7CBEB',
+  O2: '#A0D9F5',
+  F2: '#E3E99C',
+  Cl2: '#D6E98B',
+  Br2: '#D69A7E',
+  He: '#EDCBE2',
+  Ne: '#F2BDAA',
+  Ar: '#D4C7EE',
+
+  // Small inorganic and organic molecules
+  CO: '#A8D7D4',
+  CO2: '#B7D9E6',
+  CH4: '#BFDDBB',
+  C2H6: '#C6DDB5',
+  C3H8: '#D4D7B1',
+  C4H10: '#DFD2AA',
+  C2H4: '#BBDFC7',
+  C2H2: '#B7D7AF',
+  NH3: '#C7DDEB',
+  SO2: '#E6D6A1',
+  NO: '#BFD5E4',
+  NO2: '#DBA98B',
+  N2O: '#C6D4ED',
+  H2S: '#DCCB8F',
+  HCl: '#D6E8BD',
+  H2O: '#8CCDEC',
+  CH3OH: '#D7E9E2',
+  C2H5OH: '#E8E0CE',
+  C3H6O: '#D8C3D9',
+  CH3COOH: '#E2D4CE',
+  H2SO4: '#D1D9B8',
+  HNO3: '#E4DCA5',
+  C6H6: '#DEC4B1',
+  C7H8: '#D9BEAE',
+  C2H6O2: '#D0E0D9',
+  C3H8O3: '#D7E3DB',
+
+  // Oxides, salts and other solid compounds
+  FeO: '#AB938A',
+  Fe2O3: '#D78773',
+  Fe3O4: '#9BA9B5',
+  Al2O3: '#EEE4DC',
+  SiO2: '#E6E0CF',
+  CaCO3: '#E9E6DD',
+  CaO: '#E4DABF',
+  'Ca(OH)2': '#E1E7D5',
+  MgO: '#EAE6DB',
+  'Mg(OH)2': '#E6E9D6',
+  NaCl: '#E8F0EC',
+  KCl: '#E7E9E0',
+  NaOH: '#E2EBDC',
+  KOH: '#E4EAD7',
+  Na2CO3: '#DDE8E4',
+  NaHCO3: '#E6ECE6',
+  CaSO4: '#E5E4DA',
+  CuO: '#AFA59B',
+  Cu2O: '#D68F76',
+  ZnO: '#EAE7DC',
+  TiO2: '#EFF0E8',
+  MnO2: '#9A9AA9',
+  FeS2: '#D5B968',
+  CuSO4: '#91C7E4',
+  NH4Cl: '#E5E9DD',
+  '(NH4)2SO4': '#E7EADB',
+  C6H12O6: '#E6DAC4',
+  C12H22O11: '#E8D9C0',
+  CH4N2O: '#EEE7D8'
+}
+
+/** Nonchemical item colors and the shared chemical palette. */
+export const ITEM_COLORS: Readonly<Record<string, string>> = {
+  ...CHEMICAL_ITEM_COLORS,
+  // Mineral colors are lighter UI versions of their characteristic specimen hues.
+  Magnetite: '#AEBCC9',
+  Hematite: '#DDA092',
+  GraphiteOre: '#B7C1CD',
+  NativeSulfur: '#F2DE7D',
+  QuartzSand: '#E8D7B6',
+  Limestone: '#E1E4D8',
+  Bauxite: '#E3AF91',
+  Corundum: '#D6B9E9',
+  Rutile: '#DDBE90',
+  Pyrolusite: '#B9B8CE',
+  Pyrite: '#F0D37D',
+  Halite: '#E3EDF1',
+  Sylvite: '#EDD5DC',
+  Anhydrite: '#DFE5E7',
+  Cuprite: '#E8A3A0',
+  Tenorite: '#B5C2CA',
+  Zincite: '#F0BEA4',
+  Brucite: '#CFE6D4',
+  Periclase: '#E4E9DF',
+  Nahcolite: '#E5E9DF',
+  Trona: '#ECE4C9',
+  Sphalerite: '#DCC2A5',
+  Galena: '#C2CCD8',
+  Cassiterite: '#CDB8AF',
+  Ilmenite: '#B5C3CF',
+  Chromite: '#B7C5BE',
+  Magnesite: '#DAE6DE',
+  Dolomite: '#E9D4D4',
+  Chalcopyrite: '#EAD58A',
+  Chalcocite: '#B9C6D6',
+  Millerite: '#E0CF9B',
+  Fluorite: '#D3BEEC',
+  Barite: '#E6DFD4',
+  PhosphateRock: '#D8DDC0',
+  Spodumene: '#E0C8E9',
+  Nitratine: '#E9E8DC',
+  Niter: '#E2E8DA',
+  Thenardite: '#E1EAF0',
+  Cerussite: '#E7E9E4',
+  Smithsonite: '#BFE4D4',
+  Malachite: '#8ED9B6',
+  Acanthite: '#BCC5D3',
+  LaserEmitter: '#92E7DF',
+  MissileEmitter: '#F2BFA8',
+  CannonEmitter: '#EAC99C',
+  RapidFireEmitter: '#C5D7E5',
+  RailgunEmitter: '#BAC9EE',
+  'ferrite-ore': '#799f7e',
+  'iron-ingot': '#c8876c',
+  'steel-ingot': '#9ba8b8'
+}
+
+export const ITEM_KIND_COLORS: Readonly<Record<ItemKind, string>> = {
+  chemical: '#c8e6dd',
+  material: '#98b6c4',
+  product: '#98b6c4',
+  equipment: '#98b6c4'
+}
+
+function configuredColor(itemId: string): string | undefined {
+  return Object.prototype.hasOwnProperty.call(ITEM_COLORS, itemId) ? ITEM_COLORS[itemId] : undefined
+}
+
+export function resolveItemColor(itemId: string, item?: { kind: ItemKind; primaryElementId?: string }): string {
+  const itemColor = configuredColor(itemId)
+  if (itemColor) return itemColor
+  if (item?.kind === 'material' && item.primaryElementId) {
+    const elementColor = configuredColor(item.primaryElementId)
+    if (elementColor) return elementColor
+  }
+  return ITEM_KIND_COLORS[item?.kind ?? 'material']
+}

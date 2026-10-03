@@ -6,10 +6,10 @@
       "kind": "station",
       "definitionId": "Horizon Fortizar",
       "name": "地平线 · 铁壁",
-      "starId": "Solar",
+      "starId": "Star0041",
       "position": {
-        "x": 32,
-        "y": -18
+        "x": 0.12205999999999761,
+        "y": -4.453020000000009
       },
       "orbit": 2,
       "ownerFactionId": "Player",
@@ -27,17 +27,32 @@
           "amount": 100
         }
       ],
-      "installedEquipment": []
+      "installedEquipment": [],
+      "storage": {
+        "slots": [
+          {
+            "slot": 0,
+            "itemId": "Fe",
+            "quantity": 40
+          },
+          {
+            "slot": 1,
+            "itemId": "LaserEmitter",
+            "quantity": 2
+          }
+        ]
+      },
+      "tasks": []
     },
     {
       "id": "ship-imicus",
       "kind": "ship",
       "definitionId": "Imicus",
       "name": "伊米卡斯级 · 侦察 01",
-      "starId": "Solar",
+      "starId": "Star0144",
       "position": {
-        "x": 24.16823049595041,
-        "y": -10.224184974531
+        "x": 13.379197546248179,
+        "y": 0.23022217574680326
       },
       "orbit": 1,
       "ownerFactionId": "Player",
@@ -55,12 +70,927 @@
         }
       ],
       "installedEquipment": [],
+      "storage": {
+        "slots": [
+          {
+            "slot": 0,
+            "itemId": "Fe",
+            "quantity": 1
+          },
+          {
+            "slot": 1,
+            "itemId": "Fe2O3",
+            "quantity": 1
+          },
+          {
+            "slot": 2,
+            "itemId": "Fe3O4",
+            "quantity": 1
+          },
+          {
+            "slot": 3,
+            "itemId": "CO",
+            "quantity": 1
+          },
+          {
+            "slot": 4,
+            "itemId": "CO2",
+            "quantity": 1
+          },
+          {
+            "slot": 5,
+            "itemId": "O2",
+            "quantity": 1
+          },
+          {
+            "slot": 6,
+            "itemId": "C",
+            "quantity": 1
+          },
+          {
+            "slot": 7,
+            "itemId": "Na",
+            "quantity": 1
+          },
+          {
+            "slot": 8,
+            "itemId": "Mg",
+            "quantity": 1
+          },
+          {
+            "slot": 9,
+            "itemId": "Al",
+            "quantity": 1
+          },
+          {
+            "slot": 10,
+            "itemId": "Si",
+            "quantity": 1
+          },
+          {
+            "slot": 11,
+            "itemId": "S8",
+            "quantity": 1
+          },
+          {
+            "slot": 12,
+            "itemId": "K",
+            "quantity": 1
+          },
+          {
+            "slot": 13,
+            "itemId": "Ca",
+            "quantity": 1
+          },
+          {
+            "slot": 14,
+            "itemId": "Ti",
+            "quantity": 1
+          },
+          {
+            "slot": 15,
+            "itemId": "Cr",
+            "quantity": 1
+          },
+          {
+            "slot": 16,
+            "itemId": "Mn",
+            "quantity": 1
+          },
+          {
+            "slot": 17,
+            "itemId": "Ni",
+            "quantity": 1
+          },
+          {
+            "slot": 18,
+            "itemId": "Cu",
+            "quantity": 1
+          },
+          {
+            "slot": 19,
+            "itemId": "Zn",
+            "quantity": 1
+          },
+          {
+            "slot": 20,
+            "itemId": "Ag",
+            "quantity": 1
+          },
+          {
+            "slot": 21,
+            "itemId": "Sn",
+            "quantity": 1
+          },
+          {
+            "slot": 22,
+            "itemId": "W",
+            "quantity": 1
+          },
+          {
+            "slot": 23,
+            "itemId": "Au",
+            "quantity": 1
+          },
+          {
+            "slot": 24,
+            "itemId": "Pb",
+            "quantity": 1
+          },
+          {
+            "slot": 25,
+            "itemId": "H2",
+            "quantity": 1
+          },
+          {
+            "slot": 26,
+            "itemId": "N2",
+            "quantity": 1
+          },
+          {
+            "slot": 27,
+            "itemId": "F2",
+            "quantity": 1
+          },
+          {
+            "slot": 28,
+            "itemId": "Cl2",
+            "quantity": 1
+          },
+          {
+            "slot": 29,
+            "itemId": "He",
+            "quantity": 1
+          },
+          {
+            "slot": 30,
+            "itemId": "Ne",
+            "quantity": 1
+          },
+          {
+            "slot": 31,
+            "itemId": "Ar",
+            "quantity": 1
+          },
+          {
+            "slot": 32,
+            "itemId": "CH4",
+            "quantity": 1
+          },
+          {
+            "slot": 33,
+            "itemId": "C2H6",
+            "quantity": 1
+          },
+          {
+            "slot": 34,
+            "itemId": "C3H8",
+            "quantity": 1
+          },
+          {
+            "slot": 35,
+            "itemId": "C4H10",
+            "quantity": 1
+          },
+          {
+            "slot": 36,
+            "itemId": "C2H4",
+            "quantity": 1
+          },
+          {
+            "slot": 37,
+            "itemId": "C2H2",
+            "quantity": 1
+          },
+          {
+            "slot": 38,
+            "itemId": "NH3",
+            "quantity": 1
+          },
+          {
+            "slot": 39,
+            "itemId": "SO2",
+            "quantity": 1
+          },
+          {
+            "slot": 40,
+            "itemId": "NO",
+            "quantity": 1
+          },
+          {
+            "slot": 41,
+            "itemId": "NO2",
+            "quantity": 1
+          },
+          {
+            "slot": 42,
+            "itemId": "N2O",
+            "quantity": 1
+          },
+          {
+            "slot": 43,
+            "itemId": "H2S",
+            "quantity": 1
+          },
+          {
+            "slot": 44,
+            "itemId": "HCl",
+            "quantity": 1
+          },
+          {
+            "slot": 45,
+            "itemId": "H2O",
+            "quantity": 1
+          },
+          {
+            "slot": 46,
+            "itemId": "Br2",
+            "quantity": 1
+          },
+          {
+            "slot": 47,
+            "itemId": "CH3OH",
+            "quantity": 1
+          },
+          {
+            "slot": 48,
+            "itemId": "C2H5OH",
+            "quantity": 1
+          },
+          {
+            "slot": 49,
+            "itemId": "C3H6O",
+            "quantity": 1
+          },
+          {
+            "slot": 50,
+            "itemId": "CH3COOH",
+            "quantity": 1
+          },
+          {
+            "slot": 51,
+            "itemId": "H2SO4",
+            "quantity": 1
+          },
+          {
+            "slot": 52,
+            "itemId": "HNO3",
+            "quantity": 1
+          },
+          {
+            "slot": 53,
+            "itemId": "C6H6",
+            "quantity": 1
+          },
+          {
+            "slot": 54,
+            "itemId": "C7H8",
+            "quantity": 1
+          },
+          {
+            "slot": 55,
+            "itemId": "C2H6O2",
+            "quantity": 1
+          },
+          {
+            "slot": 56,
+            "itemId": "C3H8O3",
+            "quantity": 1
+          },
+          {
+            "slot": 57,
+            "itemId": "FeO",
+            "quantity": 1
+          },
+          {
+            "slot": 58,
+            "itemId": "Al2O3",
+            "quantity": 1
+          },
+          {
+            "slot": 59,
+            "itemId": "SiO2",
+            "quantity": 1
+          },
+          {
+            "slot": 60,
+            "itemId": "CaCO3",
+            "quantity": 1
+          },
+          {
+            "slot": 61,
+            "itemId": "CaO",
+            "quantity": 1
+          },
+          {
+            "slot": 62,
+            "itemId": "Ca(OH)2",
+            "quantity": 1
+          },
+          {
+            "slot": 63,
+            "itemId": "MgO",
+            "quantity": 1
+          },
+          {
+            "slot": 64,
+            "itemId": "Mg(OH)2",
+            "quantity": 1
+          },
+          {
+            "slot": 65,
+            "itemId": "NaCl",
+            "quantity": 1
+          },
+          {
+            "slot": 66,
+            "itemId": "KCl",
+            "quantity": 1
+          },
+          {
+            "slot": 67,
+            "itemId": "NaOH",
+            "quantity": 1
+          },
+          {
+            "slot": 68,
+            "itemId": "KOH",
+            "quantity": 1
+          },
+          {
+            "slot": 69,
+            "itemId": "Na2CO3",
+            "quantity": 1
+          },
+          {
+            "slot": 70,
+            "itemId": "NaHCO3",
+            "quantity": 1
+          },
+          {
+            "slot": 71,
+            "itemId": "CaSO4",
+            "quantity": 1
+          },
+          {
+            "slot": 72,
+            "itemId": "CuO",
+            "quantity": 1
+          },
+          {
+            "slot": 73,
+            "itemId": "Cu2O",
+            "quantity": 1
+          },
+          {
+            "slot": 74,
+            "itemId": "ZnO",
+            "quantity": 1
+          },
+          {
+            "slot": 75,
+            "itemId": "TiO2",
+            "quantity": 1
+          },
+          {
+            "slot": 76,
+            "itemId": "MnO2",
+            "quantity": 1
+          },
+          {
+            "slot": 77,
+            "itemId": "FeS2",
+            "quantity": 1
+          },
+          {
+            "slot": 78,
+            "itemId": "CuSO4",
+            "quantity": 1
+          },
+          {
+            "slot": 79,
+            "itemId": "NH4Cl",
+            "quantity": 1
+          },
+          {
+            "slot": 80,
+            "itemId": "(NH4)2SO4",
+            "quantity": 1
+          },
+          {
+            "slot": 81,
+            "itemId": "C6H12O6",
+            "quantity": 1
+          },
+          {
+            "slot": 82,
+            "itemId": "C12H22O11",
+            "quantity": 1
+          },
+          {
+            "slot": 83,
+            "itemId": "CH4N2O",
+            "quantity": 1
+          },
+          {
+            "slot": 84,
+            "itemId": "Li",
+            "quantity": 1
+          },
+          {
+            "slot": 85,
+            "itemId": "P4",
+            "quantity": 1
+          },
+          {
+            "slot": 86,
+            "itemId": "ZnS",
+            "quantity": 1
+          },
+          {
+            "slot": 87,
+            "itemId": "PbS",
+            "quantity": 1
+          },
+          {
+            "slot": 88,
+            "itemId": "SnO2",
+            "quantity": 1
+          },
+          {
+            "slot": 89,
+            "itemId": "FeTiO3",
+            "quantity": 1
+          },
+          {
+            "slot": 90,
+            "itemId": "FeCr2O4",
+            "quantity": 1
+          },
+          {
+            "slot": 91,
+            "itemId": "MgCO3",
+            "quantity": 1
+          },
+          {
+            "slot": 92,
+            "itemId": "CaMg(CO3)2",
+            "quantity": 1
+          },
+          {
+            "slot": 93,
+            "itemId": "CuFeS2",
+            "quantity": 1
+          },
+          {
+            "slot": 94,
+            "itemId": "Cu2S",
+            "quantity": 1
+          },
+          {
+            "slot": 95,
+            "itemId": "NiS",
+            "quantity": 1
+          },
+          {
+            "slot": 96,
+            "itemId": "CaF2",
+            "quantity": 1
+          },
+          {
+            "slot": 97,
+            "itemId": "BaSO4",
+            "quantity": 1
+          },
+          {
+            "slot": 98,
+            "itemId": "Ca3(PO4)2",
+            "quantity": 1
+          },
+          {
+            "slot": 99,
+            "itemId": "LiAlSi2O6",
+            "quantity": 1
+          },
+          {
+            "slot": 100,
+            "itemId": "PbCO3",
+            "quantity": 1
+          },
+          {
+            "slot": 101,
+            "itemId": "ZnCO3",
+            "quantity": 1
+          },
+          {
+            "slot": 102,
+            "itemId": "Cu2CO3(OH)2",
+            "quantity": 1
+          },
+          {
+            "slot": 103,
+            "itemId": "Ag2S",
+            "quantity": 1
+          },
+          {
+            "slot": 104,
+            "itemId": "SO3",
+            "quantity": 1
+          },
+          {
+            "slot": 105,
+            "itemId": "H2O2",
+            "quantity": 1
+          },
+          {
+            "slot": 106,
+            "itemId": "H3PO4",
+            "quantity": 1
+          },
+          {
+            "slot": 107,
+            "itemId": "P4O10",
+            "quantity": 1
+          },
+          {
+            "slot": 108,
+            "itemId": "Na2SO4",
+            "quantity": 1
+          },
+          {
+            "slot": 109,
+            "itemId": "NaNO3",
+            "quantity": 1
+          },
+          {
+            "slot": 110,
+            "itemId": "KNO3",
+            "quantity": 1
+          },
+          {
+            "slot": 111,
+            "itemId": "NH4NO3",
+            "quantity": 1
+          },
+          {
+            "slot": 112,
+            "itemId": "CaCl2",
+            "quantity": 1
+          },
+          {
+            "slot": 113,
+            "itemId": "MgSO4",
+            "quantity": 1
+          },
+          {
+            "slot": 114,
+            "itemId": "FeSO4",
+            "quantity": 1
+          },
+          {
+            "slot": 115,
+            "itemId": "ZnSO4",
+            "quantity": 1
+          },
+          {
+            "slot": 116,
+            "itemId": "PbO",
+            "quantity": 1
+          },
+          {
+            "slot": 117,
+            "itemId": "NiO",
+            "quantity": 1
+          },
+          {
+            "slot": 118,
+            "itemId": "HF",
+            "quantity": 1
+          },
+          {
+            "slot": 119,
+            "itemId": "SiCl4",
+            "quantity": 1
+          },
+          {
+            "slot": 120,
+            "itemId": "TiCl4",
+            "quantity": 1
+          },
+          {
+            "slot": 121,
+            "itemId": "MgCl2",
+            "quantity": 1
+          },
+          {
+            "slot": 122,
+            "itemId": "Li2CO3",
+            "quantity": 1
+          },
+          {
+            "slot": 123,
+            "itemId": "LiOH",
+            "quantity": 1
+          },
+          {
+            "slot": 124,
+            "itemId": "LiCl",
+            "quantity": 1
+          },
+          {
+            "slot": 125,
+            "itemId": "K2SO4",
+            "quantity": 1
+          },
+          {
+            "slot": 126,
+            "itemId": "(NH4)2HPO4",
+            "quantity": 1
+          },
+          {
+            "slot": 127,
+            "itemId": "C3H6",
+            "quantity": 1
+          },
+          {
+            "slot": 128,
+            "itemId": "C3H8O",
+            "quantity": 1
+          },
+          {
+            "slot": 129,
+            "itemId": "C2H4O",
+            "quantity": 1
+          },
+          {
+            "slot": 130,
+            "itemId": "C6H12",
+            "quantity": 1
+          },
+          {
+            "slot": 131,
+            "itemId": "C6H5NO2",
+            "quantity": 1
+          },
+          {
+            "slot": 132,
+            "itemId": "C6H7N",
+            "quantity": 1
+          },
+          {
+            "slot": 133,
+            "itemId": "CH3COOCH3",
+            "quantity": 1
+          },
+          {
+            "slot": 134,
+            "itemId": "CH3COOC2H5",
+            "quantity": 1
+          },
+          {
+            "slot": 135,
+            "itemId": "Magnetite",
+            "quantity": 1
+          },
+          {
+            "slot": 136,
+            "itemId": "Hematite",
+            "quantity": 1
+          },
+          {
+            "slot": 137,
+            "itemId": "GraphiteOre",
+            "quantity": 1
+          },
+          {
+            "slot": 138,
+            "itemId": "NativeSulfur",
+            "quantity": 1
+          },
+          {
+            "slot": 139,
+            "itemId": "QuartzSand",
+            "quantity": 1
+          },
+          {
+            "slot": 140,
+            "itemId": "Limestone",
+            "quantity": 1
+          },
+          {
+            "slot": 141,
+            "itemId": "Bauxite",
+            "quantity": 1
+          },
+          {
+            "slot": 142,
+            "itemId": "Corundum",
+            "quantity": 1
+          },
+          {
+            "slot": 143,
+            "itemId": "Rutile",
+            "quantity": 1
+          },
+          {
+            "slot": 144,
+            "itemId": "Pyrolusite",
+            "quantity": 1
+          },
+          {
+            "slot": 145,
+            "itemId": "Pyrite",
+            "quantity": 1
+          },
+          {
+            "slot": 146,
+            "itemId": "Halite",
+            "quantity": 1
+          },
+          {
+            "slot": 147,
+            "itemId": "Sylvite",
+            "quantity": 1
+          },
+          {
+            "slot": 148,
+            "itemId": "Anhydrite",
+            "quantity": 1
+          },
+          {
+            "slot": 149,
+            "itemId": "Cuprite",
+            "quantity": 1
+          },
+          {
+            "slot": 150,
+            "itemId": "Tenorite",
+            "quantity": 1
+          },
+          {
+            "slot": 151,
+            "itemId": "Zincite",
+            "quantity": 1
+          },
+          {
+            "slot": 152,
+            "itemId": "Brucite",
+            "quantity": 1
+          },
+          {
+            "slot": 153,
+            "itemId": "Periclase",
+            "quantity": 1
+          },
+          {
+            "slot": 154,
+            "itemId": "Nahcolite",
+            "quantity": 1
+          },
+          {
+            "slot": 155,
+            "itemId": "Trona",
+            "quantity": 1
+          },
+          {
+            "slot": 156,
+            "itemId": "Sphalerite",
+            "quantity": 1
+          },
+          {
+            "slot": 157,
+            "itemId": "Galena",
+            "quantity": 1
+          },
+          {
+            "slot": 158,
+            "itemId": "Cassiterite",
+            "quantity": 1
+          },
+          {
+            "slot": 159,
+            "itemId": "Ilmenite",
+            "quantity": 1
+          },
+          {
+            "slot": 160,
+            "itemId": "Chromite",
+            "quantity": 1
+          },
+          {
+            "slot": 161,
+            "itemId": "Magnesite",
+            "quantity": 1
+          },
+          {
+            "slot": 162,
+            "itemId": "Dolomite",
+            "quantity": 1
+          },
+          {
+            "slot": 163,
+            "itemId": "Chalcopyrite",
+            "quantity": 1
+          },
+          {
+            "slot": 164,
+            "itemId": "Chalcocite",
+            "quantity": 1
+          },
+          {
+            "slot": 165,
+            "itemId": "Millerite",
+            "quantity": 1
+          },
+          {
+            "slot": 166,
+            "itemId": "Fluorite",
+            "quantity": 1
+          },
+          {
+            "slot": 167,
+            "itemId": "Barite",
+            "quantity": 1
+          },
+          {
+            "slot": 168,
+            "itemId": "PhosphateRock",
+            "quantity": 1
+          },
+          {
+            "slot": 169,
+            "itemId": "Spodumene",
+            "quantity": 1
+          },
+          {
+            "slot": 170,
+            "itemId": "Nitratine",
+            "quantity": 1
+          },
+          {
+            "slot": 171,
+            "itemId": "Niter",
+            "quantity": 1
+          },
+          {
+            "slot": 172,
+            "itemId": "Thenardite",
+            "quantity": 1
+          },
+          {
+            "slot": 173,
+            "itemId": "Cerussite",
+            "quantity": 1
+          },
+          {
+            "slot": 174,
+            "itemId": "Smithsonite",
+            "quantity": 1
+          },
+          {
+            "slot": 175,
+            "itemId": "Malachite",
+            "quantity": 1
+          },
+          {
+            "slot": 176,
+            "itemId": "Acanthite",
+            "quantity": 1
+          },
+          {
+            "slot": 177,
+            "itemId": "LaserEmitter",
+            "quantity": 1
+          },
+          {
+            "slot": 178,
+            "itemId": "MissileEmitter",
+            "quantity": 1
+          },
+          {
+            "slot": 179,
+            "itemId": "CannonEmitter",
+            "quantity": 1
+          },
+          {
+            "slot": 180,
+            "itemId": "RapidFireEmitter",
+            "quantity": 1
+          },
+          {
+            "slot": 181,
+            "itemId": "RailgunEmitter",
+            "quantity": 1
+          }
+        ]
+      },
+      "tasks": [],
       "movement": {
         "velocity": {
           "x": 0,
           "y": 0
         },
-        "headingDegrees": 97.62979864425381
+        "headingDegrees": -66.83133643454926
       }
     },
     {
@@ -68,18 +998,18 @@
       "kind": "ship",
       "definitionId": "Imicus",
       "name": "攻击",
-      "starId": "Solar",
+      "starId": "Star0041",
       "position": {
-        "x": 24.171501690807872,
-        "y": -10.49896778435641
+        "x": -16.863935336052236,
+        "y": 16.95155303883712
       },
       "orbit": 1,
       "ownerFactionId": "Player",
       "communicationDelayMs": 24,
       "status": "online",
       "health": {
-        "shieldHp": 500,
-        "armorHp": 1500,
+        "shieldHp": 0,
+        "armorHp": 1400,
         "structureHp": 2000
       },
       "damage": [
@@ -100,12 +1030,77 @@
           "equipmentId": "LaserEmitter"
         }
       ],
+      "storage": {
+        "slots": [
+          {
+            "slot": 0,
+            "itemId": "LaserEmitter",
+            "quantity": 5
+          }
+        ]
+      },
+      "tasks": [],
       "movement": {
         "velocity": {
           "x": 0,
           "y": 0
         },
-        "headingDegrees": -45.586092606258205
+        "headingDegrees": -109.33105844127067
+      }
+    },
+    {
+      "id": "ship-imicus3",
+      "kind": "ship",
+      "definitionId": "Imicus",
+      "name": "敌人",
+      "starId": "Star0041",
+      "position": {
+        "x": -8.144226668156989,
+        "y": 4.162224377312668
+      },
+      "orbit": 1,
+      "ownerFactionId": "Terran",
+      "communicationDelayMs": 24,
+      "status": "online",
+      "health": {
+        "shieldHp": 0,
+        "armorHp": 1400,
+        "structureHp": 2000
+      },
+      "damage": [
+        {
+          "equipmentId": "LaserEmitter",
+          "amount": 100
+        },
+        {
+          "equipmentId": "LaserEmitter",
+          "amount": 100
+        }
+      ],
+      "installedEquipment": [
+        {
+          "group": "turretSlots",
+          "size": "S",
+          "index": 0,
+          "equipmentId": "LaserEmitter"
+        }
+      ],
+      "storage": {
+        "slots": [
+          {
+            "slot": 0,
+            "itemId": "LaserEmitter",
+            "quantity": 5
+          }
+        ]
+      },
+      "tasks": [],
+      "movement": {
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "headingDegrees": -90.20762984280032
       }
     }
   ]

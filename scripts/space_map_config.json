@@ -1,0 +1,57 @@
+{
+  "star_system": {
+    "count": 1000,
+    "position": {
+      "range": 10000,
+      "minimum_distance": 5
+    }
+  },
+  "planet_orbit_radius": {
+    "minimum": 0.5,
+    "maximum": 10,
+    "distribution": "normal",
+    "mean": 5,
+    "standard_deviation": 100
+  },
+  "planet_count": {
+    "minimum": 1,
+    "maximum": 8,
+    "distribution": "normal",
+    "mean": 6,
+    "standard_deviation": 1
+  },
+  "orbit_spacing": {
+    "minimum_between_planets": 1,
+    "minimum_between_moons": 0.5
+  },
+  "celestial_body_radius": {
+    "minimum": 1000,
+    "maximum": 10000,
+    "distribution": "normal",
+    "mean": 5000,
+    "standard_deviation": 100
+  },
+  "surface_resource": {
+    "position": {
+      "range": 1000
+    },
+    "totalcount": {
+      "distribution": "normal",
+      "mean": 0.3,
+      "standard_deviation": 1
+    },
+    "reserves": {
+      "distribution": "normal",
+      "mean": 1,
+      "standard_deviation": 1
+    }
+  },
+  "files": {
+    "star_types": "assets/legacy/starType.json",
+    "planet_types": "assets/legacy/planetType.json",
+    "resource_types": "assets/legacy/resourceType.json",
+    "items": "assets/legacy/item.json",
+    "output": "assets/legacy/spaceMap.json"
+  },
+  "random_seed": null
+}
