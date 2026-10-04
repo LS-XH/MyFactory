@@ -1,20 +1,37 @@
 import itemJson from '../../assets/legacy/item.json'
+import itemStateJson from '../../assets/legacy/itemState.json'
+import itemTypeJson from '../../assets/legacy/itemType.json'
 
-export type ItemKind = 'chemical' | 'material' | 'product' | 'equipment'
-export type ItemState = 'solid' | 'liquid' | 'gas'
-type ItemBase = {
+export type ItemType = keyof typeof itemTypeJson
+export type ItemState = Lowercase<keyof typeof itemStateJson & string>
+
+export type ItemDefinition = {
   displayName: string
+  itemType: ItemType
+  itemState?: ItemState
   volume: number
   weight: number
+  primaryElementId?: string
+  productType?: string
+  equipmentType?: string
 }
-export type ItemDefinition = ItemBase & (
-  | { kind: 'chemical'; state: ItemState }
-  | { kind: 'material'; primaryElementId?: string }
-  | { kind: 'product'; productType?: string }
-  | { kind: 'equipment'; equipmentType: string }
-)
 
-const itemDefinitions = itemJson as Record<string, ItemDefinition>
+export const itemTypes: ReadonlyArray<{ id: ItemType; label: string }> = Object.entries(itemTypeJson).map(([id, label]) => ({ id: id as ItemType, label }))
+const itemStateNames = new Map(Object.entries(itemStateJson).map(([id, label]) => [id.toLowerCase(), label]))
+
+export function getItemTypeName(itemType: string): string | undefined {
+  return itemTypeJson[itemType as ItemType]
+}
+
+export function getItemStateName(itemState: string): string | undefined {
+  return itemStateNames.get(itemState.toLowerCase())
+}
+
+const itemDefinitions = itemJson as unknown as Record<string, ItemDefinition>
+for (const [itemId, item] of Object.entries(itemDefinitions)) {
+  if (!getItemTypeName(item.itemType)) throw new Error(`物品 ${itemId} 引用了未定义的 itemType：${item.itemType}`)
+  if (item.itemState && !getItemStateName(item.itemState)) throw new Error(`物品 ${itemId} 引用了未定义的 itemState：${item.itemState}`)
+}
 const itemOrder = new Map(Object.keys(itemDefinitions).map((itemId, index) => [itemId, index]))
 
 export function getItemDefinition(itemId: string): ItemDefinition | undefined {

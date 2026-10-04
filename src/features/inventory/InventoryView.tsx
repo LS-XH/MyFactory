@@ -22,7 +22,7 @@ export const inventoryDragMime = 'application/x-myfactory-inventory-stack'
 function ItemSlot({ stack, objectId, slot, onDrop, onSelect, selected }: { stack?: InventoryStack; objectId: string; slot: number; onDrop?: (event: DragEvent, objectId: string, slot: number) => void; onSelect?: (slot: number) => void; selected?: boolean }) {
   const item = stack && getItemDefinition(stack.itemId)
   const label = item?.displayName ?? stack?.itemId
-  const equipment = stack && item?.kind === 'equipment' ? getEquipmentDefinition(stack.itemId) : undefined
+  const equipment = stack && item?.itemType === 'equipment' ? getEquipmentDefinition(stack.itemId) : undefined
   const subtype = equipment?.subtype
   const itemTitle = stack ? `${label} ×${stack.quantity}${subtype ? ` · ${subtype.parentName} / ${subtype.displayName}` : ''} · ${item!.volume * stack.quantity} m³ · ${item!.weight * stack.quantity} kg` : `空槽位 ${slot + 1}`
   return <div className={`inventory-slot ${stack ? 'occupied' : ''}${selected ? ' selected' : ''}`} title={itemTitle} onDragOver={onDrop ? (event) => event.preventDefault() : undefined} onDrop={onDrop ? (event) => onDrop(event, objectId, slot) : undefined} onClick={stack && onSelect ? () => onSelect(slot) : undefined} onKeyDown={stack && onSelect ? (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onSelect(slot) } } : undefined} role={stack && onSelect ? 'button' : undefined} tabIndex={stack && onSelect ? 0 : undefined}>

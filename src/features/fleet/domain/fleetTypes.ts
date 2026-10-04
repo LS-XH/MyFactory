@@ -7,7 +7,7 @@ export type MovementProfile = {
   acceleration: number
   maxSpeed: number
   turnSpeedDegrees: number
-  warpSpeed: number
+  turnAccelerationDegrees: number
 }
 
 export type FleetEntity = {
@@ -19,6 +19,7 @@ export type FleetEntity = {
   position: Vector2
   velocity: Vector2
   headingDegrees: number
+  angularVelocityDegrees: number
   movement: MovementProfile
   capabilities: CapabilityId[]
 }
@@ -28,4 +29,3 @@ export type FleetCommand =
   | { type: 'attack'; entityIds: string[]; targetId: string }
   | { type: 'dock'; entityIds: string[]; stationId: string }
   | { type: 'stop'; entityIds: string[] }
-

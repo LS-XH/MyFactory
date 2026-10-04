@@ -15,3 +15,10 @@ export function formatMapAuCoordinate(value: number, zoom: number, starAuLengthF
   const rounded = Number(value.toFixed(digits))
   return rounded.toFixed(digits)
 }
+
+/** Display the actual SVG viewBox coordinate with sub-pixel precision at close zoom. */
+export function formatSvgCoordinate(value: number, zoom: number): string {
+  const digits = Math.max(2, Math.min(8, Math.ceil(Math.log10(Math.max(1, zoom * 100)))))
+  const rounded = Number(value.toFixed(digits))
+  return rounded.toFixed(digits)
+}

@@ -48,7 +48,7 @@ export function FittingView({ objectIds, onClose, onNotify }: { objectIds: strin
   const selectInventorySlot = (slot: number) => {
     const stack = storage?.slots.find((entry) => entry.slot === slot)
     if (!stack) return
-    if (!getEquipmentDefinition(stack.itemId)) { onNotify(getItemDefinition(stack.itemId)?.kind === 'equipment' ? '装备在 item.json、equipment.json 或 equipmentType.json 中的类别配置不一致' : '请选择库存中的装备物品'); return }
+    if (!getEquipmentDefinition(stack.itemId)) { onNotify(getItemDefinition(stack.itemId)?.itemType === 'equipment' ? '装备在 item.json、equipment.json 或 equipmentType.json 中的类别配置不一致' : '请选择库存中的装备物品'); return }
     setSelectedInventorySlot((current) => current?.objectId === objectId && current.slot === slot ? null : { objectId: objectId!, slot })
   }
 

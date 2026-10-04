@@ -1,14 +1,11 @@
 import { BookOpen, X } from 'lucide-react'
 import { getItem } from '../../domain/content'
 import { getEquipmentDefinition } from '../../domain/equipment'
-import { getItemDefinition, type ItemKind } from '../../domain/items'
+import { getItemDefinition, getItemStateName, getItemTypeName } from '../../domain/items'
 import { getItemFormulaRelations } from '../../domain/itemCodex'
 import { ItemGlyph } from '../../shared/icons/ItemGlyph'
 import { resolveItemColor } from '../../shared/icons/itemVisualRegistry'
 import './itemCodex.css'
-
-const kindNames: Record<ItemKind, string> = { chemical: '化学纯净物', material: '材料', product: '产品', equipment: '装备' }
-const stateNames = { solid: '固态', liquid: '液态', gas: '气态' }
 
 export function ItemInspector({ itemId, onClose, onOpenRecipes }: { itemId: string; onClose: () => void; onOpenRecipes: (itemId: string) => void }) {
   const definition = getItemDefinition(itemId)
@@ -16,13 +13,15 @@ export function ItemInspector({ itemId, onClose, onOpenRecipes }: { itemId: stri
   const equipment = getEquipmentDefinition(itemId)
   const relations = getItemFormulaRelations(itemId)
   const name = definition?.displayName ?? catalogItem?.name ?? itemId
+  const itemType = definition?.itemType ?? catalogItem?.itemType
+  const itemState = definition?.itemState ?? catalogItem?.itemState
   const facts = [
     ['物品 ID', itemId],
-    ['分类', kindNames[definition?.kind ?? catalogItem?.kind ?? 'material']],
-    ...(definition?.kind === 'chemical' ? [['物态', stateNames[definition.state]]] : []),
-    ...(definition?.kind === 'material' && definition.primaryElementId ? [['主要元素', definition.primaryElementId]] : []),
-    ...(definition?.kind === 'product' && definition.productType ? [['产品类别', definition.productType]] : []),
-    ...(definition?.kind === 'equipment' ? [['装备类型 ID', definition.equipmentType]] : []),
+    ['分类', itemType ? getItemTypeName(itemType) ?? itemType : '未知'],
+    ...(itemState ? [['物态', getItemStateName(itemState) ?? itemState]] : []),
+    ...(definition?.itemType === 'material' && definition.primaryElementId ? [['主要元素', definition.primaryElementId]] : []),
+    ...(definition?.itemType === 'product' && definition.productType ? [['产品类别', definition.productType]] : []),
+    ...(definition?.itemType === 'equipment' ? [['装备类型 ID', definition.equipmentType ?? '—']] : []),
     ...(equipment ? [['装备类别', `${equipment.subtype.parentName} / ${equipment.subtype.displayName}`], ['装备尺寸', equipment.size]] : [])
   ]
   return <>

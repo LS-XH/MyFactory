@@ -29,9 +29,9 @@
     { "id": "space-elevator", "name": "太空电梯", "type": "megascale", "color": "#ff7a9a", "status": "锁定" }
   ],
   "items": [
-    { "id": "ferrite-ore", "name": "赤铁矿", "kind": "material", "state": "solid" },
-    { "id": "iron-ingot", "name": "铁锭", "kind": "material", "state": "solid" },
-    { "id": "steel-ingot", "name": "钢锭", "kind": "material", "state": "solid" }
+    { "id": "ferrite-ore", "name": "赤铁矿", "itemType": "material", "itemState": "solid" },
+    { "id": "iron-ingot", "name": "铁锭", "itemType": "material", "itemState": "solid" },
+    { "id": "steel-ingot", "name": "钢锭", "itemType": "material", "itemState": "solid" }
   ],
   "recipes": [
     { "id": "refine-ferrite", "name": "高温还原精炼", "duration": 4, "inputs": [{ "item": "ferrite-ore", "amount": 2 }], "outputs": [{ "item": "iron-ingot", "amount": 1 }] }

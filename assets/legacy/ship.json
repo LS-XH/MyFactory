@@ -53,10 +53,12 @@
             }
         },
         "movement": {
-            "acceleration": 2,
-            "maxSpeed": 30,
-            "turnSpeed": 10,
-            "warpSpeed": 50000000
+            "acceleration": 100,
+            "maxSpeed": 100,
+            "turnSpeed": 360,
+            "turnAcceleration": 360,
+            "warpSpeed": 50000,
+            "warpAcceleration":500
         },
         "storage": {
             "itemstorage":1700
@@ -119,7 +121,9 @@
             "acceleration": 2,
             "maxSpeed": 30,
             "turnSpeed": 10,
-            "warpSpeed": 50000000
+            "turnAcceleration": 2,
+            "warpSpeed": 50000,
+            "warpAcceleration":50000
         },
         "storage": {
             "itemstorage":1000

@@ -37,8 +37,7 @@
 }
 
 .ship-detail-row span,
-.ship-gauge-caption span,
-.ship-heading-value span {
+.ship-gauge-caption span {
   flex: none;
   color: #7790a4;
 }
@@ -109,28 +108,81 @@
   box-shadow: 0 0 7px var(--meter-glow), 0 0 12px var(--meter-glow);
 }
 
-.ship-heading {
-  display: flex;
+.ship-motion-layout {
+  display: grid;
+  grid-template-columns: minmax(108px, 45%) minmax(0, 1fr);
   align-items: center;
-  gap: 12px;
-  margin-top: 14px;
-  padding-top: 10px;
-  border-top: 1px solid #203344;
+  gap: 8px;
 }
 
-.ship-compass { flex: none; width: 88px; height: 88px; overflow: visible; }
-.ship-compass-outer { fill: #0a1c2a; stroke: #56798a; stroke-width: 1.5; }
-.ship-compass-inner { fill: none; stroke: #2b4c60; stroke-width: 1; stroke-dasharray: 2 4; }
-.ship-compass-cross { fill: none; stroke: #7695a5; stroke-width: 1.5; }
-.ship-compass text { fill: #96aeba; font: 8px 'DM Mono', monospace; }
-.ship-compass-needle { fill: #8de0dd; stroke: #8de0dd; stroke-width: 1; filter: drop-shadow(0 0 3px rgba(141, 224, 221, .65)); }
-.ship-compass-center { fill: #e2f8f5; }
+.ship-motion-dial { display: block; width: 100%; height: auto; overflow: visible; }
+.ship-motion-dial-face { fill: #091b28; stroke: #34566a; stroke-width: 1.4; }
+.ship-motion-dial-guide { fill: none; stroke: #244052; stroke-width: .8; stroke-dasharray: 2 5; }
+.ship-motion-tick { stroke: #4d7084; stroke-width: 1; }
+.ship-motion-tick--major { stroke: #8aa7b7; stroke-width: 1.5; }
+.ship-motion-target-arc {
+  fill: none;
+  stroke: rgba(177, 125, 255, .45);
+  stroke-width: 7;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 3px rgba(177, 125, 255, .5));
+}
+.ship-motion-origin { fill: #dceaf2; filter: drop-shadow(0 0 3px rgba(220, 234, 242, .75)); }
+.ship-motion-dot--speed { fill: #74d9ff; filter: drop-shadow(0 0 3px #74d9ff) drop-shadow(0 0 6px rgba(116, 217, 255, .8)); }
+.ship-motion-dot--acceleration { fill: #ff646d; filter: drop-shadow(0 0 3px #ff646d) drop-shadow(0 0 6px rgba(255, 100, 109, .8)); }
+.ship-motion-dot--heading { fill: #b27bff; filter: drop-shadow(0 0 3px #b27bff) drop-shadow(0 0 6px rgba(178, 123, 255, .8)); }
 
-.ship-heading-value { display: grid; gap: 6px; }
-.ship-heading-value span { font-size: 10px; }
-.ship-heading-value strong { color: #e3f4f4; font: 19px 'DM Mono', monospace; }
-.ship-heading-value small { color: #6f8a9b; font: 8px 'DM Mono', monospace; }
+.ship-motion-gauges { display: grid; min-width: 0; gap: 8px; }
+.ship-motion-gauge { --motion-color: #74d9ff; --motion-glow: rgba(116, 217, 255, .75); min-width: 0; }
+.ship-motion-gauge--acceleration { --motion-color: #ff646d; --motion-glow: rgba(255, 100, 109, .75); }
+.ship-motion-gauge--angular-speed { --motion-color: #b27bff; --motion-glow: rgba(178, 123, 255, .75); }
+.ship-motion-gauge--angular-acceleration { --motion-color: #ff83d0; --motion-glow: rgba(255, 131, 208, .75); }
+.ship-motion-gauge-caption { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; min-width: 0; margin-bottom: 4px; }
+.ship-motion-gauge-caption span { color: #a9bfcb; font-size: 9px; white-space: nowrap; }
+.ship-motion-gauge-caption strong { color: #dbe9f2; font: 9px 'DM Mono', monospace; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ship-motion-gauge-track { height: 3px; overflow: visible; background: #1a2b39; }
+.ship-motion-gauge-fill {
+  display: block;
+  width: var(--gauge-fill);
+  height: 100%;
+  background: var(--motion-color);
+  box-shadow: 0 0 6px 1px var(--motion-glow), 0 0 11px var(--motion-glow);
+  transition: width .16s ease-out;
+}
+
+.ship-motion-gauge--signed .ship-motion-gauge-track { position: relative; }
+.ship-motion-gauge--signed .ship-motion-gauge-track::before {
+  position: absolute;
+  z-index: 1;
+  top: -2px;
+  bottom: -2px;
+  left: 50%;
+  width: 1px;
+  background: #8298a8;
+  content: '';
+  transform: translateX(-50%);
+}
+.ship-motion-gauge--signed .ship-motion-gauge-fill {
+  position: absolute;
+  top: 0;
+  left: var(--gauge-left);
+  width: var(--gauge-fill);
+  transition: left .16s ease-out, width .16s ease-out;
+}
+.ship-motion-gauge--signed .ship-motion-gauge-track[data-reading="true"]::after {
+  position: absolute;
+  z-index: 2;
+  top: -3px;
+  left: var(--gauge-position);
+  width: 3px;
+  height: 9px;
+  background: var(--motion-color);
+  box-shadow: 0 0 6px var(--motion-glow);
+  content: '';
+  transform: translateX(-50%);
+  transition: left .16s ease-out;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .ship-gauge-fill { transition: none; }
+  .ship-gauge-fill, .ship-motion-gauge-fill, .ship-motion-gauge--signed .ship-motion-gauge-track::after { transition: none; }
 }

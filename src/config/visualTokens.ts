@@ -30,6 +30,7 @@ export const ICON_SIZES = {
   node: 15,
   inspector: 25,
   action: 15,
+  objectAction: 23,
   category: 14,
   placeholder: 29
 } as const

@@ -1,18 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowLeft, BookOpen, Search } from 'lucide-react'
-import { getAllItemDefinitions, getItemDefinition, type ItemKind } from '../../domain/items'
+import { getAllItemDefinitions, getItemDefinition, itemTypes, type ItemType } from '../../domain/items'
 import { getItemFormulaRelations, itemDisplayName, type ItemFormula } from '../../domain/itemCodex'
 import { ItemGlyph } from '../../shared/icons/ItemGlyph'
 import { useItemInteraction } from '../../shared/icons/ItemInteraction'
 import { resolveItemColor } from '../../shared/icons/itemVisualRegistry'
 import './itemCodex.css'
 
-const kinds: { id: ItemKind; label: string }[] = [
-  { id: 'chemical', label: '化学纯净物' },
-  { id: 'material', label: '材料' },
-  { id: 'product', label: '产品' },
-  { id: 'equipment', label: '装备' }
-]
 const allItems = getAllItemDefinitions()
 
 function useCanvasWidth(mode: 'atlas' | 'recipes') {
@@ -31,12 +25,12 @@ function useCanvasWidth(mode: 'atlas' | 'recipes') {
 
 export function ItemCodexView({ mode, itemId, onBack }: { mode: 'atlas' | 'recipes'; itemId: string | null; onBack: () => void }) {
   const { ref, width } = useCanvasWidth(mode)
-  const [kind, setKind] = useState<ItemKind | 'all'>('all')
+  const [selectedItemType, setSelectedItemType] = useState<ItemType | 'all'>('all')
   const [query, setQuery] = useState('')
-  const groups = useMemo(() => kinds.map((category) => ({
+  const groups = useMemo(() => itemTypes.map((category) => ({
     ...category,
-    items: allItems.filter(([id, definition]) => definition.kind === category.id && (kind === 'all' || kind === category.id) && (!query.trim() || `${id} ${definition.displayName}`.toLowerCase().includes(query.trim().toLowerCase())))
-  })).filter((group) => kind === 'all' ? group.items.length > 0 : group.id === kind), [kind, query])
+    items: allItems.filter(([id, definition]) => definition.itemType === category.id && (selectedItemType === 'all' || selectedItemType === category.id) && (!query.trim() || `${id} ${definition.displayName}`.toLowerCase().includes(query.trim().toLowerCase())))
+  })).filter((group) => selectedItemType === 'all' ? group.items.length > 0 : group.id === selectedItemType), [selectedItemType, query])
   const columns = Math.max(2, Math.floor((width - 48 + 12) / 180))
   const cardWidth = (width - 48 - (columns - 1) * 12) / columns
   let nextY = 25
@@ -65,7 +59,7 @@ export function ItemCodexView({ mode, itemId, onBack }: { mode: 'atlas' | 'recip
       <span className="item-codex-count">{mode === 'atlas' ? `${allItems.length} ITEMS` : `${(relations?.production.length ?? 0) + (relations?.uses.length ?? 0)} DIRECT FORMULAS`}</span>
     </div>
     {mode === 'atlas' ? <>
-      <div className="item-codex-toolbar"><div className="item-codex-filters"><button className={kind === 'all' ? 'active' : ''} onClick={() => setKind('all')}>全部 <small>{allItems.length}</small></button>{kinds.map((entry) => <button key={entry.id} className={kind === entry.id ? 'active' : ''} onClick={() => setKind(entry.id)}>{entry.label} <small>{allItems.filter(([, item]) => item.kind === entry.id).length}</small></button>)}</div><label className="item-codex-search"><Search size={14} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索名称或 ID" aria-label="搜索物品" /></label></div>
+      <div className="item-codex-toolbar"><div className="item-codex-filters"><button className={selectedItemType === 'all' ? 'active' : ''} onClick={() => setSelectedItemType('all')}>全部 <small>{allItems.length}</small></button>{itemTypes.map((entry) => <button key={entry.id} className={selectedItemType === entry.id ? 'active' : ''} onClick={() => setSelectedItemType(entry.id)}>{entry.label} <small>{allItems.filter(([, item]) => item.itemType === entry.id).length}</small></button>)}</div><label className="item-codex-search"><Search size={14} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索名称或 ID" aria-label="搜索物品" /></label></div>
       <div className="item-codex-scroll" ref={ref}><svg className="item-codex-svg" width="100%" height={atlasHeight} viewBox={`0 0 ${width} ${atlasHeight}`} role="group" aria-label="按类别排列的物品图鉴">
         {sections.map((group) => <g key={group.id}><text x="24" y={group.y + 14} className="item-codex-section-title">{group.label}</text><text x={width - 24} y={group.y + 14} textAnchor="end" className="item-codex-section-count">{group.items.length} ITEMS</text><line x1="24" x2={width - 24} y1={group.y + 27} y2={group.y + 27} className="item-codex-rule" />
           {group.items.map(([id, definition], index) => {

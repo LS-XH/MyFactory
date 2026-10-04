@@ -6,7 +6,7 @@
 - `inspection`：右侧对象信息、玩家对象重命名、任务队列页与上移/下移/删除/拖放排序操作。
 - `settings`：设置、占位模块与存档重置入口。
 - `action-bar`：底部建造栏及由对象能力生成的操作区；待选目标按钮高亮，Esc 或再次点击同一按钮取消。任务在最终点目标时按 Shift 追加。
-- `fleet`：飞船移动算法与命令总线；不依赖 React，按速度向量、朝向、转向角速度、加速度和制动距离步进。对象任务队列模型位于 `domain/objects.ts`，队列执行与存档更新位于 `state/gameStore.ts`。
+- `fleet`：飞船移动算法与命令总线；不依赖 React，按速度向量、朝向、当前角速度、角加速度、线加速度和制动距离步进。对象任务队列模型位于 `domain/objects.ts`，队列执行与存档更新位于 `state/gameStore.ts`。
 - `inventory`：物品栏视图、整组格子拖动、跨对象转移及一键排序；数量叠在右下角、装备尺寸叠在左下角，缩放设置只作用于格子。容量、堆叠和排序规则位于 `domain/storage.ts`，物品顺序来自 `domain/items.ts` 读取的 `item.json`。
 - `fitting`：飞船与空间站的装配视图；复用物品栏格子，展示全部型号槽位，按装备子类别和尺寸安装、更换或卸下装备。
 - `item-codex`：物品图鉴、合成与用途配方 SVG 视图，以及右侧物品静态信息；物品和配方索引位于 `domain/items.ts`、`domain/itemCodex.ts`，图标交互入口位于 `shared/icons`。

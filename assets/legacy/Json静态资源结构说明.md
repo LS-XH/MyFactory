@@ -17,16 +17,17 @@
      - "movement"：运动属性
           - "acceleration"：加速度
           - "maxSpeed"：最大速度
-          - "turnSpeed"：角速度，单位为度
+          - "turnSpeed"：最大角速度，单位为度/秒
+          - "turnAcceleration"：角加速度，单位为度/秒²
           - "warpSpeed": 跃迁速度
      - "storage"：仓储属性
           - "itemstorage"：可储存的物品体积上限，单位为立方米
 
 ### 物品与实例物品栏
 
-请动态读取 [item.json](item.json)。每个键是 `itemId`；`displayName` 为名称，`volume`（立方米）和 `weight`（千克）为单件数值。`kind` 为 `chemical`、`material`、`product` 或 `equipment`；化学纯净物的键本身就是显示用化学式，`state` 为 `solid`、`liquid` 或 `gas`，无须重复存储化学式。物品颜色不写入静态 JSON 或存档，统一在 `src/shared/icons/itemVisualRegistry.ts` 中按物品 ID 配置。非化学物品按物品类别从 [itemIconManifest.json](../../src/shared/icons/itemIconManifest.json) 选择默认 Iconify 图标；装备子类的图标配置在 `equipmentType.json`。材料可用 `primaryElementId` 指向主要元素物品，以沿用其 UI 显示色；产品可用 `productType` 标记用途。装备物品的 `equipmentType` 必须指向 [equipmentType.json](equipmentType.json) 中的子类别，并在 [equipment.json](equipment.json) 中用同一 `itemId` 定义装备特征。
+请动态读取 [item.json](item.json)。每个键是 `itemId`；`displayName` 为名称，`volume`（立方米）和 `weight`（千克）为单件数值。`itemType` 引用 [itemType.json](itemType.json) 的类别 ID，`itemState` 可选，引用 [itemState.json](itemState.json) 的物态 ID；读取物态时不区分键名大小写，因此 `item.json` 的 `solid` 对应物态表的 `Solid`。化学纯净物的键本身就是显示用化学式，无须重复存储化学式。物品颜色不写入静态 JSON 或存档，统一在 `src/shared/icons/itemVisualRegistry.ts` 中按物品 ID 配置。非化学物品按物品类别从 [itemIconManifest.json](../../src/shared/icons/itemIconManifest.json) 选择默认 Iconify 图标；装备子类的图标配置在 `equipmentType.json`。材料可用 `primaryElementId` 指向主要元素物品，以沿用其 UI 显示色；产品可用 `productType` 标记用途。装备物品的 `equipmentType` 必须指向 [equipmentType.json](equipmentType.json) 中的子类别，并在 [equipment.json](equipment.json) 中用同一 `itemId` 定义装备特征。
 
-地表资源储量是 `t`，物品 `weight` 是 `kg/件`。开采时 `floor(剩余储量 t × 1000 / weight)` 为可得到的完整件数；每产出一件从资源剩余储量扣除 `weight / 1000 t`。设备配方、缓存和物品栏数量均按“件”计算。物品图鉴、设备配方、物流端口、物品栏和装配视图通过同一 `ItemGlyph` 图标入口展示物品；单击查看右侧静态详情，双击进入该物品的直接合成、用途与上游配方视图。图鉴按 `kind` 分类并支持名称/ID 搜索；视觉颜色、边缘光效及交互规则由共享图标层维护，不写入 JSON。
+地表资源储量是 `t`，物品 `weight` 是 `kg/件`。开采时 `floor(剩余储量 t × 1000 / weight)` 为可得到的完整件数；每产出一件从资源剩余储量扣除 `weight / 1000 t`。设备配方、缓存和物品栏数量均按“件”计算。物品图鉴、设备配方、物流端口、物品栏和装配视图通过同一 `ItemGlyph` 图标入口展示物品；单击查看右侧静态详情，双击进入该物品的直接合成、用途与上游配方视图。图鉴按 `itemType.json` 的顺序和名称分类，并支持名称/ID 搜索；详情中的物态名称取自 `itemState.json`。视觉颜色、边缘光效及交互规则由共享图标层维护，不写入 JSON。
 
 `item.json` 不保存 `symbol`、`chemicalFormula` 或 `color`。纯净物图标直接从键名生成带数字下标的化学式；材料、产品、装备的图标集中由 `src/shared/icons` 注册。矿物等具体物品可在 `itemIconOverrides.json` 覆盖类别默认图标，并在 `itemVisualRegistry.ts` 指定贴近物质的浅色。物品栏的数量位于图标右下角，装备尺寸位于左下角，名称只在悬停提示中显示；这属于 UI 表现，不写入物品定义。
 
@@ -98,7 +99,7 @@
 
 ### 轨道对象实例存档
 
-`save/orbital-objects.json` 不是型号静态资源，而是可变对象实例。顶层为 `schemaVersion: 1` 和 `entities` 数组；每项以 `definitionId` 引用飞船或空间站型号，以 `ownerFactionId` 表示实例实际所属势力（`Player` 为玩家），与型号 `faction` 的生产商含义不同。实例字段包括 `id`、`kind`、`name`、`starId`、恒星系局部 `position`、`orbit`、`status`，以及可选的 `health`、`damage`、`installedEquipment`、`storage.slots`、`tasks` 和飞船 `movement`（速度向量、朝向）。`tasks` 是有序列表，当前动作 `move` 可保存目标对象或目标坐标及恒星系 ID。`subtitle`、`overviewMeta`、舰型名称、型号固有参数和图标配置均由静态定义及 UI 规则推导，不写入实例存档。运行时跨恒星系时更新 `starId` 与局部坐标，同时保持连续世界位置不跳变。
+`save/orbital-objects.json` 不是型号静态资源，而是可变对象实例。顶层为 `schemaVersion: 1` 和 `entities` 数组；每项以 `definitionId` 引用飞船或空间站型号，以 `ownerFactionId` 表示实例实际所属势力（`Player` 为玩家），与型号 `faction` 的生产商含义不同。实例字段包括 `id`、`kind`、`name`、`starId`、恒星系局部 `position`、`orbit`、`status`，以及可选的 `health`、`damage`、`installedEquipment`、`storage.slots`、`tasks` 和飞船 `movement`（速度向量、朝向、当前角速度 `angularVelocityDegrees`）。旧存档缺少当前角速度时按零读取；最大速度、线加速度、最大角速度、角加速度和跃迁速度继续从型号 JSON 读取。`tasks` 是有序列表，当前动作 `move` 可保存目标对象或目标坐标及恒星系 ID。`subtitle`、`overviewMeta`、舰型名称、型号固有参数和图标配置均由静态定义及 UI 规则推导，不写入实例存档。运行时跨恒星系时更新 `starId` 与局部坐标，同时保持连续世界位置不跳变。
 
 ### 势力/派系
 
@@ -132,6 +133,8 @@
                - "item"：资源蕴含的物品，详见 [item.json](item.json)
                - "position"：内部有x，y元素，代表相对左下角行星原点的直角坐标系位置，单位km
                - "reserves"：资源储量，单位为t
+
+ [resourceType.json](resourceType.json) 以资源类型 ID 为键，每项包含 `displayName`、可用的 `itemType` 和 `itemState` 数组、指定物品 ID 的 `item` 数组，以及数值型 `probability`。地表资源点通过 `resourceType` ID 查找 `displayName`；若 ID 未定义，界面回退显示原 ID。
      - "planet"：行星的卫星，内部的格式同行星一样
 
 地表运行时把 `surface.resource.position` 四舍五入到整数 `(X, Y)` 网格，X 向右、Y 向上，`(0, 0)` 只标原点，不显示坐标轴；每格 `1 km`，渲染时每格为 32 个 React Flow 画布单位且屏幕 Y 反向。资源点 ID 根据恒星 ID、行星/卫星路径和资源数组序号生成，静态资源位置保持不变；开采后的剩余 `t` 单独保存在浏览器本地存档的 `resourceReserves`，不回写 `spaceMap.json`。设备整数坐标及物流网络也保存在同一浏览器存档，键为 `my-factory-rts-demo`。

@@ -1,11 +1,11 @@
 import equipmentTypeDefinitions from '../../../assets/legacy/equipmentType.json'
-import itemKindIcons from './itemIconManifest.json'
+import itemTypeIcons from './itemIconManifest.json'
 import itemIconOverrides from './itemIconOverrides.json'
-import type { ItemKind } from '../../domain/items'
 import iconData from './itemIconData.json'
 
-export const itemKindIconRegistry = itemKindIcons as Readonly<Record<Exclude<ItemKind, 'chemical'>, string>>
+export const itemTypeIconRegistry = itemTypeIcons as Readonly<Record<string, string>>
 export const itemIconRegistry = itemIconOverrides as Readonly<Record<string, string>>
+const fallbackIconId = 'mdi:cog-outline'
 
 type EquipmentTypeEntry = { subEquipmentType?: Record<string, { icon?: string }> }
 
@@ -17,15 +17,15 @@ export const equipmentTypeIconRegistry: Readonly<Record<string, string>> = Objec
     .map(([id, subtype]) => [id, subtype.icon!])
 )
 
-export function resolveItemIconId(itemId: string, kind: ItemKind, equipmentType?: string): string | undefined {
-  if (kind === 'chemical') return undefined
+export function resolveItemIconId(itemId: string, itemType: string, equipmentType?: string): string | undefined {
+  if (itemType === 'chemical') return undefined
   if (itemIconRegistry[itemId]) return itemIconRegistry[itemId]
-  return kind === 'equipment' && equipmentType
-    ? equipmentTypeIconRegistry[equipmentType] ?? itemKindIconRegistry.equipment
-    : itemKindIconRegistry[kind]
+  return itemType === 'equipment' && equipmentType
+    ? equipmentTypeIconRegistry[equipmentType] ?? itemTypeIconRegistry[itemType] ?? fallbackIconId
+    : itemTypeIconRegistry[itemType] ?? fallbackIconId
 }
 
-export function resolveItemIconData(itemId: string, kind: Exclude<ItemKind, 'chemical'>, equipmentType?: string) {
-  const iconId = resolveItemIconId(itemId, kind, equipmentType)!
-  return iconData[iconId as keyof typeof iconData] ?? iconData['mdi:cog-outline']
+export function resolveItemIconData(itemId: string, itemType: string, equipmentType?: string) {
+  const iconId = resolveItemIconId(itemId, itemType, equipmentType) ?? fallbackIconId
+  return iconData[iconId as keyof typeof iconData] ?? iconData[fallbackIconId]
 }

@@ -31,7 +31,7 @@ export function getEquipmentType(equipmentTypeId: string) {
 export function getEquipmentDefinition(itemId: string) {
   const item = getItemDefinition(itemId)
   const equipment = equipmentDefinitions[itemId]
-  if (item?.kind !== 'equipment' || !equipment || equipment.equipmentType !== item.equipmentType) return undefined
+  if (item?.itemType !== 'equipment' || !equipment || equipment.equipmentType !== item.equipmentType) return undefined
   const equipmentType = getEquipmentType(equipment.equipmentType)
   return equipmentType?.slotGroup ? { ...equipment, subtype: equipmentType, slotGroup: equipmentType.slotGroup } : undefined
 }

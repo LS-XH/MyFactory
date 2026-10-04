@@ -1170,11 +1170,21 @@ def validate(
         raise ValueError("starType.json 和 planetType.json 至少需要一个类型")
     if not resource_types:
         raise ValueError("resourceType.json 中没有可选资源类型")
+    for resource_type_id, resource_type in resource_types.items():
+        if not isinstance(resource_type, dict):
+            raise ValueError(f"resourceType {resource_type_id!r} 必须是对象")
+        for field in ("itemType", "itemState"):
+            allowed = resource_type.get(field)
+            if not isinstance(allowed, list) or not allowed or any(not isinstance(value, str) or not value for value in allowed):
+                raise ValueError(f"resourceType {resource_type_id!r} 的 {field} 必须是非空字符串数组")
     for label, obj in (("starType", star_types), ("planetType", planet_types)):
         for key, value in obj.items():
             if not isinstance(value, dict) or not isinstance(value.get("displayName"), str):
                 raise ValueError(f"{label} 条目 {key!r} 缺少 displayName")
     for planet_type_id, planet_type in planet_types.items():
+        probability = planet_type.get("probability")
+        if isinstance(probability, bool) or not isinstance(probability, (int, float)) or not math.isfinite(probability) or probability < 0:
+            raise ValueError(f"planetType {planet_type_id!r} 的 probability 必须是非负有限数字")
         resources = planet_type.get("resource")
         if not isinstance(resources, dict):
             raise ValueError(f"planetType {planet_type_id!r} 的 resource 必须是对象")
@@ -1187,6 +1197,9 @@ def validate(
                 value = details.get(field)
                 if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0:
                     raise ValueError(f"planetType {planet_type_id!r} 的资源 {item_id!r}.{field} 必须是非负有限数字")
+    total_probability = sum(planet_type["probability"] for planet_type in planet_types.values())
+    if not math.isfinite(total_probability) or total_probability <= 0:
+        raise ValueError("planetType 的 probability 总和必须是正的有限数字")
 
 
 def make_positions(count: int, extent: float, min_distance: float) -> list[dict[str, float]]:
@@ -1214,7 +1227,7 @@ def draw_deviations(distribution: str, standard_deviation: float, count: int) ->
 
 def make_surface_resources(
     args: argparse.Namespace,
-    resource_types: dict[str, Any],
+    resource_type_candidates: dict[str, list[str]],
     planet_resources: dict[str, dict[str, float]],
 ) -> list[dict[str, Any]]:
     resource_settings = list(planet_resources.items())
@@ -1238,10 +1251,9 @@ def make_surface_resources(
         args.resource_reserves_standard_deviation,
         len(point_settings),
     )
-    resource_type_ids = list(resource_types)
     return [
         {
-            "resourceType": random.choice(resource_type_ids),
+            "resourceType": random.choice(resource_type_candidates[item_id]),
             "item": item_id,
             "position": {
                 "x": round(random.uniform(0, args.resource_position_range), 3),
@@ -1278,7 +1290,7 @@ def make_body(
     kind: str,
     orbital_radius: float,
     args: argparse.Namespace,
-    resource_types: dict[str, Any],
+    resource_type_candidates: dict[str, list[str]],
     planet_resources: dict[str, dict[str, float]],
 ) -> dict[str, Any]:
     # Orbital periods are stored in days; game code can convert to seconds for display.
@@ -1291,7 +1303,7 @@ def make_body(
             "orbitalPeriod": round(period_days, 5),
             "radius": round(draw_number(args.celestial_body_radius_distribution, args.minimum_celestial_body_radius, args.maximum_celestial_body_radius, args.celestial_body_radius_mean, args.celestial_body_radius_standard_deviation), 2),
         },
-        "surface": {"resource": make_surface_resources(args, resource_types, planet_resources)},
+        "surface": {"resource": make_surface_resources(args, resource_type_candidates, planet_resources)},
         "planet": {},
     }
 
@@ -1302,9 +1314,25 @@ def iter_systems(args: argparse.Namespace) -> Iterator[tuple[str, dict[str, Any]
     resource_types = load_json(args.resource_type_file)
     all_items = load_json(args.item_file)
     validate(args, stars, planets, resource_types, all_items)
+    resource_item_ids = {item_id for planet_type in planets.values() for item_id in planet_type["resource"]}
+    resource_type_candidates: dict[str, list[str]] = {}
+    for item_id in resource_item_ids:
+        item = all_items[item_id]
+        item_type = item.get("itemType")
+        item_state = item.get("itemState")
+        candidates = [
+            resource_type_id
+            for resource_type_id, resource_type in resource_types.items()
+            if item_type in resource_type["itemType"] and item_state in resource_type["itemState"]
+        ]
+        if not candidates:
+            raise ValueError(f"物品 {item_id!r}（itemType={item_type!r}, itemState={item_state!r}）没有匹配的 resourceType")
+        resource_type_candidates[item_id] = candidates
     positions = make_positions(args.star_system_count, args.star_system_position_range, args.minimum_star_system_distance)
     star_keys = list(stars)
     planet_keys = list(planets)
+    total_probability = sum(planets[key]["probability"] for key in planet_keys)
+    planet_probabilities = [planets[key]["probability"] / total_probability for key in planet_keys]
     selected_groups = random.sample(list(SYSTEM_NAME_LIBRARY.items()), args.star_system_count)
 
     for system_index, (star_key, name_group) in enumerate(selected_groups):
@@ -1319,8 +1347,8 @@ def iter_systems(args: argparse.Namespace) -> Iterator[tuple[str, dict[str, Any]
         chosen_planets = random.sample(list(name_group["planets"].items()), planet_count)
         for planet_index, orbit in enumerate(orbits):
             planet_key, planet_name = chosen_planets[planet_index]
-            planet_type = random.choice(planet_keys)
-            body = make_body(planet_key, planet_name, planet_type, orbit, args, resource_types, planets[planet_type]["resource"])
+            planet_type = random.choices(planet_keys, weights=planet_probabilities, k=1)[0]
+            body = make_body(planet_key, planet_name, planet_type, orbit, args, resource_type_candidates, planets[planet_type]["resource"])
 
             left_gap = orbit - orbits[planet_index - 1] if planet_index else math.inf
             right_gap = orbits[planet_index + 1] - orbit if planet_index + 1 < planet_count else math.inf
@@ -1350,14 +1378,14 @@ def iter_systems(args: argparse.Namespace) -> Iterator[tuple[str, dict[str, Any]
                 moon_key = f"Moon{moon_index + 1:02d}"
                 moon_name = f"{planet_name}·卫星 {moon_index + 1}"
                 moon_orbit = moon_orbits[moon_index]
-                moon_type = random.choice(planet_keys)
+                moon_type = random.choices(planet_keys, weights=planet_probabilities, k=1)[0]
                 moon = make_body(
                     moon_key,
                     moon_name,
                     moon_type,
                     moon_orbit,
                     args,
-                    resource_types,
+                    resource_type_candidates,
                     planets[moon_type]["resource"],
                 )
                 # A compact game-scale lunar orbit usually completes in several days.

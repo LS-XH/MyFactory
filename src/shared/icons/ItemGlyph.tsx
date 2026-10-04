@@ -1,15 +1,15 @@
 import { Icon } from '@iconify/react/offline'
 import type { CSSProperties } from 'react'
 import { getItem } from '../../domain/content'
-import { getItemDefinition, type ItemKind, type ItemState } from '../../domain/items'
+import { getItemDefinition } from '../../domain/items'
 import { resolveItemIconData } from './itemIconRegistry'
 import { resolveItemColor } from './itemVisualRegistry'
 import { useItemInteraction } from './ItemInteraction'
 import './itemGlyph.css'
 
 type ItemVisualData = {
-  kind: ItemKind
-  state?: ItemState
+  itemType: string
+  itemState?: string
   equipmentType?: string
   primaryElementId?: string
 }
@@ -31,15 +31,15 @@ function ChemicalFormula({ formula }: { formula: string }) {
   )}</span>
 }
 
-/** One UI entry point for chemical symbols and all Iconify-backed item kinds. */
+/** Shared UI entry point for chemical formulas and Iconify-backed item types. */
 export function ItemGlyph({ itemId, item, variant = 'inline', className = '', interactive = true, stopPropagation = true }: ItemGlyphProps) {
   const interaction = useItemInteraction()
   const definition = item ?? getItemDefinition(itemId) ?? getItem(itemId)
-  const stateClass = definition?.kind === 'chemical' ? ` chemical-${definition.state ?? 'solid'}` : ''
+  const stateClass = definition?.itemType === 'chemical' ? ` chemical chemical-${(definition.itemState ?? 'solid').toLowerCase()}` : ''
   const canInteract = interactive && !!interaction && !!definition
   const classes = `item-glyph item-glyph--${variant}${stateClass}${canInteract ? ' item-glyph--interactive nodrag' : ''}${className ? ` ${className}` : ''}`
   const formulaLength = itemId.replace(/\d/g, '').length + (itemId.match(/\d/g)?.length ?? 0) * 0.7
-  const formulaSize = definition?.kind === 'chemical' && (variant === 'inventory' || variant === 'codex')
+  const formulaSize = definition?.itemType === 'chemical' && (variant === 'inventory' || variant === 'codex')
     ? Math.min(variant === 'inventory' ? 20 : 14, (variant === 'inventory' ? 46 : 40) / (Math.max(2, formulaLength) * 0.62))
     : undefined
   const style = {
@@ -65,6 +65,6 @@ export function ItemGlyph({ itemId, item, variant = 'inline', className = '', in
   } : {}
 
   if (!definition) return <span className={classes} style={style}>?</span>
-  if (definition.kind === 'chemical') return <span className={classes} style={style} {...interactionProps}><ChemicalFormula formula={itemId} /></span>
-  return <span className={classes} style={style} {...interactionProps}><Icon icon={resolveItemIconData(itemId, definition.kind, 'equipmentType' in definition ? definition.equipmentType : undefined)} aria-hidden="true" /></span>
+  if (definition.itemType === 'chemical') return <span className={classes} style={style} {...interactionProps}><ChemicalFormula formula={itemId} /></span>
+  return <span className={classes} style={style} {...interactionProps}><Icon icon={resolveItemIconData(itemId, definition.itemType, definition.equipmentType)} aria-hidden="true" /></span>
 }

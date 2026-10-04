@@ -1,10 +1,10 @@
 import { z } from 'zod'
 import catalog from '../../assets/catalog.json'
 import type { ContentRepository } from './contracts'
-import { getItemDefinition } from './items'
+import { getItemDefinition, getItemStateName, getItemTypeName } from './items'
 import { formulasForFactory, surfaceFactories, surfaceFormulas } from './surfaceContent'
 
-const itemSchema = z.object({ id: z.string(), name: z.string(), kind: z.enum(['chemical', 'material', 'product', 'equipment']), state: z.enum(['solid', 'liquid', 'gas']).optional(), equipmentType: z.string().optional() })
+const itemSchema = z.object({ id: z.string(), name: z.string(), itemType: z.string().refine((id) => Boolean(getItemTypeName(id))), itemState: z.string().refine((id) => Boolean(getItemStateName(id))).optional(), equipmentType: z.string().optional() })
 const factorySchema = z.object({ id: z.string(), name: z.string(), type: z.string(), color: z.string(), status: z.string(), power: z.number().optional(), recipe: z.string().optional(), inputs: z.array(z.string()).optional(), outputs: z.array(z.string()).optional(), rate: z.number().optional(), capacity: z.number().optional() })
 const catalogSchema = z.object({ schemaVersion: z.number(), starSystem: z.object({ id: z.string(), name: z.string(), subtitle: z.string(), star: z.object({ name: z.string(), class: z.string(), temperature: z.string() }), bodies: z.array(z.any()) }), factoryTypes: z.array(z.object({ id: z.string(), label: z.string(), icon: z.string() })), factories: z.array(factorySchema), items: z.array(itemSchema), recipes: z.array(z.any()) })
 
@@ -55,7 +55,7 @@ export function getFactory(factoryId: string) {
 
 export function getItem(itemId: string) {
   const legacy = getItemDefinition(itemId)
-  return content.items.find((item) => item.id === itemId) ?? (legacy ? { id: itemId, name: legacy.displayName, kind: legacy.kind, state: 'state' in legacy ? legacy.state : undefined, equipmentType: 'equipmentType' in legacy ? legacy.equipmentType : undefined, primaryElementId: 'primaryElementId' in legacy ? legacy.primaryElementId : undefined } : undefined)
+  return content.items.find((item) => item.id === itemId) ?? (legacy ? { id: itemId, name: legacy.displayName, itemType: legacy.itemType, itemState: legacy.itemState, equipmentType: legacy.equipmentType, primaryElementId: legacy.primaryElementId } : undefined)
 }
 
 export function getRecipe(recipeId: string) {

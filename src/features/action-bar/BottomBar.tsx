@@ -1,5 +1,5 @@
 import { useState, type CSSProperties } from 'react'
-import { Activity, MoreHorizontal, Radio, SlidersHorizontal, Truck } from 'lucide-react'
+import { Activity, MoreHorizontal, Radio, SlidersHorizontal, Truck, type LucideIcon } from 'lucide-react'
 import { ICON_SIZES } from '../../config/visualTokens'
 import { content, surfaceFactoryDefinitions } from '../../domain/content'
 import type { SceneId } from '../../state/gameStore'
@@ -9,8 +9,20 @@ import { ORBITAL_BUILD_CATEGORIES } from './catalog'
 import { isPlayerControllable, objectRepository } from '../../domain/objects'
 import { resolveObjectActionIcon } from './objectActionIcons'
 import { SURFACE_FACTORY_DRAG_TYPE } from '../surface/buildDrag'
+import './bottomBar.css'
 
 type OrbitalCategory = keyof typeof ORBITAL_BUILD_CATEGORIES
+
+function ObjectActionButton({ label, Icon, active, onClick }: { label: string; Icon: LucideIcon; active?: boolean; onClick: () => void }) {
+  return <button
+    type="button"
+    className={`object-action-button ${active ? 'targeting-active' : ''}`}
+    aria-label={label}
+    aria-pressed={active}
+    data-tooltip={label}
+    onClick={onClick}
+  ><Icon size={ICON_SIZES.objectAction} aria-hidden="true" /></button>
+}
 
 type BottomBarProps = {
   scene: SceneId
@@ -37,7 +49,7 @@ export function BottomBar({ scene, selectedId, selectedIds, pendingActionId, spe
   return <div className="bottom-bar">
     <div className="bottom-context"><span className="scene-kicker">{selectedId ? 'OBJECT ACTIONS' : scene === 'system' ? 'ORBITAL BUILD' : 'SURFACE BUILD'}</span><strong>{selectedId ? '已选中对象 · 可用操作' : scene === 'system' ? '轨道设施与交通' : '地表生产设施'}</strong></div>
     {selectedId
-      ? <div className="selected-actions">{actions.map((action) => { const Icon = resolveObjectActionIcon(action.id); return <button key={action.id} className={pendingActionId === action.id ? 'targeting-active' : undefined} aria-pressed={pendingActionId === action.id} onClick={() => onAction(action.id)}><Icon size={ICON_SIZES.action} />{action.label}</button> })}{canControlSelection && <><button onClick={() => onAction('configure')}><SlidersHorizontal size={ICON_SIZES.action} />配置</button><button onClick={() => onAction('more')}><MoreHorizontal size={ICON_SIZES.action} />更多</button></>}</div>
+      ? <div className="selected-actions">{actions.map((action) => <ObjectActionButton key={action.id} label={action.label} Icon={resolveObjectActionIcon(action.id)} active={pendingActionId === action.id} onClick={() => onAction(action.id)} />)}{canControlSelection && <><ObjectActionButton label="配置" Icon={SlidersHorizontal} onClick={() => onAction('configure')} /><ObjectActionButton label="更多" Icon={MoreHorizontal} onClick={() => onAction('more')} /></>}</div>
       : scene === 'system'
         ? <div className="build-palette"><div className="palette-categories"><button className={orbitalCategory === 'station' ? 'active' : ''} onClick={() => setOrbitalCategory('station')}><Radio size={ICON_SIZES.category} />空间站</button><button className={orbitalCategory === 'transport' ? 'active' : ''} onClick={() => setOrbitalCategory('transport')}><Truck size={ICON_SIZES.category} />交通</button></div><div className="palette-items">{orbitalDefinition.options.map((option) => <button className="build-item" key={option} title="预留建造项目"><span className="palette-icon" style={{ '--node-color': orbitalDefinition.color } as CSSProperties}><OrbitalIcon size={ICON_SIZES.node} /></span>{option}<small>LOCKED</small></button>)}</div></div>
         : <div className="build-palette"><div className="palette-categories">{types.map((type) => { const Icon = resolveFactoryIcon(type.icon); return <button className={category === type.id ? 'active' : ''} key={type.id} onClick={() => setCategory(type.id)}><Icon size={ICON_SIZES.category} />{type.label}</button> })}</div><div className="palette-items">{visibleFactories.map((factory) => <button className="build-item" key={factory.id} draggable={factory.status === '可用'} title={factory.status === '可用' ? '拖拽到地表建造' : '尚未解锁'} onDragStart={(event) => { if (factory.status !== '可用') { event.preventDefault(); return } event.dataTransfer.setData(SURFACE_FACTORY_DRAG_TYPE, factory.id); event.dataTransfer.effectAllowed = 'copy'; onBuildDragStart(factory.id) }} onDragEnd={onBuildDragEnd}><span className="palette-icon" style={{ '--node-color': factory.color } as CSSProperties}><FactoryGlyph factoryId={factory.id} size={ICON_SIZES.node} fallbackCategoryIcon={types.find((type) => type.id === factory.type)?.icon} /></span>{factory.name}{factory.status !== '可用' && <small>LOCKED</small>}</button>)}</div></div>}

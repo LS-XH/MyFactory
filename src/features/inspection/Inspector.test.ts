@@ -5,7 +5,6 @@ import shipDefinitions from '../../../assets/legacy/ship.json'
 import shipTypeDefinitions from '../../../assets/legacy/shipType.json'
 import { DamageableCapability, GameObject, MovementCapability, objectRepository } from '../../domain/objects'
 import { shipTypeIconArtwork } from '../../shared/icons/shipTypeIconArtwork'
-import { MOVEMENT_WORLD_UNIT_SCALE } from '../fleet/movement/kinematics'
 import { Inspector } from './Inspector'
 
 const testId = 'inspector-ship-icon-test'
@@ -22,6 +21,7 @@ describe('space object inspector', () => {
 
     const markup = renderToStaticMarkup(createElement(Inspector, {
       selectedId: testId,
+      focusedTask: null,
       scene: 'system',
       onClose: () => undefined,
       onNotify: () => undefined,
@@ -40,7 +40,7 @@ describe('space object inspector', () => {
       orbit: 1
     })
     const movement = new MovementCapability(30)
-    movement.speed = 15 * MOVEMENT_WORLD_UNIT_SCALE
+    movement.speed = 15
     movement.headingDegrees = 90
     ship.addCapability(movement)
     ship.addCapability(new DamageableCapability(750, 1200, 500))
@@ -48,6 +48,7 @@ describe('space object inspector', () => {
 
     const markup = renderToStaticMarkup(createElement(Inspector, {
       selectedId: testId,
+      focusedTask: null,
       scene: 'system',
       onClose: () => undefined,
       onNotify: () => undefined,

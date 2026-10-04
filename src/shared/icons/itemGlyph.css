@@ -21,11 +21,11 @@
   font-size: 62px;
 }
 
-.item-glyph--inventory:not(:is(.chemical-solid, .chemical-liquid, .chemical-gas)) svg {
+.item-glyph--inventory:not(.chemical) svg {
   filter: drop-shadow(0 0 6px color-mix(in srgb, var(--item-color) 55%, transparent));
 }
 
-.item-glyph--inventory:is(.chemical-solid, .chemical-liquid, .chemical-gas) {
+.item-glyph--inventory.chemical {
   width: 50px;
   height: 50px;
   border-radius: 2px;
@@ -56,7 +56,7 @@
 }
 
 .item-glyph--codex { width: 54px; height: 54px; font-size: 47px; }
-.item-glyph--codex:is(.chemical-solid, .chemical-liquid, .chemical-gas) {
+.item-glyph--codex.chemical {
   width: 48px;
   height: 48px;
   padding: 3px;
@@ -68,9 +68,7 @@
 .item-glyph--codex.chemical-liquid { border: 1px solid var(--item-color); text-shadow: 0 0 5px var(--item-color); }
 .item-glyph--codex.chemical-gas { color: var(--item-color); text-shadow: 0 0 5px var(--item-color); }
 
-.item-glyph:is(.item-glyph--chip, .item-glyph--inline).chemical-solid,
-.item-glyph:is(.item-glyph--chip, .item-glyph--inline).chemical-liquid,
-.item-glyph:is(.item-glyph--chip, .item-glyph--inline).chemical-gas {
+.item-glyph:is(.item-glyph--chip, .item-glyph--inline).chemical {
   padding: 2px 3px;
   font-size: 10px;
 }

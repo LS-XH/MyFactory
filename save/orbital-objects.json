@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "entities": [
     {
       "id": "station-horizon",
@@ -51,8 +51,8 @@
       "name": "伊米卡斯级 · 侦察 01",
       "starId": "Star0144",
       "position": {
-        "x": 13.379197546248179,
-        "y": 0.23022217574680326
+        "x": 0.06728083768393844,
+        "y": 0.21860410273075104
       },
       "orbit": 1,
       "ownerFactionId": "Player",
@@ -990,18 +990,20 @@
           "x": 0,
           "y": 0
         },
-        "headingDegrees": -66.83133643454926
+        "headingDegrees": 133.63989423435532,
+        "angularVelocityDegrees": 0,
+        "warpPhase": "idle"
       }
     },
     {
-      "id": "ship-imicus2",
+      "id": "ship-imicus3",
       "kind": "ship",
       "definitionId": "Imicus",
-      "name": "攻击",
+      "name": "攻击2",
       "starId": "Star0041",
       "position": {
-        "x": -16.863935336052236,
-        "y": 16.95155303883712
+        "x": 6.6123795819003135,
+        "y": 2.5700402516231406
       },
       "orbit": 1,
       "ownerFactionId": "Player",
@@ -1045,21 +1047,23 @@
           "x": 0,
           "y": 0
         },
-        "headingDegrees": -109.33105844127067
+        "headingDegrees": 62.504216852773425,
+        "angularVelocityDegrees": 0,
+        "warpPhase": "idle"
       }
     },
     {
-      "id": "ship-imicus3",
+      "id": "ship-imicus4",
       "kind": "ship",
       "definitionId": "Imicus",
-      "name": "敌人",
+      "name": "攻击3",
       "starId": "Star0041",
       "position": {
-        "x": -8.144226668156989,
-        "y": 4.162224377312668
+        "x": 6.6123795819003135,
+        "y": 2.5700402516231406
       },
       "orbit": 1,
-      "ownerFactionId": "Terran",
+      "ownerFactionId": "Player",
       "communicationDelayMs": 24,
       "status": "online",
       "health": {
@@ -1100,7 +1104,123 @@
           "x": 0,
           "y": 0
         },
-        "headingDegrees": -90.20762984280032
+        "headingDegrees": 62.504216852773425,
+        "angularVelocityDegrees": 0,
+        "warpPhase": "idle"
+      }
+    },
+    {
+      "id": "ship-imicus2",
+      "kind": "ship",
+      "definitionId": "Imicus",
+      "name": "攻击",
+      "starId": "Star0041",
+      "position": {
+        "x": 6.6123795819003135,
+        "y": 2.5700402516231406
+      },
+      "orbit": 1,
+      "ownerFactionId": "Player",
+      "communicationDelayMs": 24,
+      "status": "online",
+      "health": {
+        "shieldHp": 0,
+        "armorHp": 1400,
+        "structureHp": 2000
+      },
+      "damage": [
+        {
+          "equipmentId": "LaserEmitter",
+          "amount": 100
+        },
+        {
+          "equipmentId": "LaserEmitter",
+          "amount": 100
+        }
+      ],
+      "installedEquipment": [
+        {
+          "group": "turretSlots",
+          "size": "S",
+          "index": 0,
+          "equipmentId": "LaserEmitter"
+        }
+      ],
+      "storage": {
+        "slots": [
+          {
+            "slot": 0,
+            "itemId": "LaserEmitter",
+            "quantity": 5
+          }
+        ]
+      },
+      "tasks": [],
+      "movement": {
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "headingDegrees": 62.504216852773425,
+        "angularVelocityDegrees": 0,
+        "warpPhase": "idle"
+      }
+    },
+    {
+      "id": "ship-imicus3",
+      "kind": "ship",
+      "definitionId": "Imicus",
+      "name": "敌人",
+      "starId": "Star0041",
+      "position": {
+        "x": -8.144226668156989,
+        "y": 4.162224377312668
+      },
+      "orbit": 1,
+      "ownerFactionId": "Terran",
+      "communicationDelayMs": 24,
+      "status": "online",
+      "health": {
+        "shieldHp": 0,
+        "armorHp": 700,
+        "structureHp": 2000
+      },
+      "damage": [
+        {
+          "equipmentId": "LaserEmitter",
+          "amount": 100
+        },
+        {
+          "equipmentId": "LaserEmitter",
+          "amount": 100
+        }
+      ],
+      "installedEquipment": [
+        {
+          "group": "turretSlots",
+          "size": "S",
+          "index": 0,
+          "equipmentId": "LaserEmitter"
+        }
+      ],
+      "storage": {
+        "slots": [
+          {
+            "slot": 0,
+            "itemId": "LaserEmitter",
+            "quantity": 5
+          }
+        ]
+      },
+      "tasks": [],
+      "movement": {
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "headingDegrees": -90.20762984280032,
+        "angularVelocityDegrees": 0,
+        "warpPhase": "idle"
       }
     }
   ]

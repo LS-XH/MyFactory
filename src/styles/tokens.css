@@ -1,10 +1,12 @@
 :root {
   --shell-header-height: 56px;
   --shell-footer-height: 84px;
+  --object-action-button-size: 54px;
   --color-bg-root: #070c12;
   --color-bg-shell: #080e16;
   --color-text-primary: #dbe7f5;
   --color-map-label: #e6edf3;
+  --color-map-grid-dot: #9ab9c7;
   --color-accent: #59d6c4;
   --color-star: #f7c85b;
   --color-planet: #f2a65a;

@@ -2,15 +2,15 @@
   "star_system": {
     "count": 1000,
     "position": {
-      "range": 10000,
-      "minimum_distance": 5
+      "range": 1000000,
+      "minimum_distance": 50
     }
   },
   "planet_orbit_radius": {
-    "minimum": 0.5,
-    "maximum": 10,
+    "minimum": 5,
+    "maximum": 100,
     "distribution": "normal",
-    "mean": 5,
+    "mean": 50,
     "standard_deviation": 100
   },
   "planet_count": {
@@ -21,8 +21,8 @@
     "standard_deviation": 1
   },
   "orbit_spacing": {
-    "minimum_between_planets": 1,
-    "minimum_between_moons": 0.5
+    "minimum_between_planets": 5,
+    "minimum_between_moons": 2
   },
   "celestial_body_radius": {
     "minimum": 1000,

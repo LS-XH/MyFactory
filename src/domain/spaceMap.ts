@@ -2,7 +2,9 @@ import { z } from 'zod'
 import spaceMapJson from '../../assets/legacy/spaceMap.json'
 import starTypesJson from '../../assets/legacy/starType.json'
 import planetTypesJson from '../../assets/legacy/planetType.json'
-import resourceTypesJson from '../../assets/legacy/resourceType.json'
+import { getResourceTypeName } from './resourceTypes'
+
+export { resourceTypes } from './resourceTypes'
 
 const positionSchema = z.object({ x: z.number(), y: z.number() })
 const resourceSchema = z.object({ resourceType: z.string(), item: z.string(), position: positionSchema, reserves: z.number() })
@@ -41,7 +43,6 @@ export type CelestialObject = {
 export const spaceMap = z.record(starSchema).parse(spaceMapJson) as SpaceMap
 export const starTypes = starTypesJson as Record<string, { displayName: string }>
 export const planetTypes = planetTypesJson as Record<string, { displayName?: string }>
-export const resourceTypes = resourceTypesJson as Record<string, string>
 
 // AU data remains untouched. Each hierarchy applies its user-configurable linear
 // length factor only when projecting source values into the SVG world.
@@ -199,7 +200,10 @@ export function getPlanet(starId: string, planetId: string): PlanetMapEntry | un
 export function getResourcePoints(starId: string, planetId: string): ResourcePoint[] {
   const planet = getPlanet(starId, planetId)
   const resources = (planet?.surface?.resource ?? []) as RawResource[]
-  return resources.map((resource, index) => ({ ...resource, id: `resource-${starId}-${planetId.replaceAll('/', '-')}-${index}`, displayName: `${resourceTypes[resource.resourceType] ?? resource.resourceType} / ${resource.item}`, resourceTypeName: resourceTypes[resource.resourceType] ?? resource.resourceType }))
+  return resources.map((resource, index) => {
+    const resourceTypeName = getResourceTypeName(resource.resourceType)
+    return { ...resource, id: `resource-${starId}-${planetId.replaceAll('/', '-')}-${index}`, displayName: `${resourceTypeName} / ${resource.item}`, resourceTypeName }
+  })
 }
 
 export function getDefaultPlanet() {

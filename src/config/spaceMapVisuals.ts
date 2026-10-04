@@ -5,13 +5,18 @@ export const SPACE_MAP_VIEW = {
   centerY: 380
 } as const
 
+/** The former centered SVG size defines the on-screen scale; the viewport now fills the canvas. */
+export const SPACE_MAP_CANVAS = {
+  referenceMaxWidthPx: 920,
+  referenceMaxHeightPx: 710,
+  referenceSizeFraction: 0.94
+} as const
+
 export const SPACE_MAP_ZOOM = {
-  levels: [0.003,0.007,0.015,0.03, 0.06, 0.125, 0.25, 0.5, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512] as readonly number[],
+  levels: [0.00125,0.0025,0.005,0.01,0.04, 0.125, 0.25, 0.5, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512] as readonly number[],
   initial: 1,
   systemDetail: 2,
   entityDetail: 4,
-  stationFocus: 8,
-  shipFocus: 11,
   wheelThrottleMs: 90,
   wheelAnimationMs: 360,
   defaultAnimationMs: 420,
@@ -35,7 +40,7 @@ export const SPACE_MAP_VISUAL = {
   detailModeOpacityThreshold: 0.28,
   pointerOpacityThreshold: 0.18,
   entityPointerOpacityThreshold: 0.2,
-  cameraFocusReleaseDragPx: 4,
+  cameraFocusReleaseDragPx: 8,
   cullingPadding: 80,
   overviewPadding: 32,
   overviewCoreRadiusFraction,
@@ -63,6 +68,14 @@ export const SPACE_MAP_VISUAL = {
     { offset: 0.86, opacity: 0.07, region: 'glow' },
     { offset: 1, opacity: 0, region: 'glow' }
   ]
+} as const
+
+/** Screen-sized dots on a fixed AU lattice; zoom changes the apparent gap, not its world distance. */
+export const SPACE_MAP_DOT_GRID = {
+  minimumRenderableSpacingPx: 1.5,
+  dotRadiusPx: 1.5,
+  maximumDotRadiusFraction: 0.45,
+  opacity: 0.52
 } as const
 
 /** Expand only the halo's distance from the core; the opaque core keeps its original world radius. */

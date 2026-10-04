@@ -2,6 +2,7 @@
   "TerrestrialPlanet": {
     "displayName": "类地星球",
     "description": "类地星球，资源分布较为平均",
+    "probability":3,
     "planetAdjustment": {},
     "resource": {
       "Magnetite": {
@@ -73,6 +74,7 @@
   "LavalPlanet": {
     "displayName": "熔岩星球",
     "description": "熔岩星球，含有比较丰富的金属资源，有机物资源较少",
+    "probability":3,
     "planetAdjustment": {},
     "resource": {
       "Magnetite": {
@@ -136,6 +138,7 @@
   "OceanlPlanet": {
     "displayName": "海洋星球",
     "description": "海洋星球，含有丰富的水资源，有机物资源、石油资源、烃类资源较多",
+    "probability":3,
     "planetAdjustment": {},
     "resource": {
       "H2O": {
@@ -203,6 +206,7 @@
   "LifelessPlanet": {
     "displayName": "荒芜星球",
     "description": "荒芜星球，含有比较丰富的岩石类",
+    "probability":3,
     "planetAdjustment": {},
     "resource": {
       "QuartzSand": {
@@ -262,6 +266,7 @@
   "MetalPlanet": {
     "displayName": "金属星球",
     "description": "金属星球，含有非常丰富的金属资源",
+    "probability":1,
     "planetAdjustment": {},
     "resource": {
       "Magnetite": {
@@ -337,6 +342,7 @@
   "DiamondPlanet": {
     "displayName": "钻石星球",
     "description": "钻石星球，含有非常丰富的碳类资源",
+    "probability":3,
     "planetAdjustment": {},
     "resource": {
       "C": {
@@ -376,6 +382,7 @@
   "IcePlanet": {
     "displayName": "寒冰星球",
     "description": "寒冰星球，含有比较丰富的可燃冰类型资源，包括烷烃等",
+    "probability":3,
     "planetAdjustment": {},
     "resource": {
       "H2O": {
@@ -418,7 +425,8 @@
   },
   "FrozenPlanet": {
     "displayName": "冰封星球",
-    "description": "熔岩星球，含有比较丰富的可燃冰类型资源，包括烷烃等",
+    "description": "冰封星球，含有比较丰富的可燃冰类型资源，包括烷烃等",
+    "probability":3,
     "planetAdjustment": {},
     "resource": {
       "H2O": {
@@ -474,6 +482,7 @@
   "GasPlanet": {
     "displayName": "气态星球",
     "description": "气态星球，含有丰富的气体资源",
+    "probability":3,
     "planetAdjustment": {},
     "resource": {
       "H2": {
@@ -521,6 +530,7 @@
   "SilicatePlanet": {
     "displayName": "硅基星球",
     "description": "硅基星球，含有比较丰富的半导体",
+    "probability":1,
     "planetAdjustment": {},
     "resource": {
       "QuartzSand": {
@@ -572,6 +582,7 @@
   "GrasslandPlanet": {
     "displayName": "草原星球",
     "description": "草原星球，含有比较丰富的有机物资源",
+    "probability":3,
     "planetAdjustment": {},
     "resource": {
       "H2O": {
@@ -627,6 +638,7 @@
   "SakuraSea": {
     "displayName": "樱林海",
     "description": "樱林海，一处奇景，含有比较丰富的有机物资源，能够开采到一些奥秘物品",
+    "probability":0.1,
     "planetAdjustment": {},
     "resource": {
       "H2O": {
@@ -666,6 +678,7 @@
   "Stonehenge": {
     "displayName": "巨石阵",
     "description": "巨石阵，一处奇景，含有比较丰富的无机物资源，能够开采到一些奥秘物品",
+    "probability":0.1,
     "planetAdjustment": {},
     "resource": {
       "QuartzSand": {
@@ -709,6 +722,7 @@
   "ScorchedPlanet": {
     "displayName": "焦土",
     "description": "焦土，一处奇景，含有比较丰富的机械资源，表面有废墟资源点，能够开采到机械物品",
+    "probability":0.1,
     "planetAdjustment": {},
     "resource": {
       "CannonEmitter": {
@@ -760,6 +774,7 @@
   "AncientCity": {
     "displayName": "旧日之都",
     "description": "旧日之都，一处奇景，含有比较丰富的电子资源，表面有废墟资源点，能够开采到电子物品",
+    "probability":0.1,
     "planetAdjustment": {},
     "resource": {
       "LaserEmitter": {
@@ -803,6 +818,7 @@
   "GodTumulus": {
     "displayName": "神冢",
     "description": "神冢，一处奇景，无资源点，能够开采到灵能物品",
+    "probability":0.1,
     "planetAdjustment": {},
     "resource": {}
   }

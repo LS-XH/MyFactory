@@ -1,5 +1,3 @@
-import type { ItemKind } from '../../domain/items'
-
 /** Curated UI swatches for every chemical item. These are readable icon colors, not measured material colors. */
 export const CHEMICAL_ITEM_COLORS: Readonly<Record<string, string>> = {
   // Elements and elemental gases
@@ -149,23 +147,18 @@ export const ITEM_COLORS: Readonly<Record<string, string>> = {
   'steel-ingot': '#9ba8b8'
 }
 
-export const ITEM_KIND_COLORS: Readonly<Record<ItemKind, string>> = {
-  chemical: '#c8e6dd',
-  material: '#98b6c4',
-  product: '#98b6c4',
-  equipment: '#98b6c4'
-}
+const DEFAULT_ITEM_COLOR = '#98b6c4'
 
 function configuredColor(itemId: string): string | undefined {
   return Object.prototype.hasOwnProperty.call(ITEM_COLORS, itemId) ? ITEM_COLORS[itemId] : undefined
 }
 
-export function resolveItemColor(itemId: string, item?: { kind: ItemKind; primaryElementId?: string }): string {
+export function resolveItemColor(itemId: string, item?: { itemType: string; primaryElementId?: string }): string {
   const itemColor = configuredColor(itemId)
   if (itemColor) return itemColor
-  if (item?.kind === 'material' && item.primaryElementId) {
+  if (item?.primaryElementId) {
     const elementColor = configuredColor(item.primaryElementId)
     if (elementColor) return elementColor
   }
-  return ITEM_KIND_COLORS[item?.kind ?? 'material']
+  return DEFAULT_ITEM_COLOR
 }

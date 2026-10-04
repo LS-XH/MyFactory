@@ -1,6 +1,6 @@
 import { content } from './content'
 import { findCelestialObject, spaceMap } from './spaceMap'
-import { orbitalSaveSchema, type OrbitalEntitySave, type OrbitalSave } from './orbitalSave'
+import { parseOrbitalSave, type OrbitalEntitySave, type OrbitalSave } from './orbitalSave'
 import shipDefinitions from '../../assets/legacy/ship.json'
 import shipTypeDefinitions from '../../assets/legacy/shipType.json'
 import stationDefinitions from '../../assets/legacy/station.json'
@@ -16,7 +16,11 @@ export type SlotGroup = 'turretSlots' | 'engineSlots' | 'defenseSlots' | 'utilit
 export const SLOT_GROUPS: readonly SlotGroup[] = ['turretSlots', 'engineSlots', 'defenseSlots', 'utilitySlots', 'moduleSlots']
 export const SLOT_SIZES: readonly SlotSize[] = ['S', 'M', 'L', 'XL', 'T']
 export type ObjectAction = { id: string; label: string; target?: boolean; targetCapability?: CapabilityId; kind?: 'operation' | 'task' }
-export type ObjectTask = { id: string; actionId: 'move'; targetId?: string; destination: { x: number; y: number } | { objectId: string }; destinationStarId?: string }
+export type MovementTaskActionId = 'move' | 'orbit' | 'keep-distance' | 'face' | 'warp-to'
+export function isMovementTaskAction(actionId: string): actionId is MovementTaskActionId {
+  return actionId === 'move' || actionId === 'orbit' || actionId === 'keep-distance' || actionId === 'face' || actionId === 'warp-to'
+}
+export type ObjectTask = { id: string; actionId: MovementTaskActionId; targetId?: string; destination: { x: number; y: number } | { objectId: string }; destinationStarId?: string; distanceKm?: number; offsetKm?: { x: number; y: number } }
 export type CapabilityId = 'equipment' | 'movement' | 'damageable' | 'attack' | 'storage' | 'carrier' | 'production' | 'shipyard' | 'logistics' | 'mining' | 'taskQueue'
 export type ObjectCapability = { id: CapabilityId; getActions: () => ObjectAction[] }
 
@@ -36,7 +40,7 @@ export class TaskQueueCapability implements ObjectCapability {
   }
   retarget(taskId: string, position: { x: number; y: number }, starId: string) {
     const task = this.tasks.find(entry => entry.id === taskId)
-    if (!task || task.actionId !== 'move') return false
+    if (!task) return false
     task.destination = { ...position }
     task.destinationStarId = starId
     delete task.targetId
@@ -72,12 +76,16 @@ export class MovementCapability implements ObjectCapability {
   destination?: { x: number; y: number } | { objectId: string }
   destinationStarId?: string
   speed = 0
-  velocity = { x: 0, y: 0 }
+  velocity = { x: 0, y: 0 } // km/s, independent of the star-map projection
+  accelerationVector = { x: 0, y: 0 } // km/s²
   headingDegrees = 0
-  constructor(readonly maximumSpeed = 8, readonly acceleration = 1, readonly turnRate = 1, readonly warpSpeed = 0) {}
-  moveTo(target: { x: number; y: number } | { objectId: string }, starId?: string) { this.destination = target; this.destinationStarId = starId }
-  stop() { this.destination = undefined; this.destinationStarId = undefined }
-  getActions(): ObjectAction[] { return [{ id: 'move', label: '前往', target: true, kind: 'task' }, { id: 'warp-to', label: '跃迁到', target: true }, { id: 'stop', label: '停止' }] }
+  angularVelocityDegrees = 0
+  angularAccelerationDegrees = 0
+  warpPhase: 'idle' | 'warping' | 'braking' = 'idle'
+  constructor(readonly maximumSpeed = 8, readonly acceleration = 1, readonly turnRate = 1, readonly warpSpeed = 0, readonly turnAcceleration = turnRate, readonly warpAcceleration = 0) {}
+  moveTo(target: { x: number; y: number } | { objectId: string }, starId?: string) { this.destination = target; this.destinationStarId = starId; this.warpPhase = 'idle' }
+  stop() { this.destination = undefined; this.destinationStarId = undefined; this.warpPhase = 'idle' }
+  getActions(): ObjectAction[] { return [{ id: 'move', label: '前往', target: true, kind: 'task' }, { id: 'orbit', label: '环绕', target: true, kind: 'task' }, { id: 'keep-distance', label: '保持距离', target: true, kind: 'task' }, { id: 'face', label: '朝向', target: true, kind: 'task' }, ...(this.warpSpeed > 0 && this.warpAcceleration > 0 ? [{ id: 'warp-to', label: '跃迁到', target: true, kind: 'task' as const }] : []), { id: 'stop', label: '停止' }] }
 }
 
 export class DamageableCapability implements ObjectCapability {
@@ -157,7 +165,14 @@ export function getOrbitalDisplayInfo(object: RuntimeObject) {
 }
 
 const objects = new Map<string, RuntimeObject>()
-function put(object: RuntimeObject) { objects.set(object.id, object); return object }
+// Fleet simulation and map rendering run every frame; keep them off the full celestial catalog.
+const orbitalObjects = new Map<string, RuntimeObject & { kind: 'ship' | 'station' }>()
+function put(object: RuntimeObject) {
+  objects.set(object.id, object)
+  if (object.kind === 'ship' || object.kind === 'station') orbitalObjects.set(object.id, object as RuntimeObject & { kind: 'ship' | 'station' })
+  else orbitalObjects.delete(object.id)
+  return object
+}
 for (const [starId, star] of Object.entries(spaceMap)) {
   put(new GameObject(starId, 'star', star.starType ?? 'star', star.displayName, star as unknown as Record<string, unknown>))
   const visit = (planets: typeof star.planet, parentPath: string, depth = 0) => Object.entries(planets).forEach(([id, body]) => { const bodyPath = `${parentPath}/${id}`; const found = findCelestialObject(bodyPath); put(new GameObject(bodyPath, depth ? 'moon' : 'planet', body.planetType ?? 'planet', found?.displayName ?? id, { ...body, celestial: found, parentId: parentPath } as unknown as Record<string, unknown>)); visit(body.planet, bodyPath, depth + 1) })
@@ -166,7 +181,7 @@ for (const [starId, star] of Object.entries(spaceMap)) {
 for (const body of content.starSystem.bodies as Array<{id:string;name:string;type:string;orbit:number;hasSurface:boolean;color:string;status:string;population:string}>) {
   if (!objects.has(body.id)) put(new GameObject(body.id, 'planet', body.type, body.name, body as unknown as Record<string, unknown>))
 }
-type OrbitalDefinition = { slots?: Partial<Record<SlotGroup, Array<{ slotSize: SlotSize }>>>; HP?: { shieldHP?: { maxHp: number }; armorHP?: { maxHp: number }; structureHP?: { maxHp: number } }; movement?: { maxSpeed: number; acceleration: number; turnSpeed: number; warpSpeed: number }; storage?: { itemstorage: number } }
+type OrbitalDefinition = { slots?: Partial<Record<SlotGroup, Array<{ slotSize: SlotSize }>>>; HP?: { shieldHP?: { maxHp: number }; armorHP?: { maxHp: number }; structureHP?: { maxHp: number } }; movement?: { maxSpeed: number; acceleration: number; turnSpeed: number; turnAcceleration?: number; warpSpeed: number; warpAcceleration?: number }; storage?: { itemstorage: number } }
 
 function createOrbitalObject(entity: OrbitalEntitySave): GameObject {
   const definitions = (entity.kind === 'ship' ? shipDefinitions : stationDefinitions) as Record<string, OrbitalDefinition>
@@ -183,8 +198,8 @@ function createOrbitalObject(entity: OrbitalEntitySave): GameObject {
   if (entity.storage && !definition.storage) throw new Error(`存档对象 ${entity.id} 的型号没有储存能力`)
   if (definition.storage) object.addCapability(new StorageCapability(definition.storage.itemstorage, entity.storage?.slots ?? []))
   if (entity.kind === 'ship') {
-    const movement = new MovementCapability(definition.movement?.maxSpeed, definition.movement?.acceleration, definition.movement?.turnSpeed, definition.movement?.warpSpeed)
-    if (entity.movement) { movement.velocity = { ...entity.movement.velocity }; movement.speed = Math.hypot(movement.velocity.x, movement.velocity.y); movement.headingDegrees = entity.movement.headingDegrees }
+    const movement = new MovementCapability(definition.movement?.maxSpeed, definition.movement?.acceleration, definition.movement?.turnSpeed, definition.movement?.warpSpeed, definition.movement?.turnAcceleration, definition.movement?.warpAcceleration)
+    if (entity.movement) { movement.velocity = { ...entity.movement.velocity }; movement.speed = Math.hypot(movement.velocity.x, movement.velocity.y); movement.headingDegrees = entity.movement.headingDegrees; movement.angularVelocityDegrees = entity.movement.angularVelocityDegrees ?? 0; movement.warpPhase = entity.movement.warpPhase ?? 'idle' }
     const activeTask = savedTasks[0]
     if (activeTask) movement.moveTo(activeTask.destination, activeTask.destinationStarId)
     object.addCapability(movement)
@@ -212,16 +227,17 @@ export function reconcileOrbitalSystem(object: RuntimeObject, starAuLengthFactor
 }
 
 export function loadOrbitalObjects(raw: unknown, starAuLengthFactor: number = DEFAULT_AU_LENGTH_FACTOR.star) {
-  const save = orbitalSaveSchema.parse(raw)
+  const save = parseOrbitalSave(raw)
   const loaded = save.entities.map(createOrbitalObject)
   let reassigned = false
   for (const object of loaded) if (reconcileOrbitalSystem(object, starAuLengthFactor)) reassigned = true
-  for (const object of objects.values()) if (object.kind === 'ship' || object.kind === 'station') objects.delete(object.id)
+  for (const id of orbitalObjects.keys()) objects.delete(id)
+  orbitalObjects.clear()
   for (const object of loaded) put(object)
   return { objects: loaded, reassigned }
 }
 
-export function getOrbitalObjects() { return [...objects.values()].filter((object): object is RuntimeObject & { kind: 'ship' | 'station' } => object.kind === 'ship' || object.kind === 'station') }
+export function getOrbitalObjects() { return [...orbitalObjects.values()] }
 
 export function serializeOrbitalObjects(): OrbitalSave {
   const entities = getOrbitalObjects().map((object): OrbitalEntitySave => {
@@ -233,25 +249,25 @@ export function serializeOrbitalObjects(): OrbitalSave {
     const movement = object.getCapability<MovementCapability>('movement')
     const taskQueue = object.getCapability<TaskQueueCapability>('taskQueue')
     const installedEquipment = equipment ? (Object.entries(equipment.slots) as [SlotGroup, Record<SlotSize, string[]>][]).flatMap(([group, sizes]) => (Object.entries(sizes) as [SlotSize, string[]][]).flatMap(([size, slots]) => slots.flatMap((equipmentId, index) => equipmentId ? [{ group, size, index, equipmentId }] : []))) : []
-    return { id: object.id, kind: object.kind, definitionId: object.definitionId, name: object.displayName, starId: String(object.staticData.starId), position: { ...(object.position ?? { x: 0, y: 0 }) }, orbit: Number(object.staticData.orbit ?? 0), ownerFactionId: object.ownerFactionId, dockingCapacity: typeof object.staticData.dockingCapacity === 'number' ? object.staticData.dockingCapacity : undefined, communicationDelayMs: typeof object.staticData.communicationDelayMs === 'number' ? object.staticData.communicationDelayMs : undefined, status: String(object.state.status ?? 'online'), health: health ? { shieldHp: health.shieldHp, armorHp: health.armorHp, structureHp: health.structureHp } : undefined, damage: attack?.damage.map((entry) => ({ ...entry })), installedEquipment, storage: storage ? { slots: storage.slots.map((stack) => ({ ...stack })) } : undefined, tasks: taskQueue?.tasks.map(task => ({ ...task, destination: { ...task.destination } })) ?? [], movement: movement ? { velocity: { ...movement.velocity }, headingDegrees: movement.headingDegrees } : undefined }
+    return { id: object.id, kind: object.kind, definitionId: object.definitionId, name: object.displayName, starId: String(object.staticData.starId), position: { ...(object.position ?? { x: 0, y: 0 }) }, orbit: Number(object.staticData.orbit ?? 0), ownerFactionId: object.ownerFactionId, dockingCapacity: typeof object.staticData.dockingCapacity === 'number' ? object.staticData.dockingCapacity : undefined, communicationDelayMs: typeof object.staticData.communicationDelayMs === 'number' ? object.staticData.communicationDelayMs : undefined, status: String(object.state.status ?? 'online'), health: health ? { shieldHp: health.shieldHp, armorHp: health.armorHp, structureHp: health.structureHp } : undefined, damage: attack?.damage.map((entry) => ({ ...entry })), installedEquipment, storage: storage ? { slots: storage.slots.map((stack) => ({ ...stack })) } : undefined, tasks: taskQueue?.tasks.map(task => ({ ...task, destination: { ...task.destination } })) ?? [], movement: movement ? { velocity: { ...movement.velocity }, headingDegrees: movement.headingDegrees, angularVelocityDegrees: movement.angularVelocityDegrees, warpPhase: movement.warpPhase } : undefined }
   })
-  return { schemaVersion: 1, entities }
+  return { schemaVersion: 2, entities }
 }
 export const objectRepository = {
   get: (id: string) => objects.get(id),
   all: () => [...objects.values()],
-  add: (object: RuntimeObject) => objects.set(object.id, object),
-  remove: (id: string) => objects.delete(id),
+  add: (object: RuntimeObject) => put(object),
+  remove: (id: string) => { orbitalObjects.delete(id); return objects.delete(id) },
   ensureFactory(id: string, definitionId: string, displayName: string, state: Record<string, unknown> = {}) {
     let object = objects.get(id)
-    if (!object) { object = new GameObject(id, 'factory', definitionId, displayName, { definitionId }); objects.set(id, object) }
+    if (!object) { object = put(new GameObject(id, 'factory', definitionId, displayName, { definitionId })) }
     if (!object.getCapability('production')) object.addCapability(new ProductionCapability())
     object.state = { ...object.state, ...state }
     return object
   },
   ensureResource(id: string, displayName: string, staticData: Record<string, unknown>, position?: { x: number; y: number }) {
     let object = objects.get(id)
-    if (!object) { object = new GameObject(id, 'resource', String(staticData.item ?? 'resource'), displayName, staticData, position); objects.set(id, object) }
+    if (!object) { object = put(new GameObject(id, 'resource', String(staticData.item ?? 'resource'), displayName, staticData, position)) }
     return object
   },
   actionsFor(ids: string[]) { if (!ids.length) return []; const idsByAction = new Map<string, ObjectAction>(); for (const action of this.get(ids[0]!)?.getActions() ?? []) idsByAction.set(action.id, action); return [...idsByAction.values()].filter(action => ids.every(id => this.get(id)?.getActions().some(candidate => candidate.id === action.id))) }

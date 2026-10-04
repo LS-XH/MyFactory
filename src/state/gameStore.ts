@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { DEFAULT_GAME_SETTINGS, GAME_SETTING_LIMITS, SURFACE_VIEW } from '../config/gameplay'
-import { zoomLevelAfter, zoomLevelBefore } from '../config/spaceMapVisuals'
+import { CAMERA_DIRECTIONS, CAMERA_KEY_FIELDS, isCameraKeyCode, type CameraDirection } from '../config/cameraControls'
+import { SPACE_MAP_ZOOM, zoomLevelAfter, zoomLevelBefore } from '../config/spaceMapVisuals'
 import { defaultEdges, defaultNodes, FactoryEdgeState, FactoryNodeState, getFactory, getFactoryPortItems } from '../domain/content'
 import { SimulationEngine } from '../domain/simulation'
 import { stepSurfaceProduction } from '../domain/surfaceSimulation'
@@ -9,14 +10,14 @@ import { formulasForFactory } from '../domain/surfaceContent'
 import { getDefaultPlanet, getStar } from '../domain/spaceMap'
 import { findCelestialLocalPosition } from '../domain/orbitalPosition'
 import { getOrbitalTimeSeconds } from './orbitalClock'
-import { EquipmentCapability, isPlayerControllable, objectRepository, TaskQueueCapability, type MovementCapability, type SlotGroup, type SlotSize } from '../domain/objects'
+import { EquipmentCapability, getOrbitalObjects, isMovementTaskAction, isPlayerControllable, objectRepository, TaskQueueCapability, type MovementCapability, type ObjectTask, type SlotGroup, type SlotSize } from '../domain/objects'
 import { getEquipmentDefinition } from '../domain/equipment'
 import { getItemDefinition } from '../domain/items'
 import { fleetCommandBus } from '../features/fleet/application/fleetCommandBus'
 import type { FleetEntity } from '../features/fleet/domain/fleetTypes'
-import { MOVEMENT_WORLD_UNIT_SCALE, stepFleetBraking, stepFleetMovement } from '../features/fleet/movement/kinematics'
+import { hasFinishedFacing, hasReachedDestination, orbitApproachPoint, stepFleetBraking, stepFleetFacing, stepFleetMovement } from '../features/fleet/movement/kinematics'
 import { moveInventoryStack, StorageCapability } from '../domain/storage'
-import { nearestStarId, orbitalLocalPosition, orbitalWorldPosition } from '../domain/orbitalSpace'
+import { nearestStarId, orbitalLocalPosition, orbitalWorldPosition, worldUnitsPerKm } from '../domain/orbitalSpace'
 
 export type SceneId = 'system' | 'surface'
 export type OverlayId = 'settings' | 'tech' | 'map' | null
@@ -35,8 +36,21 @@ type GameState = {
   resourceReserves: Record<string, number>
   speed: 0 | 1 | 2
   orbitAnimation: boolean
+  reduceMotion: boolean
   orbitFps: number
+  cameraKeyUp: string
+  cameraKeyLeft: string
+  cameraKeyDown: string
+  cameraKeyRight: string
+  cameraMoveSpeed: number
+  cameraBoostSpeed: number
   inventoryScale: number
+  movementArrivalToleranceAu: number
+  kmToAu: number
+  starMapGridSpacingAu: number
+  starMapGridFadeStartZoom: number
+  starMapGridFadeEndZoom: number
+  objectFocusZoom: number
   celestialNamesAlwaysVisible: boolean
   objectNamesAlwaysVisible: boolean
   starDisplayRadius: number
@@ -59,7 +73,7 @@ type GameState = {
   zoomLevel: number
   setScene: (scene: SceneId) => void
   select: (id: string | null, kind?: GameState['selectedKind'], additive?: boolean) => void
-  executeObjectAction: (actionId: string, targetId?: string, position?: { x: number; y: number }, actorIds?: string[], positionStarId?: string, appendTask?: boolean) => boolean
+  executeObjectAction: (actionId: string, targetId?: string, position?: { x: number; y: number }, actorIds?: string[], positionStarId?: string, appendTask?: boolean, parameters?: { distanceKm?: number; offsetKm?: { x: number; y: number } }) => boolean
   moveObjectTask: (objectId: string, taskId: string, targetIndex: number) => boolean
   retargetObjectTask: (objectId: string, taskId: string, position: { x: number; y: number }, starId: string) => boolean
   removeObjectTask: (objectId: string, taskId: string) => boolean
@@ -77,10 +91,20 @@ type GameState = {
   setNodeRecipe: (id: string, recipeId: string) => void
   setSpeed: (speed: 0 | 1 | 2) => void
   toggleOrbitAnimation: () => void
+  toggleReduceMotion: () => void
   toggleCelestialNamesAlwaysVisible: () => void
   toggleObjectNamesAlwaysVisible: () => void
   setOrbitFps: (fps: number) => void
+  setCameraKeyBinding: (direction: CameraDirection, code: string) => void
+  setCameraMoveSpeed: (speed: number) => void
+  setCameraBoostSpeed: (speed: number) => void
   setInventoryScale: (scale: number) => void
+  setMovementArrivalToleranceAu: (tolerance: number) => void
+  setKmToAu: (value: number) => void
+  setStarMapGridSpacingAu: (value: number) => void
+  setStarMapGridFadeStartZoom: (zoom: number) => void
+  setStarMapGridFadeEndZoom: (zoom: number) => void
+  setObjectFocusZoom: (zoom: number) => void
   setStarDisplayRadius: (radius: number) => void
   setPlanetDisplayRadius: (radius: number) => void
   setMoonDisplayRadius: (radius: number) => void
@@ -118,7 +142,7 @@ function activateFirstTask(objectId: string) {
   const movement = object?.getCapability<MovementCapability>('movement')
   if (!movement) return
   const task = object?.getCapability<TaskQueueCapability>('taskQueue')?.tasks[0]
-  if (task?.actionId === 'move') movement.moveTo(task.destination, task.destinationStarId)
+  if (task && isMovementTaskAction(task.actionId)) movement.moveTo(task.destination, task.destinationStarId)
   else movement.stop()
 }
 
@@ -128,6 +152,16 @@ function clampDisplayRadius(radius: number, fallback: number) {
 
 function clampInventoryScale(scale: number) {
   return Math.min(GAME_SETTING_LIMITS.inventoryScale.max, Math.max(GAME_SETTING_LIMITS.inventoryScale.min, Number.isFinite(scale) ? scale : GAME_SETTING_LIMITS.inventoryScale.default))
+}
+
+function clampMovementArrivalToleranceAu(tolerance: number) {
+  const limits = GAME_SETTING_LIMITS.movementArrivalToleranceAu
+  return Math.min(limits.max, Math.max(limits.min, Number.isFinite(tolerance) ? tolerance : limits.default))
+}
+
+function clampKmToAu(value: number) {
+  const limits = GAME_SETTING_LIMITS.kmToAu
+  return Math.min(limits.max, Math.max(limits.min, Number.isFinite(value) ? value : limits.default))
 }
 
 function clampOverviewMarkerMinZoom(zoom: number) {
@@ -162,30 +196,33 @@ export const useGameStore = create<GameState>()(persist((set) => ({
     if (id.startsWith('node-')) { const node = state.nodes.find(item => item.id === id); const factory = node && getFactory(node.factoryId); if (node) objectRepository.ensureFactory(id, node.factoryId, factory?.name ?? node.factoryId, { ...node }) }
     return { selectedIds, selectedId: selectedIds.length === 1 ? selectedIds[0]! : null, selectedKind: selectedIds.length === 1 ? selectedKind : null }
   }),
-  executeObjectAction: (actionId, targetId, position, actorIds, positionStarId, appendTask = false) => {
-    if (actionId === 'warp-to') return false
+  executeObjectAction: (actionId, targetId, position, actorIds, positionStarId, appendTask = false, parameters) => {
     let accepted = true
     set((state) => {
       const commandActorIds = actorIds ?? state.selectedIds
       if (commandActorIds.some((id) => !isPlayerControllable(objectRepository.get(id)))) { accepted = false; return state }
-      const celestialTarget = actionId === 'move' && targetId
+      const movementTask = isMovementTaskAction(actionId)
+      const targetObject = targetId ? objectRepository.get(targetId) : undefined
+      const celestialTarget = movementTask && targetId && !targetObject?.position
         ? findCelestialLocalPosition(targetId, getOrbitalTimeSeconds(), state.planetAuLengthFactor, state.moonAuLengthFactor)
         : undefined
-      const targetObject = targetId ? objectRepository.get(targetId) : undefined
       const targetStarId = celestialTarget?.starId ?? (targetObject?.kind === 'ship' || targetObject?.kind === 'station' ? String(targetObject.staticData.starId) : undefined)
-      if (actionId === 'move' && targetId && !celestialTarget && !targetObject?.position) { accepted = false; return state }
-      const destination = position ?? celestialTarget?.position
-      if (actionId === 'move' && !targetId && !destination) { accepted = false; return state }
+      if (movementTask && targetId && !celestialTarget && !targetObject?.position) { accepted = false; return state }
+      if (actionId === 'warp-to' && commandActorIds.some(id => { const movement = objectRepository.get(id)?.getCapability<MovementCapability>('movement'); return !movement || movement.warpSpeed <= 0 || movement.warpAcceleration <= 0 })) { accepted = false; return state }
+      const destination = celestialTarget?.position ?? position
+      if (movementTask && !targetId && !destination) { accepted = false; return state }
+      if (actionId === 'orbit' && (!parameters?.distanceKm || !Number.isFinite(parameters.distanceKm) || parameters.distanceKm <= 0)) { accepted = false; return state }
+      if ((actionId === 'keep-distance' || actionId === 'warp-to') && (!parameters?.offsetKm || !Number.isFinite(parameters.offsetKm.x) || !Number.isFinite(parameters.offsetKm.y) || !Number.isFinite(Math.hypot(parameters.offsetKm.x, parameters.offsetKm.y)))) { accepted = false; return state }
       const startedMoveIds: string[] = []
       for (const id of commandActorIds) {
         const object = objectRepository.get(id)
         if (!object) continue
         if (actionId === 'stop') { object.getCapability<TaskQueueCapability>('taskQueue')?.clear(); activateFirstTask(id) }
-        if (actionId === 'move' && (targetId || position)) {
+        if (movementTask && (targetId || destination)) {
           const queue = object.getCapability<TaskQueueCapability>('taskQueue')
           if (queue) {
             const startsNow = !appendTask || queue.tasks.length === 0
-            const task = { id: crypto.randomUUID(), actionId: 'move' as const, targetId, destination: destination ? { ...destination } : { objectId: targetId! }, destinationStarId: destination ? targetStarId ?? positionStarId ?? String(object.staticData.starId) : undefined }
+            const task: ObjectTask = { id: crypto.randomUUID(), actionId, targetId, destination: destination ? { ...destination } : { objectId: targetId! }, destinationStarId: destination ? targetStarId ?? positionStarId ?? String(object.staticData.starId) : undefined, distanceKm: parameters?.distanceKm, offsetKm: parameters?.offsetKm ? { ...parameters.offsetKm } : undefined }
             if (appendTask) queue.append(task)
             else queue.replace(task)
             activateFirstTask(id)
@@ -217,7 +254,13 @@ export const useGameStore = create<GameState>()(persist((set) => ({
   retargetObjectTask: (objectId, taskId, position, starId) => {
     const object = objectRepository.get(objectId)
     if (!isPlayerControllable(object) || !getStar(starId) || !Number.isFinite(position.x) || !Number.isFinite(position.y)) return false
-    const changed = object?.getCapability<TaskQueueCapability>('taskQueue')?.retarget(taskId, position, starId) ?? false
+    const queue = object?.getCapability<TaskQueueCapability>('taskQueue')
+    const task = queue?.tasks.find(entry => entry.id === taskId)
+    const scale = worldUnitsPerKm(useGameStore.getState().kmToAu, useGameStore.getState().starAuLengthFactor)
+    const targetPosition = task?.actionId === 'warp-to' && task.offsetKm
+      ? { x: position.x - task.offsetKm.x * scale, y: position.y - task.offsetKm.y * scale }
+      : position
+    const changed = queue?.retarget(taskId, targetPosition, starId) ?? false
     if (changed) { activateFirstTask(objectId); set((state) => ({ objectRevision: state.objectRevision + 1, orbitalRevision: state.orbitalRevision + 1 })) }
     return changed
   },
@@ -256,7 +299,7 @@ export const useGameStore = create<GameState>()(persist((set) => ({
     if (inventorySlot === null && !installedId) return { ok: false, reason: '该槽位没有已安装装备' }
     const stack = inventorySlot === null ? undefined : storage.slots.find((entry) => entry.slot === inventorySlot)
     const incoming = stack && getEquipmentDefinition(stack.itemId)
-    if (inventorySlot !== null && !incoming) return { ok: false, reason: stack && getItemDefinition(stack.itemId)?.kind === 'equipment' ? '装备静态资源中的类别配置不一致' : '请从物品栏选择装备' }
+    if (inventorySlot !== null && !incoming) return { ok: false, reason: stack && getItemDefinition(stack.itemId)?.itemType === 'equipment' ? '装备静态资源中的类别配置不一致' : '请从物品栏选择装备' }
     if (incoming && (incoming.slotGroup !== group || incoming.size !== size)) return { ok: false, reason: '装备类别或尺寸与槽位不匹配' }
     if (incoming && stack?.itemId === installedId) return { ok: false, reason: '该槽位已安装相同装备' }
     const outgoingItem = installedId ? getItemDefinition(installedId) : undefined
@@ -317,10 +360,27 @@ export const useGameStore = create<GameState>()(persist((set) => ({
   }),
   setSpeed: (speed) => set({ speed }),
   toggleOrbitAnimation: () => set((state) => ({ orbitAnimation: !state.orbitAnimation })),
+  toggleReduceMotion: () => set((state) => ({ reduceMotion: !state.reduceMotion })),
   toggleCelestialNamesAlwaysVisible: () => set((state) => ({ celestialNamesAlwaysVisible: !state.celestialNamesAlwaysVisible })),
   toggleObjectNamesAlwaysVisible: () => set((state) => ({ objectNamesAlwaysVisible: !state.objectNamesAlwaysVisible })),
   setOrbitFps: (fps) => set({ orbitFps: Math.round(Math.min(GAME_SETTING_LIMITS.orbitFps.max, Math.max(GAME_SETTING_LIMITS.orbitFps.min, Number.isFinite(fps) ? fps : GAME_SETTING_LIMITS.orbitFps.default))) }),
+  setCameraKeyBinding: (direction, code) => set((state) => {
+    if (!isCameraKeyCode(code)) return state
+    const field = CAMERA_KEY_FIELDS[direction]
+    const current = state[field]
+    if (current === code) return state
+    const otherDirection = CAMERA_DIRECTIONS.find((item) => item !== direction && state[CAMERA_KEY_FIELDS[item]] === code)
+    return otherDirection ? { [field]: code, [CAMERA_KEY_FIELDS[otherDirection]]: current } : { [field]: code }
+  }),
+  setCameraMoveSpeed: (speed) => set((state) => ({ cameraMoveSpeed: Math.min(state.cameraBoostSpeed, Math.max(GAME_SETTING_LIMITS.cameraMoveSpeed.min, Math.min(GAME_SETTING_LIMITS.cameraMoveSpeed.max, Number.isFinite(speed) ? speed : GAME_SETTING_LIMITS.cameraMoveSpeed.default))) })),
+  setCameraBoostSpeed: (speed) => set((state) => ({ cameraBoostSpeed: Math.max(state.cameraMoveSpeed, Math.min(GAME_SETTING_LIMITS.cameraBoostSpeed.max, Math.max(GAME_SETTING_LIMITS.cameraBoostSpeed.min, Number.isFinite(speed) ? speed : GAME_SETTING_LIMITS.cameraBoostSpeed.default))) })),
   setInventoryScale: (scale) => set({ inventoryScale: clampInventoryScale(scale) }),
+  setMovementArrivalToleranceAu: (tolerance) => set({ movementArrivalToleranceAu: clampMovementArrivalToleranceAu(tolerance) }),
+  setKmToAu: (value) => set({ kmToAu: clampKmToAu(value) }),
+  setStarMapGridSpacingAu: (value) => set({ starMapGridSpacingAu: Math.min(GAME_SETTING_LIMITS.starMapGridSpacingAu.max, Math.max(GAME_SETTING_LIMITS.starMapGridSpacingAu.min, Number.isFinite(value) ? value : initial.starMapGridSpacingAu)) }),
+  setStarMapGridFadeStartZoom: (zoom) => set((state) => ({ starMapGridFadeStartZoom: Math.min(clampStarLayerZoom(zoom, initial.starMapGridFadeStartZoom), zoomLevelBefore(state.starMapGridFadeEndZoom)) })),
+  setStarMapGridFadeEndZoom: (zoom) => set((state) => ({ starMapGridFadeEndZoom: Math.max(clampStarLayerZoom(zoom, initial.starMapGridFadeEndZoom), zoomLevelAfter(state.starMapGridFadeStartZoom)) })),
+  setObjectFocusZoom: (zoom) => set({ objectFocusZoom: Number.isFinite(zoom) ? SPACE_MAP_ZOOM.levels.reduce((closest, level) => Math.abs(level - zoom) < Math.abs(closest - zoom) ? level : closest, initial.objectFocusZoom) : initial.objectFocusZoom }),
   setStarDisplayRadius: (radius) => set({ starDisplayRadius: clampDisplayRadius(radius, initial.starDisplayRadius) }),
   setPlanetDisplayRadius: (radius) => set({ planetDisplayRadius: clampDisplayRadius(radius, initial.planetDisplayRadius) }),
   setMoonDisplayRadius: (radius) => set({ moonDisplayRadius: clampDisplayRadius(radius, initial.moonDisplayRadius) }),
@@ -342,21 +402,31 @@ export const useGameStore = create<GameState>()(persist((set) => ({
   tick: () => set((state) => stepSurfaceProduction({ nodes: SimulationEngine.step(state.nodes, state.speed), edges: state.edges, resourceReserves: state.resourceReserves }, state.speed)),
   advanceFleet: (elapsedSeconds) => set((state) => {
     const deltaSeconds = state.speed * elapsedSeconds
+    const arrivalToleranceWorld = state.movementArrivalToleranceAu * state.starAuLengthFactor
+    const kmWorldScale = worldUnitsPerKm(state.kmToAu, state.starAuLengthFactor)
     let moved = false
-    if (deltaSeconds > 0) for (const object of objectRepository.all()) {
+    if (deltaSeconds > 0) for (const object of getOrbitalObjects()) {
       const movement = object.getCapability<MovementCapability>('movement')
       if (!movement || !object.position || (object.kind !== 'ship' && object.kind !== 'station')) continue
       const currentStarId = String(object.staticData.starId)
       const worldPosition = orbitalWorldPosition(currentStarId, object.position, state.starAuLengthFactor)
       if (!worldPosition) continue
-      const destination = movement.destination && ('objectId' in movement.destination
+      const activeTask = object.getCapability<TaskQueueCapability>('taskQueue')?.tasks[0]
+      const activeTargetObject = activeTask?.targetId ? objectRepository.get(activeTask.targetId) : undefined
+      const celestialTarget = activeTask && activeTask.actionId !== 'move' && activeTask.targetId && !activeTargetObject?.position
+        ? findCelestialLocalPosition(activeTask.targetId, getOrbitalTimeSeconds(), state.planetAuLengthFactor, state.moonAuLengthFactor)
+        : undefined
+      const destination = celestialTarget
+        ? orbitalWorldPosition(celestialTarget.starId, celestialTarget.position, state.starAuLengthFactor)
+        : movement.destination && ('objectId' in movement.destination
         ? (() => {
           const target = objectRepository.get(movement.destination.objectId)
           return target?.position ? orbitalWorldPosition(String(target.staticData.starId), target.position, state.starAuLengthFactor) : undefined
         })()
         : orbitalWorldPosition(movement.destinationStarId ?? currentStarId, movement.destination, state.starAuLengthFactor))
       if (movement.destination && !destination) { object.getCapability<TaskQueueCapability>('taskQueue')?.complete(); activateFirstTask(object.id); moved = true; continue }
-      if (!destination && Math.hypot(movement.velocity.x, movement.velocity.y) === 0) continue
+      if (!destination && Math.hypot(movement.velocity.x, movement.velocity.y) === 0 && movement.angularVelocityDegrees === 0 && movement.warpPhase === 'idle') continue
+      const isWarpTask = Boolean(destination && activeTask?.actionId === 'warp-to')
       const fleetEntity: FleetEntity = {
         id: object.id,
         definitionId: object.definitionId,
@@ -364,24 +434,71 @@ export const useGameStore = create<GameState>()(persist((set) => ({
         factionId: object.ownerFactionId ?? '',
         starId: currentStarId,
         position: worldPosition,
-        velocity: movement.velocity,
+        velocity: { x: movement.velocity.x * kmWorldScale, y: movement.velocity.y * kmWorldScale },
         headingDegrees: movement.headingDegrees,
+        angularVelocityDegrees: movement.angularVelocityDegrees,
         movement: {
-          maxSpeed: movement.maximumSpeed * MOVEMENT_WORLD_UNIT_SCALE,
-          acceleration: movement.acceleration * MOVEMENT_WORLD_UNIT_SCALE,
+          maxSpeed: (isWarpTask ? movement.warpSpeed : movement.maximumSpeed) * kmWorldScale,
+          acceleration: (isWarpTask ? movement.warpAcceleration : movement.acceleration) * kmWorldScale,
           turnSpeedDegrees: movement.turnRate,
-          warpSpeed: movement.warpSpeed
+          turnAccelerationDegrees: movement.turnAcceleration
         },
         capabilities: []
       }
-      const stepped = destination ? stepFleetMovement(fleetEntity, destination, deltaSeconds) : stepFleetBraking(fleetEntity, deltaSeconds)
+      const orbitGoal = destination && activeTask?.actionId === 'orbit'
+        ? orbitApproachPoint(fleetEntity, destination, (activeTask.distanceKm ?? 0) * kmWorldScale, Math.max(arrivalToleranceWorld * 2, fleetEntity.movement.maxSpeed * 2))
+        : undefined
+      const orbitToleranceWorld = activeTask?.actionId === 'orbit'
+        ? Math.min(arrivalToleranceWorld, Math.max((activeTask.distanceKm ?? 0) * kmWorldScale * 0.1, 1e-9))
+        : arrivalToleranceWorld
+      const holdGoal = destination && activeTask?.actionId === 'keep-distance' && activeTask.offsetKm
+        ? { x: destination.x + activeTask.offsetKm.x * kmWorldScale, y: destination.y + activeTask.offsetKm.y * kmWorldScale }
+        : undefined
+      const warpGoal = destination && activeTask?.actionId === 'warp-to' && activeTask.offsetKm
+        ? { x: destination.x + activeTask.offsetKm.x * kmWorldScale, y: destination.y + activeTask.offsetKm.y * kmWorldScale }
+        : destination
+      const previousWarpPhase = movement.warpPhase
+      movement.warpPhase = isWarpTask ? 'warping' : 'idle'
+      const stepped = destination && activeTask?.actionId === 'face'
+        ? stepFleetFacing(fleetEntity, destination, deltaSeconds)
+        : orbitGoal ? stepFleetMovement(fleetEntity, orbitGoal, deltaSeconds, orbitToleranceWorld)
+          : holdGoal ? hasReachedDestination(fleetEntity.position, holdGoal, arrivalToleranceWorld)
+            ? stepFleetBraking(fleetEntity, deltaSeconds)
+            : stepFleetMovement(fleetEntity, holdGoal, deltaSeconds, arrivalToleranceWorld)
+            : warpGoal ? stepFleetMovement(fleetEntity, warpGoal, deltaSeconds, arrivalToleranceWorld)
+              : stepFleetBraking(fleetEntity, deltaSeconds)
+      const measuredAcceleration = {
+        x: (stepped.velocity.x - fleetEntity.velocity.x) / (deltaSeconds * kmWorldScale),
+        y: (stepped.velocity.y - fleetEntity.velocity.y) / (deltaSeconds * kmWorldScale)
+      }
+      const measuredMagnitude = Math.hypot(measuredAcceleration.x, measuredAcceleration.y)
+      const maximumAcceleration = Math.max(0, isWarpTask ? movement.warpAcceleration : movement.acceleration)
+      const accelerationRatio = measuredMagnitude > maximumAcceleration ? maximumAcceleration / measuredMagnitude : 1
+      const accelerationVector = { x: measuredAcceleration.x * accelerationRatio, y: measuredAcceleration.y * accelerationRatio }
+      const angularAccelerationDegrees = Math.max(-movement.turnAcceleration, Math.min(movement.turnAcceleration, (stepped.angularVelocityDegrees - movement.angularVelocityDegrees) / deltaSeconds))
       const nextStarId = nearestStarId(stepped.position, state.starAuLengthFactor)
       const localPosition = orbitalLocalPosition(nextStarId, stepped.position, state.starAuLengthFactor)
       if (!localPosition) continue
+      const arrived = warpGoal && (activeTask?.actionId === 'move' || activeTask?.actionId === 'warp-to')
+        ? hasReachedDestination(stepped.position, warpGoal, arrivalToleranceWorld)
+        : destination && activeTask?.actionId === 'face' ? hasFinishedFacing(stepped, destination)
+          : false
+      const speedKm = Math.hypot(stepped.velocity.x, stepped.velocity.y) / kmWorldScale
+      const stationary = speedKm === 0 && stepped.angularVelocityDegrees === 0
+      const nextAcceleration = stationary ? { x: 0, y: 0 } : accelerationVector
+      const nextAngularAcceleration = stationary ? 0 : angularAccelerationDegrees
+      const kinematicsChanged = nextStarId !== currentStarId || stepped.position.x !== worldPosition.x || stepped.position.y !== worldPosition.y
+        || stepped.velocity.x !== fleetEntity.velocity.x || stepped.velocity.y !== fleetEntity.velocity.y
+        || stepped.headingDegrees !== movement.headingDegrees || stepped.angularVelocityDegrees !== movement.angularVelocityDegrees
+        || nextAcceleration.x !== movement.accelerationVector.x || nextAcceleration.y !== movement.accelerationVector.y
+        || nextAngularAcceleration !== movement.angularAccelerationDegrees || movement.warpPhase !== previousWarpPhase
       object.staticData.starId = nextStarId
       object.position = localPosition
-      movement.velocity = stepped.velocity; movement.headingDegrees = stepped.headingDegrees; movement.speed = Math.hypot(stepped.velocity.x, stepped.velocity.y); moved = true
-      if (destination && Math.hypot(destination.x - stepped.position.x, destination.y - stepped.position.y) === 0 && movement.speed === 0) { object.getCapability<TaskQueueCapability>('taskQueue')?.complete(); activateFirstTask(object.id) }
+      movement.velocity = { x: stepped.velocity.x / kmWorldScale, y: stepped.velocity.y / kmWorldScale }; movement.headingDegrees = stepped.headingDegrees; movement.angularVelocityDegrees = stepped.angularVelocityDegrees; movement.speed = speedKm
+      movement.accelerationVector = nextAcceleration
+      movement.angularAccelerationDegrees = nextAngularAcceleration
+      if (arrived) { movement.warpPhase = 'idle'; object.getCapability<TaskQueueCapability>('taskQueue')?.complete(); activateFirstTask(object.id) }
+      moved = moved || kinematicsChanged || arrived
     }
     return moved ? { objectRevision: state.objectRevision + 1, orbitalRevision: state.orbitalRevision + 1 } : state
   }),

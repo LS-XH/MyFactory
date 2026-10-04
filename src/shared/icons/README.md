@@ -10,14 +10,14 @@
 <ItemGlyph itemId="Fe" variant="chip" />
 ```
 
-- `ItemGlyph.tsx`、`itemGlyph.css`：化学纯净物的三态符号、其他物品图标，以及 `inline`、`inventory`、`chip`、`codex` 四种显示尺寸。化学式直接采用物品键，数字用 `<sub>` 显示。
-- `itemVisualRegistry.ts`：为化学纯净物和矿物登记独立颜色，并提供其他物品的类别默认色；新增物品时可在这里登记浅色调。
+- `ItemGlyph.tsx`、`itemGlyph.css`：化学纯净物按 `itemState` 显示符号，其他物品显示图标，支持 `inline`、`inventory`、`chip`、`codex` 四种尺寸。化学式直接采用物品键，数字用 `<sub>` 显示；未单独设计外观的新物态使用通用化学式样式。
+- `itemVisualRegistry.ts`：为化学纯净物和矿物登记独立颜色，并提供通用后备色；新增物品时可在这里登记浅色调。
 - `itemIconManifest.json`：材料、产品和装备的默认 Iconify 图标 ID。
 - `itemIconOverrides.json`：按物品 ID 登记矿物等需要专用图标的物品；未登记物品沿用类别默认图标。
 - `itemIconRegistry.ts`：优先读取物品专用图标，再读取装备子类别图标，提供统一的图标解析入口。
 - `itemIconData.json`：构建前由 `scripts/generate_item_icon_data.mjs` 生成的本地图标数据。
 
-新增物品先在 `assets/legacy/item.json` 写入定义。化学纯净物使用物品键作为化学式，长化学式会在物品栏色块内自动缩小；矿物可在 `itemIconOverrides.json` 和 `itemVisualRegistry.ts` 中分别登记图标与颜色；其他材料和产品沿用类别默认图标；装备通过 `equipmentType.json` 中的最终子类别选择图标。图标的尺寸、背景和光效不要写入物品栏或其他页面的样式文件。
+新增类别或物态先写入 `assets/legacy/itemType.json` 或 `itemState.json`，物品定义再以 `itemType`、`itemState` 引用。化学纯净物使用物品键作为化学式，长化学式会在物品栏色块内自动缩小；矿物可在 `itemIconOverrides.json` 和 `itemVisualRegistry.ts` 中分别登记图标与颜色；其他材料和产品沿用类别默认图标；装备通过 `equipmentType.json` 中的最终子类别选择图标。图标的尺寸、背景和光效不要写入物品栏或其他页面的样式文件。
 
 物品栏中普通物品图标占据格子主体；纯净物符号使用较小的色块。固态是浅色实心矩形加深色化学式，液态是浅色空心矩形加发光文字，气态只有发光文字而无背景或边框。发光位于色块外围和文字，不添加中心光斑。物品名称由格子的悬停提示显示，数量叠在右下角，装备尺寸叠在左下角；格子缩放由物品栏组件控制。
 

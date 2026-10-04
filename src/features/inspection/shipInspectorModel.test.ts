@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import shipDefinitions from '../../../assets/legacy/ship.json'
 import shipTypeDefinitions from '../../../assets/legacy/shipType.json'
 import { DamageableCapability, GameObject, MovementCapability } from '../../domain/objects'
-import { MOVEMENT_WORLD_UNIT_SCALE } from '../fleet/movement/kinematics'
 import { buildShipInspectorData, meterFraction } from './shipInspectorModel'
 
 describe('ship inspector readings', () => {
@@ -12,7 +11,7 @@ describe('ship inspector readings', () => {
       faction: 'Terran'
     })
     const movement = new MovementCapability(30)
-    movement.speed = 15 * MOVEMENT_WORLD_UNIT_SCALE
+    movement.speed = 15
     movement.headingDegrees = -90
     ship.addCapability(movement)
     ship.addCapability(new DamageableCapability(750, 1200, 500))

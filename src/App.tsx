@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'r
 import { BookOpen, Layers3, Map, Settings, Sparkles } from 'lucide-react'
 import { APP_TIMING } from './config/visualTokens'
 import { findCelestialObject } from './domain/spaceMap'
-import { isPlayerControllable, objectRepository } from './domain/objects'
+import { isMovementTaskAction, isPlayerControllable, objectRepository } from './domain/objects'
 import { BottomBar } from './features/action-bar/BottomBar'
 import { Inspector } from './features/inspection/Inspector'
 import { OverviewPanel } from './features/overview/OverviewPanel'
@@ -35,6 +35,7 @@ function App() {
   const selectedId = useGameStore((state) => state.selectedId)
   const selectedIds = useGameStore((state) => state.selectedIds)
   const orbitFps = useGameStore((state) => state.orbitFps)
+  const reduceMotion = useGameStore((state) => state.reduceMotion)
   const surfacePlanet = useGameStore((state) => state.surfacePlanet)
   const [draggingFactoryId, setDraggingFactoryId] = useState<string | null>(null)
   const surfaceName = useMemo(() => findCelestialObject(surfacePlanet)?.displayName ?? surfacePlanet, [surfacePlanet])
@@ -67,14 +68,19 @@ function App() {
   const handleSelect = (id: string | null, kind?: 'body' | 'station' | 'ship' | 'factory', additive = false, targetPosition?: { x: number; y: number }, targetStarId?: string, appendTask = false) => {
     setFocusedTask(null)
     if (pendingAction) {
+      if (pendingAction.stage === 'distance') return
       const actionId = pendingAction.id
-      if (!id && (actionId !== 'move' || !targetPosition)) { setPendingAction(null); notify('已取消目标选择'); return }
-      if (actionId === 'warp-to') { setPendingAction(null); notify('跃迁到功能尚未实现'); return }
+      if (!id && (!isMovementTaskAction(actionId) || !targetPosition)) { setPendingAction(null); notify('已取消目标选择'); return }
       if (actionId === 'transfer-items' && id) { openInventory(pendingAction.actorIds, id); return }
       if (actionId === 'attack' && !objectRepository.get(id ?? '')?.getCapability('damageable')) { notify('目标不具备受击能力'); return }
-      const accepted = useGameStore.getState().executeObjectAction(actionId, id ?? undefined, targetPosition, pendingAction.actorIds, targetStarId, pendingAction.task && appendTask)
+      if (actionId === 'orbit' || actionId === 'keep-distance' || actionId === 'warp-to') {
+        setPendingAction({ ...pendingAction, stage: 'distance', targetId: id ?? undefined, targetPosition, targetStarId, appendTask: pendingAction.appendTask || appendTask })
+        notify(actionId === 'orbit' ? '移动光标选择环绕半径，再点击确认' : actionId === 'warp-to' ? '移动光标选择跃迁终点，再点击确认' : '移动光标选择距离与方向，再点击确认')
+        return
+      }
+      const accepted = useGameStore.getState().executeObjectAction(actionId, id ?? undefined, targetPosition, pendingAction.actorIds, targetStarId, pendingAction.task && Boolean(pendingAction.appendTask || appendTask))
       if (!accepted) { notify('目标位置不可用'); return }
-      setPendingAction(null); notify(actionId === 'attack' ? '攻击命令已下达' : '移动命令已下达'); return
+      setPendingAction(null); notify(actionId === 'attack' ? '攻击命令已下达' : actionId === 'warp-to' ? '跃迁任务已下达' : '移动命令已下达'); return
     }
     select(id, kind, additive)
   }
@@ -86,11 +92,30 @@ function App() {
     select(objectId, object.kind)
     setFocusedTask((current) => ({ objectId, taskId, requestId: (current?.requestId ?? 0) + 1 }))
   }
-  const beginTargetAction = (actionId: string) => setPendingAction({
-    id: actionId,
-    actorIds: [...selectedIds],
-    task: objectRepository.actionsFor(selectedIds).some((action) => action.id === actionId && action.kind === 'task')
-  })
+  const beginTargetAction = (actionId: string, actorIds = selectedIds, appendTask = false) => {
+    if (actorIds.length === 1 && !selectedIds.includes(actorIds[0])) {
+      const actor = objectRepository.get(actorIds[0])
+      if (actor?.kind === 'ship' || actor?.kind === 'station') select(actor.id, actor.kind)
+    }
+    setPendingAction({
+      id: actionId,
+      actorIds: [...actorIds],
+      task: objectRepository.actionsFor(actorIds).some((action) => action.id === actionId && action.kind === 'task'),
+      stage: 'target',
+      appendTask
+    })
+  }
+  const beginDistanceAction = (actionId: string, actorIds: string[], targetId?: string, targetPosition?: { x: number; y: number }, targetStarId?: string, appendTask = false) => {
+    setPendingAction({ id: actionId, actorIds, task: true, stage: 'distance', targetId, targetPosition, targetStarId, appendTask })
+    notify(actionId === 'orbit' ? '移动光标选择环绕半径，再点击确认' : actionId === 'warp-to' ? '移动光标选择跃迁终点，再点击确认' : '移动光标选择距离与方向，再点击确认')
+  }
+  const confirmDistanceAction = (distanceKm: number, offsetKm: { x: number; y: number }, appendTask: boolean) => {
+    if (!pendingAction || pendingAction.stage !== 'distance') return
+    const accepted = useGameStore.getState().executeObjectAction(pendingAction.id, pendingAction.targetId, pendingAction.targetPosition, pendingAction.actorIds, pendingAction.targetStarId, pendingAction.appendTask || appendTask, { distanceKm, offsetKm })
+    if (!accepted) { notify('距离或目标不可用'); return }
+    setPendingAction(null)
+    notify(pendingAction.id === 'orbit' ? '环绕任务已下达' : pendingAction.id === 'warp-to' ? '跃迁任务已下达' : '保持距离任务已下达')
+  }
   const runAction = (actionId: string) => {
     if (pendingAction?.id === actionId) { setPendingAction(null); notify('已取消目标选择'); return }
     if (selectedIds.some((id) => !isPlayerControllable(objectRepository.get(id)))) { notify('该对象不属于玩家，无法操控'); return }
@@ -105,8 +130,7 @@ function App() {
       setFittingView(availableIds)
       return
     }
-    if (actionId === 'warp-to') { setFittingView(null); setInventoryView(null); beginTargetAction(actionId); notify('请选择跃迁目标对象'); return }
-    if (actionId === 'move' || actionId === 'attack' || actionId === 'command-craft') { setFittingView(null); setInventoryView(null); beginTargetAction(actionId); notify(actionId === 'move' ? '请选择目标对象或星图中的位置' : actionId === 'attack' ? '请选择攻击目标' : '请选择舰载机命令目标'); return }
+    if (isMovementTaskAction(actionId) || actionId === 'attack' || actionId === 'command-craft') { setFittingView(null); setInventoryView(null); beginTargetAction(actionId); notify(isMovementTaskAction(actionId) ? '请选择目标对象或星图中的位置' : actionId === 'attack' ? '请选择攻击目标' : '请选择舰载机命令目标'); return }
     useGameStore.getState().executeObjectAction(actionId)
     notify(actionId === 'stop' ? '已停止所选对象' : '对象操作已执行')
   }
@@ -198,7 +222,7 @@ function App() {
   const updateVisibleSurfaceIds = useCallback((ids: string[]) => setVisibleSurfaceIds((current) => current.length === ids.length && current.every((id, index) => id === ids[index]) ? current : ids), [])
   const selectOverviewEntry = (entry: OverviewEntry, additive: boolean, appendTask: boolean) => handleSelect(entry.id, entry.selectionKind, additive, undefined, undefined, appendTask)
 
-  return <ItemInteractionProvider value={{ selectedItemId, selectItem: setSelectedItemId, openItemRecipes }}><div className="app-shell" style={{ '--ui-scale': zoomLevel } as CSSProperties}>
+  return <ItemInteractionProvider value={{ selectedItemId, selectItem: setSelectedItemId, openItemRecipes }}><div className={`app-shell ${reduceMotion ? 'reduce-motion' : ''}`} style={{ '--ui-scale': zoomLevel } as CSSProperties}>
     <header className="topbar">
       <div className="brand-mark"><span className="brand-glyph">HX</span><div><strong>HELIX</strong><small>INDUSTRIAL COMMAND</small></div></div>
       <div className="breadcrumb"><span className="muted">总览</span><span className="slash">/</span><span>{itemView ? '物品图鉴' : scene === 'system' ? '猎户门 · 07' : `${surfaceName} · 地表`}</span>{itemView === 'recipes' ? <><span className="slash">/</span><span className="cyan">{itemDisplayName(recipeItemId ?? '')} · 配方</span></> : !itemView && scene === 'surface' ? <><span className="slash">/</span><span className="cyan">生产区</span></> : null}</div>
@@ -227,7 +251,7 @@ function App() {
     </aside>
 
     <main className="viewport">
-      {itemView ? <ItemCodexView mode={itemView} itemId={itemView === 'recipes' ? recipeItemId : selectedItemId} onBack={() => setItemView(itemView === 'recipes' ? recipeBackView : null)} /> : fittingView ? <FittingView objectIds={fittingView} onClose={() => setFittingView(null)} onNotify={notify} /> : inventoryView ? <InventoryView sourceIds={inventoryView.sourceIds} targetId={inventoryView.targetId} onClose={() => setInventoryView(null)} onNotify={notify} /> : scene === 'system' ? <SystemView selectedIds={selectedIds} targetingAction={pendingAction} focusedTask={focusedTask} focusRequest={focusRequest} onSelect={handleSelect} onFocusTask={focusTask} onEnterSurface={enterSurface} onNotify={notify} onOpenInventory={openInventory} onVisibleObjectIdsChange={updateVisibleSpaceIds} /> : <SurfaceView planet={surfacePlanet} focusRequest={focusRequest} onNotify={notify} draggingFactoryId={draggingFactoryId} onVisibleObjectIdsChange={updateVisibleSurfaceIds} />}
+      {itemView ? <ItemCodexView mode={itemView} itemId={itemView === 'recipes' ? recipeItemId : selectedItemId} onBack={() => setItemView(itemView === 'recipes' ? recipeBackView : null)} /> : fittingView ? <FittingView objectIds={fittingView} onClose={() => setFittingView(null)} onNotify={notify} /> : inventoryView ? <InventoryView sourceIds={inventoryView.sourceIds} targetId={inventoryView.targetId} onClose={() => setInventoryView(null)} onNotify={notify} /> : scene === 'system' ? <SystemView selectedIds={selectedIds} targetingAction={pendingAction} focusedTask={focusedTask} focusRequest={focusRequest} onSelect={handleSelect} onBeginTargetAction={beginTargetAction} onBeginDistanceAction={beginDistanceAction} onConfirmDistanceAction={confirmDistanceAction} onFocusTask={focusTask} onEnterSurface={enterSurface} onNotify={notify} onOpenInventory={openInventory} onVisibleObjectIdsChange={updateVisibleSpaceIds} /> : <SurfaceView planet={surfacePlanet} focusRequest={focusRequest} onNotify={notify} draggingFactoryId={draggingFactoryId} onVisibleObjectIdsChange={updateVisibleSurfaceIds} />}
     </main>
 
     <aside className="panel right-panel">

@@ -30,12 +30,13 @@ export function Inspector({ selectedId, focusedTask, scene, onClose, onNotify, o
   const [activeTab, setActiveTab] = useState<'details' | 'tasks'>('details')
   useEffect(() => { setActiveTab(focusedTask?.objectId === selectedId ? 'tasks' : 'details') }, [selectedId, focusedTask?.requestId])
   useGameStore((state) => state.objectRevision)
+  const starAuLengthFactor = useGameStore((state) => state.starAuLengthFactor)
   useGameStore((state) => state.resourceReserves)
   const nodes = useGameStore((state) => state.nodes)
   const surfacePlanet = useGameStore((state) => state.surfacePlanet)
   const node = nodes.find((item) => item.id === selectedId)
   const factory = node && getFactory(node.factoryId)
-  const spaceDetails = selectedId ? resolveSpaceInspectorDetails(selectedId, surfacePlanet) : undefined
+  const spaceDetails = selectedId ? resolveSpaceInspectorDetails(selectedId, surfacePlanet, starAuLengthFactor) : undefined
   const title = factory?.name ?? spaceDetails?.name ?? '未知对象'
   const canRename = (spaceDetails?.kind === 'ship' || spaceDetails?.kind === 'station') && spaceDetails.ownerFactionId === PLAYER_FACTION_ID
   const hasTaskQueue = spaceDetails?.kind === 'ship' || spaceDetails?.kind === 'station'
@@ -73,8 +74,9 @@ function formatNumber(value: number) {
   return value.toLocaleString('zh-CN', { maximumFractionDigits: 2 })
 }
 
-function resolveSpaceInspectorDetails(selectedId: string, surfacePlanet: string): SpaceInspectorDetails | undefined {
-  const celestial = findCelestialObject(selectedId)
+function resolveSpaceInspectorDetails(selectedId: string, surfacePlanet: string, starAuLengthFactor: number): SpaceInspectorDetails | undefined {
+  const entity = objectRepository.get(selectedId)
+  const celestial = entity?.kind === 'ship' || entity?.kind === 'station' ? undefined : findCelestialObject(selectedId)
   if (celestial) {
     const position = celestial.orbitalPosition
     const kindName = celestial.kind === 'star' ? '恒星系' : celestial.kind === 'planet' ? '行星' : '卫星'
@@ -117,7 +119,6 @@ function resolveSpaceInspectorDetails(selectedId: string, surfacePlanet: string)
     }
   }
 
-  const entity = objectRepository.get(selectedId)
   if (entity && (entity.kind === 'ship' || entity.kind === 'station')) {
     const isStation = entity.kind === 'station'
     const { modelName, typeName } = getOrbitalDisplayInfo(entity)
@@ -133,7 +134,7 @@ function resolveSpaceInspectorDetails(selectedId: string, surfacePlanet: string)
       subtitle: `${modelName} · ${typeName}`,
       status: entity.state.status === 'destroyed' ? '已摧毁' : '在线',
       color: resolveEntityVisualColor(entity.kind, entity.ownerFactionId),
-      ship: entity.kind === 'ship' ? buildShipInspectorData(entity as typeof entity & { kind: 'ship' }) : undefined,
+      ship: entity.kind === 'ship' ? buildShipInspectorData(entity as typeof entity & { kind: 'ship' }, starAuLengthFactor) : undefined,
       metrics: [
         { label: '护盾', value: percent(damage?.shieldHp, hp?.shieldHP?.maxHp) },
         { label: '装甲', value: percent(damage?.armorHp, hp?.armorHP?.maxHp) },
