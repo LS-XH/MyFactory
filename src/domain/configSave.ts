@@ -29,6 +29,7 @@ export const gameSettingsSchema = z.object({
   moonDisplayRadius: finiteRange(GAME_SETTING_LIMITS.displayRadius.min, GAME_SETTING_LIMITS.displayRadius.max),
   orbitalEntityDisplayRadius: finiteRange(GAME_SETTING_LIMITS.displayRadius.min, GAME_SETTING_LIMITS.displayRadius.max),
   overviewMarkerMinZoom: finiteRange(GAME_SETTING_LIMITS.overviewMarkerMinZoom.min, GAME_SETTING_LIMITS.overviewMarkerMinZoom.max),
+  overviewMaskRadiusAu: finiteRange(GAME_SETTING_LIMITS.overviewMaskRadiusAu.min, GAME_SETTING_LIMITS.overviewMaskRadiusAu.max).default(DEFAULT_GAME_SETTINGS.overviewMaskRadiusAu),
   overviewFadeStartZoom: finiteRange(GAME_SETTING_LIMITS.starLayerTransitionZoom.min, GAME_SETTING_LIMITS.starLayerTransitionZoom.max).default(DEFAULT_GAME_SETTINGS.overviewFadeStartZoom),
   overviewFadeEndZoom: finiteRange(GAME_SETTING_LIMITS.starLayerTransitionZoom.min, GAME_SETTING_LIMITS.starLayerTransitionZoom.max).default(DEFAULT_GAME_SETTINGS.overviewFadeEndZoom),
   systemFadeStartZoom: finiteRange(GAME_SETTING_LIMITS.starLayerTransitionZoom.min, GAME_SETTING_LIMITS.starLayerTransitionZoom.max).default(DEFAULT_GAME_SETTINGS.systemFadeStartZoom),

@@ -12,6 +12,7 @@ export const GAME_SETTING_LIMITS = {
   objectFocusZoom: { min: SPACE_MAP_ZOOM.levels[0], max: SPACE_MAP_ZOOM.levels[SPACE_MAP_ZOOM.levels.length - 1], default: 8 },
   displayRadius: { min: 0.2, max: 8, step: 0.1 },
   overviewMarkerMinZoom: { min: 0.03125, max: 1, step: 0.03125, default: 0.0625 },
+  overviewMaskRadiusAu: { min: 1, max: 200, step: 1, default: 90 },
   starLayerTransitionZoom: {
     min: SPACE_MAP_ZOOM.levels[0],
     max: SPACE_MAP_ZOOM.levels[SPACE_MAP_ZOOM.levels.length - 1],
@@ -67,6 +68,7 @@ export const DEFAULT_GAME_SETTINGS = {
   moonDisplayRadius: DEFAULT_DISPLAY_RADIUS.moon,
   orbitalEntityDisplayRadius: DEFAULT_DISPLAY_RADIUS.orbitalEntity,
   overviewMarkerMinZoom: GAME_SETTING_LIMITS.overviewMarkerMinZoom.default,
+  overviewMaskRadiusAu: GAME_SETTING_LIMITS.overviewMaskRadiusAu.default,
   overviewFadeStartZoom: GAME_SETTING_LIMITS.starLayerTransitionZoom.defaultOverviewFadeStart,
   overviewFadeEndZoom: GAME_SETTING_LIMITS.starLayerTransitionZoom.defaultOverviewFadeEnd,
   systemFadeStartZoom: GAME_SETTING_LIMITS.starLayerTransitionZoom.defaultSystemFadeStart,

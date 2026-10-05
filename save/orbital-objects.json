@@ -51,8 +51,8 @@
       "name": "伊米卡斯级 · 侦察 01",
       "starId": "Star0144",
       "position": {
-        "x": 0.06728083768393844,
-        "y": 0.21860410273075104
+        "x": 0.8634873544506263,
+        "y": 0.4348528719274327
       },
       "orbit": 1,
       "ownerFactionId": "Player",
@@ -990,7 +990,7 @@
           "x": 0,
           "y": 0
         },
-        "headingDegrees": 133.63989423435532,
+        "headingDegrees": 15.181215067115318,
         "angularVelocityDegrees": 0,
         "warpPhase": "idle"
       }
@@ -1000,10 +1000,10 @@
       "kind": "ship",
       "definitionId": "Imicus",
       "name": "攻击2",
-      "starId": "Star0041",
+      "starId": "Star0765",
       "position": {
-        "x": 6.6123795819003135,
-        "y": 2.5700402516231406
+        "x": -55.177974250836996,
+        "y": -28.718715506212902
       },
       "orbit": 1,
       "ownerFactionId": "Player",
@@ -1047,7 +1047,7 @@
           "x": 0,
           "y": 0
         },
-        "headingDegrees": 62.504216852773425,
+        "headingDegrees": 26.446632296637745,
         "angularVelocityDegrees": 0,
         "warpPhase": "idle"
       }
@@ -1057,10 +1057,10 @@
       "kind": "ship",
       "definitionId": "Imicus",
       "name": "攻击3",
-      "starId": "Star0041",
+      "starId": "Star0765",
       "position": {
-        "x": 6.6123795819003135,
-        "y": 2.5700402516231406
+        "x": -55.77822576297331,
+        "y": -29.025991179500124
       },
       "orbit": 1,
       "ownerFactionId": "Player",
@@ -1104,7 +1104,7 @@
           "x": 0,
           "y": 0
         },
-        "headingDegrees": 62.504216852773425,
+        "headingDegrees": 25.988366408218553,
         "angularVelocityDegrees": 0,
         "warpPhase": "idle"
       }
@@ -1114,10 +1114,10 @@
       "kind": "ship",
       "definitionId": "Imicus",
       "name": "攻击",
-      "starId": "Star0041",
+      "starId": "Star0765",
       "position": {
-        "x": 6.6123795819003135,
-        "y": 2.5700402516231406
+        "x": -55.90379024963477,
+        "y": -29.092202247091336
       },
       "orbit": 1,
       "ownerFactionId": "Player",
@@ -1161,13 +1161,13 @@
           "x": 0,
           "y": 0
         },
-        "headingDegrees": 62.504216852773425,
+        "headingDegrees": 27.87981177145548,
         "angularVelocityDegrees": 0,
         "warpPhase": "idle"
       }
     },
     {
-      "id": "ship-imicus3",
+      "id": "ship-imicus5",
       "kind": "ship",
       "definitionId": "Imicus",
       "name": "敌人",

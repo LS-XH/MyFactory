@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test'
+import { mockOrbitalSave } from './orbitalFixture'
 
 test('selected-object commands are square icons with hover labels and keep targeting behavior', async ({ page }) => {
+  await mockOrbitalSave(page)
   await page.goto('/')
   await page.locator('.overview-item[title="地平线 · 铁壁"]').click()
 

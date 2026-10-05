@@ -5,6 +5,7 @@ test('universe cursor HUD follows the pointer and the camera', async ({ page }) 
   await page.goto('/')
 
   const canvas = page.locator('.system-canvas')
+  await expect(canvas).toBeVisible({ timeout: 30_000 })
   const hud = canvas.locator('.viewport-hud')
   await expect(hud).toContainText('X — · Y — AU')
   await expect(hud.locator('.map-coordinate-canvas')).toContainText('X — · Y —')

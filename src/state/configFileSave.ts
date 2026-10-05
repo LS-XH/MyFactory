@@ -5,6 +5,7 @@ import { createJsonFileSave } from './jsonFileSave'
 let missingKmToAu = false
 let missingStarMapGridSpacingAu = false
 let missingStarMapGridFadeThresholds = false
+let missingOverviewMaskRadiusAu = false
 const configFile = createJsonFileSave({
   endpoint: '/api/save/config',
   fileName: 'save/config.json',
@@ -13,9 +14,10 @@ const configFile = createJsonFileSave({
     missingKmToAu = Boolean(settings && typeof settings === 'object' && !('kmToAu' in settings))
     missingStarMapGridSpacingAu = Boolean(settings && typeof settings === 'object' && !('starMapGridSpacingAu' in settings))
     missingStarMapGridFadeThresholds = Boolean(settings && typeof settings === 'object' && (!('starMapGridFadeStartZoom' in settings) || !('starMapGridFadeEndZoom' in settings)))
+    missingOverviewMaskRadiusAu = Boolean(settings && typeof settings === 'object' && !('overviewMaskRadiusAu' in settings))
     return parseConfigSave(value)
   },
-  apply: (save) => { useGameStore.setState(save.settings); return missingKmToAu || missingStarMapGridSpacingAu || missingStarMapGridFadeThresholds },
+  apply: (save) => { useGameStore.setState(save.settings); return missingKmToAu || missingStarMapGridSpacingAu || missingStarMapGridFadeThresholds || missingOverviewMaskRadiusAu },
   snapshot: () => createConfigSave(gameSettingsSchema.parse(useGameStore.getState()))
 })
 

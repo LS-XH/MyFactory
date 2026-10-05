@@ -1,5 +1,6 @@
 import { UI_COLORS } from '../../config/visualTokens'
 import { resolveStarTypeVisual } from '../../config/starTypeVisuals'
+import { resolvePlanetTypeColor } from '../../config/planetTypeVisuals'
 import { getFactory, type FactoryNodeState } from '../../domain/content'
 import { PLAYER_FACTION_ID, getFactionDisplayName } from '../../domain/factions'
 import { getOrbitalDisplayInfo, type RuntimeObject } from '../../domain/objects'
@@ -61,7 +62,7 @@ function celestialEntry(id: string): OverviewEntry | undefined {
     category: 'planet',
     celestialKind: body.kind,
     selectionKind: 'body',
-    color: body.kind === 'moon' ? UI_COLORS.moon : UI_COLORS.planet,
+    color: resolvePlanetTypeColor(body.planetType, body.kind === 'moon' ? UI_COLORS.moon : UI_COLORS.planet),
     ownerFactionId: id === startingPlanetId ? PLAYER_FACTION_ID : undefined
   }
 }

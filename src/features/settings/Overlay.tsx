@@ -63,6 +63,7 @@ function SettingsOverlay({ onNotify, reset }: { onNotify: (message: string) => v
   const moonDisplayRadius = useGameStore((state) => state.moonDisplayRadius)
   const orbitalEntityDisplayRadius = useGameStore((state) => state.orbitalEntityDisplayRadius)
   const overviewMarkerMinZoom = useGameStore((state) => state.overviewMarkerMinZoom)
+  const overviewMaskRadiusAu = useGameStore((state) => state.overviewMaskRadiusAu)
   const overviewFadeStartZoom = useGameStore((state) => state.overviewFadeStartZoom)
   const overviewFadeEndZoom = useGameStore((state) => state.overviewFadeEndZoom)
   const systemFadeStartZoom = useGameStore((state) => state.systemFadeStartZoom)
@@ -95,6 +96,7 @@ function SettingsOverlay({ onNotify, reset }: { onNotify: (message: string) => v
   const setMoonDisplayRadius = useGameStore((state) => state.setMoonDisplayRadius)
   const setOrbitalEntityDisplayRadius = useGameStore((state) => state.setOrbitalEntityDisplayRadius)
   const setOverviewMarkerMinZoom = useGameStore((state) => state.setOverviewMarkerMinZoom)
+  const setOverviewMaskRadiusAu = useGameStore((state) => state.setOverviewMaskRadiusAu)
   const setOverviewFadeStartZoom = useGameStore((state) => state.setOverviewFadeStartZoom)
   const setOverviewFadeEndZoom = useGameStore((state) => state.setOverviewFadeEndZoom)
   const setSystemFadeStartZoom = useGameStore((state) => state.setSystemFadeStartZoom)
@@ -141,6 +143,7 @@ function SettingsOverlay({ onNotify, reset }: { onNotify: (message: string) => v
           <div className="setting-row settings-control-only"><div className="radius-controls"><RadiusControl label="恒星" value={starDisplayRadius} onChange={setStarDisplayRadius} /><RadiusControl label="行星" value={planetDisplayRadius} onChange={setPlanetDisplayRadius} /><RadiusControl label="卫星" value={moonDisplayRadius} onChange={setMoonDisplayRadius} /><RadiusControl label="舰船/空间站" value={orbitalEntityDisplayRadius} onChange={setOrbitalEntityDisplayRadius} /></div></div>
         </SettingsGroup>
         <SettingsGroup title="恒星系遮罩" description="低倍率星图的恒星系显示">
+          <div className="setting-row"><div><strong>遮罩半径</strong><small>所有恒星系共用的固定 AU 半径</small></div><div className="zoom-threshold-control"><input aria-label="恒星系遮罩半径" type="range" min={GAME_SETTING_LIMITS.overviewMaskRadiusAu.min} max={GAME_SETTING_LIMITS.overviewMaskRadiusAu.max} step={GAME_SETTING_LIMITS.overviewMaskRadiusAu.step} value={overviewMaskRadiusAu} onChange={(event) => setOverviewMaskRadiusAu(event.currentTarget.valueAsNumber)} /><output>{overviewMaskRadiusAu} AU</output></div></div>
           <div className="setting-row"><div><strong>固定阈值</strong><small>低于该缩放倍率时，遮罩仅改变间距，不再缩小</small></div><ZoomThresholdControl value={overviewMarkerMinZoom} onChange={setOverviewMarkerMinZoom} /></div>
           <div className="setting-row"><div><strong>开始消失阈值</strong><small>放大至此倍率时，恒星系遮罩开始渐隐</small></div><SteppedMapZoomControl label="恒星系遮罩开始消失阈值" value={overviewFadeStartZoom} minimum={GAME_SETTING_LIMITS.starLayerTransitionZoom.min} maximum={zoomLevelBefore(overviewFadeEndZoom)} onChange={setOverviewFadeStartZoom} /></div>
           <div className="setting-row"><div><strong>完全消失阈值</strong><small>放大至此倍率时，恒星系遮罩完全隐藏</small></div><SteppedMapZoomControl label="恒星系遮罩完全消失阈值" value={overviewFadeEndZoom} minimum={zoomLevelAfter(overviewFadeStartZoom)} maximum={GAME_SETTING_LIMITS.starLayerTransitionZoom.max} onChange={setOverviewFadeEndZoom} /></div>

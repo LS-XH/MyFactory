@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test'
+import { mockOrbitalSave } from './orbitalFixture'
 
 test('overview and map double-clicks use the configured object focus zoom', async ({ page }) => {
+  await mockOrbitalSave(page)
   await page.route('**/api/save/config', async (route) => {
     if (route.request().method() !== 'GET') {
       await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' })

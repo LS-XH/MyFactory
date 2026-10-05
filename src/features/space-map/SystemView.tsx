@@ -1,17 +1,15 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type PointerEvent, type ReactNode, type WheelEvent } from 'react'
 import { SPACE_MAP_CANVAS, SPACE_MAP_LABEL, SPACE_MAP_VIEW, SPACE_MAP_VISUAL, SPACE_MAP_ZOOM } from '../../config/spaceMapVisuals'
-import { doesDiscIntersectView, doesOrbitIntersectView, getStar, isProjectedPointVisible, planetTypes, projectOrbitalRadius, projectStarPosition, spaceMap, starTypes, type PlanetMapEntry } from '../../domain/spaceMap'
+import { doesDiscIntersectView, doesOrbitIntersectView, getStar, isProjectedPointVisible, planetTypes, projectStarPosition, spaceMap, starTypes, type PlanetMapEntry } from '../../domain/spaceMap'
 import { findCelestialLocalPosition, getOrbitalOffset } from '../../domain/orbitalPosition'
 import { useGameStore } from '../../state/gameStore'
 import { getOrbitalTimeSeconds, subscribeOrbitalTime } from '../../state/orbitalClock'
 import { getOrbitalObjects, isMovementTaskAction, isPlayerControllable, objectRepository, TaskQueueCapability, type MovementCapability, type ObjectAction } from '../../domain/objects'
 import { worldUnitsPerKm } from '../../domain/orbitalSpace'
 import { CornerFrame } from './components/CornerFrame'
-import { OrbitingBodyVisual } from './components/OrbitingBodyVisual'
 import { OrbitalEntityGlyph } from './components/OrbitalEntityGlyph'
-import { SpaceMapGradientDefs } from './components/SpaceMapGradientDefs'
-import { StarSystemMarkerVisual } from './components/StarSystemMarkerVisual'
 import { SpaceMapDotGrid } from './components/SpaceMapDotGrid'
+import { SpaceMapPixiLayer, type PixiBody, type PixiEntity, type PixiOrbit, type PixiStar } from './components/SpaceMapPixiLayer'
 import { ScreenSpaceLabels, type ScreenMapLabel } from './components/ScreenSpaceLabels'
 import { orbitalIconWorldRadius } from './orbitalEntityScale'
 import { TargetingGuide } from './components/TargetingGuide'
@@ -42,6 +40,7 @@ function isMarkerInsideSelection(element: SVGGElement, left: number, top: number
 
 type TaskMarkerDrag = { objectId: string; taskId: string; pointerId: number; startX: number; startY: number; offset: WorldPoint; point: WorldPoint }
 const TASK_MARKER_COLORS = { focused: '#a8ffc7', active: '#b8edff' } as const
+const subscribeStaticOrbitalTime = () => () => {}
 
 export function SystemView({ selectedIds, targetingAction, focusedTask, focusRequest, onSelect, onBeginTargetAction, onBeginDistanceAction, onConfirmDistanceAction, onFocusTask, onEnterSurface, onNotify, onOpenInventory, onVisibleObjectIdsChange }: SystemViewProps) {
   const objectRevision = useGameStore((state) => state.objectRevision)
@@ -64,6 +63,7 @@ export function SystemView({ selectedIds, targetingAction, focusedTask, focusReq
   const celestialNamesAlwaysVisible = useGameStore((state) => state.celestialNamesAlwaysVisible)
   const objectNamesAlwaysVisible = useGameStore((state) => state.objectNamesAlwaysVisible)
   const overviewMarkerMinZoom = useGameStore((state) => state.overviewMarkerMinZoom)
+  const overviewMaskRadiusAu = useGameStore((state) => state.overviewMaskRadiusAu)
   const overviewFadeStartZoom = useGameStore((state) => state.overviewFadeStartZoom)
   const overviewFadeEndZoom = useGameStore((state) => state.overviewFadeEndZoom)
   const systemFadeStartZoom = useGameStore((state) => state.systemFadeStartZoom)
@@ -77,8 +77,13 @@ export function SystemView({ selectedIds, targetingAction, focusedTask, focusReq
   const kmToAu = useGameStore((state) => state.kmToAu)
   const planetAuLengthFactor = useGameStore((state) => state.planetAuLengthFactor)
   const moonAuLengthFactor = useGameStore((state) => state.moonAuLengthFactor)
-  const time = useSyncExternalStore(subscribeOrbitalTime, getOrbitalTimeSeconds)
   const [zoom, setZoom] = useState<number>(SPACE_MAP_ZOOM.initial)
+  const needsOrbitalTime = zoom >= systemFadeStartZoom || orbitalEntities.some(entity =>
+    entity.getCapability<TaskQueueCapability>('taskQueue')?.tasks.some(task =>
+      task.actionId !== 'move' && task.targetId && !objectRepository.get(task.targetId)?.position
+    )
+  )
+  const time = useSyncExternalStore(needsOrbitalTime ? subscribeOrbitalTime : subscribeStaticOrbitalTime, getOrbitalTimeSeconds)
   const [pan, setPan] = useState<WorldPoint>({ x: 0, y: 0 })
   // Camera targeting is separate from global selection and only persists until manual navigation.
   const [cameraTargetStarId, setCameraTargetStarId] = useState<string | null>(null)
@@ -90,6 +95,7 @@ export function SystemView({ selectedIds, targetingAction, focusedTask, focusReq
   const animationRef = useRef<number | null>(null)
   const canvasRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
+  const svgBoundsRef = useRef<DOMRect | null>(null)
   const [canvasSize, setCanvasSize] = useState<{ width: number; height: number }>({ width: SPACE_MAP_CANVAS.referenceMaxWidthPx, height: SPACE_MAP_CANVAS.referenceMaxWidthPx * SPACE_MAP_VIEW.height / SPACE_MAP_VIEW.width })
   useLayoutEffect(() => {
     const canvas = canvasRef.current
@@ -105,6 +111,25 @@ export function SystemView({ selectedIds, targetingAction, focusedTask, focusReq
     })
     observer.observe(canvas)
     return () => observer.disconnect()
+  }, [])
+  useLayoutEffect(() => {
+    const svg = svgRef.current
+    if (!svg) return
+    const updateBounds = () => { svgBoundsRef.current = svg.getBoundingClientRect() }
+    updateBounds()
+    const observer = new ResizeObserver(updateBounds)
+    observer.observe(svg)
+    window.addEventListener('resize', updateBounds)
+    window.addEventListener('scroll', updateBounds, true)
+    window.visualViewport?.addEventListener('resize', updateBounds)
+    window.visualViewport?.addEventListener('scroll', updateBounds)
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('resize', updateBounds)
+      window.removeEventListener('scroll', updateBounds, true)
+      window.visualViewport?.removeEventListener('resize', updateBounds)
+      window.visualViewport?.removeEventListener('scroll', updateBounds)
+    }
   }, [])
   const mapViewport = useMemo(() => mapViewportForCanvas(canvasSize.width, canvasSize.height), [canvasSize.width, canvasSize.height])
   const cursorClientRef = useRef<WorldPoint | null>(null)
@@ -156,9 +181,12 @@ export function SystemView({ selectedIds, targetingAction, focusedTask, focusReq
     setPan(nextPan)
   })
   const updateCursorCoordinates = (client: WorldPoint) => {
-    const screenMatrix = svgRef.current?.getScreenCTM()
-    if (!screenMatrix) return
-    const localPoint = new DOMPoint(client.x, client.y).matrixTransform(screenMatrix.inverse())
+    const rect = svgBoundsRef.current
+    if (!rect?.width || !rect.height) return
+    const localPoint = {
+      x: renderSpace.viewBox.x + (client.x - rect.left) / rect.width * renderSpace.viewBox.width,
+      y: renderSpace.viewBox.y + (client.y - rect.top) / rect.height * renderSpace.viewBox.height
+    }
     const coordinates = worldPointToMapAu(renderSpace.toWorld(localPoint), starMapCenter, starAuLengthFactor)
     if (cursorXRef.current) cursorXRef.current.textContent = formatMapAuCoordinate(coordinates.x, zoom, starAuLengthFactor)
     if (cursorYRef.current) cursorYRef.current.textContent = formatMapAuCoordinate(coordinates.y, zoom, starAuLengthFactor)
@@ -168,15 +196,22 @@ export function SystemView({ selectedIds, targetingAction, focusedTask, focusReq
   useEffect(() => {
     if (cursorClientRef.current) updateCursorCoordinates(cursorClientRef.current)
   }, [cameraViewBox, renderSpace.origin.x, renderSpace.origin.y, starMapCenter, starAuLengthFactor])
-  const visibleStars = useMemo(() => projectedStars.filter(({ starId, star, point }) => {
+  const overviewBaseRadius = overviewMaskRadiusAu * planetAuLengthFactor
+  const overviewRadius = overviewBaseRadius * Math.max(1, overviewMarkerMinZoom / zoom)
+  const previousVisibleStarsRef = useRef<{ source: typeof projectedStars; items: typeof projectedStars } | null>(null)
+  const visibleStars = useMemo(() => {
+    const filtered = projectedStars.filter(({ starId, point }) => {
     if (detailMode && starId === activeStarId) return true
-    const outerOrbit = Object.values(star.planet).reduce((largest, planet) => Math.max(largest, projectOrbitalRadius(planet.position?.orbitalRadius ?? 0, planetAuLengthFactor)), 0)
-    const overviewRadius = outerOrbit * Math.max(1, overviewMarkerMinZoom / zoom)
     const padding = overviewOpacity > 0
       ? Math.max(SPACE_MAP_VISUAL.cullingPadding / zoom, overviewRadius * SPACE_MAP_VISUAL.overviewGlowRadiusScale + SPACE_MAP_VISUAL.overviewPadding / zoom)
       : SPACE_MAP_VISUAL.cullingPadding / zoom
     return isProjectedPointVisible(point, cameraViewBox, padding)
-  }), [projectedStars, detailMode, activeStarId, planetAuLengthFactor, overviewMarkerMinZoom, zoom, cameraViewBox, overviewOpacity])
+    })
+    const previous = previousVisibleStarsRef.current
+    if (previous?.source === projectedStars && previous.items.length === filtered.length && filtered.every((item, index) => item === previous.items[index])) return previous.items
+    previousVisibleStarsRef.current = { source: projectedStars, items: filtered }
+    return filtered
+  }, [projectedStars, detailMode, activeStarId, overviewRadius, zoom, cameraViewBox, overviewOpacity])
   const visibleOrbitalEntities = orbitalEntities.flatMap((entity) => {
     const origin = projectedStarById.get(String(entity.staticData.starId))
     if (!origin || !entity.position) return []
@@ -236,9 +271,7 @@ export function SystemView({ selectedIds, targetingAction, focusedTask, focusReq
   const visibleCelestialIds = useMemo(() => {
     const ids: string[] = []
     for (const { starId, star, point } of visibleStars) {
-      const outerOrbit = Object.values(star.planet).reduce((largest, planet) => Math.max(largest, projectOrbitalRadius(planet.position?.orbitalRadius ?? 0, planetAuLengthFactor)), 0) || SPACE_MAP_VISUAL.fallbackOuterOrbit
-      const overviewRadius = outerOrbit * Math.max(1, overviewMarkerMinZoom / zoom) * SPACE_MAP_VISUAL.overviewGlowRadiusScale
-      const markerRadius = overviewOpacity > 0 ? Math.max(overviewRadius, renderedStarRadius) : renderedStarRadius
+      const markerRadius = overviewOpacity > 0 ? Math.max(overviewRadius * SPACE_MAP_VISUAL.overviewGlowRadiusScale, renderedStarRadius) : renderedStarRadius
       if (doesDiscIntersectView(point, markerRadius, cameraViewBox)) ids.push(starId)
     }
     if (systemOpacity > SPACE_MAP_VISUAL.pointerOpacityThreshold && activeStar) {
@@ -249,7 +282,7 @@ export function SystemView({ selectedIds, targetingAction, focusedTask, focusReq
       }))
     }
     return ids
-  }, [visibleStars, cameraViewBox, overviewOpacity, systemOpacity, activeStar, activeStarId, projectedStarById, planetAuLengthFactor, moonAuLengthFactor, overviewMarkerMinZoom, zoom, renderedStarRadius, planetDisplayRadius, moonDisplayRadius, visibilityTimeBucket])
+  }, [visibleStars, cameraViewBox, overviewOpacity, systemOpacity, activeStar, activeStarId, projectedStarById, planetAuLengthFactor, moonAuLengthFactor, overviewRadius, zoom, renderedStarRadius, planetDisplayRadius, moonDisplayRadius, visibilityTimeBucket])
   const visibleObjectIds = useMemo(() => {
     const ids = [...visibleCelestialIds]
     for (const entity of orbitalEntities) {
@@ -494,7 +527,37 @@ export function SystemView({ selectedIds, targetingAction, focusedTask, focusReq
     setContextMenu({ x: event.clientX, y: event.clientY, actorIds, selfOperation, targetId: selfOperation ? undefined : targetId, position: worldPosition ?? celestialPosition, positionStarId: worldPosition ? activeStarId : undefined, actions })
   }
 
-  const screenLabels: ScreenMapLabel[] = []
+  const starHandlersRef = useRef({ openContextMenu, onSelect, focusWorldPoint })
+  starHandlersRef.current = { openContextMenu, onSelect, focusWorldPoint }
+  const starScene = useMemo(() => {
+    const pixiStars: PixiStar[] = []
+    const labels: ScreenMapLabel[] = []
+    const items = visibleStars.map(({ starId, star, point }) => {
+      const selected = selectedIds.includes(starId)
+      const planets = Object.entries(star.planet) as [string, PlanetMapEntry][]
+      const localPoint = { x: point.x - renderSpace.origin.x, y: point.y - renderSpace.origin.y }
+      pixiStars.push({ id: starId, ...localPoint, type: star.starType, overviewRadius, coreRadius: renderedStarRadius, overviewOpacity, systemOpacity, selected, hovered: hoveredId === starId })
+      if (detailMode && overviewOpacity > 0) labels.push({ key: `${starId}-overview`, kind: 'star', point, radius: overviewRadius, name: star.displayName, meta: `${starTypes[star.starType ?? '']?.displayName ?? '恒星'} · ${planets.length} 颗行星`, nameOffset: SPACE_MAP_VISUAL.textOffset.overviewLabel, metaOffset: SPACE_MAP_VISUAL.textOffset.overviewMeta, nameSize: SPACE_MAP_VISUAL.fontSize.primary, metaSize: SPACE_MAP_VISUAL.fontSize.meta, opacity: overviewOpacity, nameOpacity: labelOpacity, metaOpacity, visible: celestialNamesAlwaysVisible || hoveredId === starId || selected })
+      if (detailMode && systemOpacity > 0) labels.push({ key: `${starId}-center`, kind: 'star', point, radius: renderedStarRadius, name: star.displayName, meta: `${starTypes[star.starType ?? '']?.displayName ?? '恒星'} · ${planets.length} 颗行星`, nameOffset: SPACE_MAP_VISUAL.textOffset.starLabel, metaOffset: SPACE_MAP_VISUAL.textOffset.starMeta, nameSize: SPACE_MAP_VISUAL.fontSize.primary, metaSize: SPACE_MAP_VISUAL.fontSize.meta, opacity: systemOpacity, metaOpacity, visible: celestialNamesAlwaysVisible || hoveredId === starId || selected })
+      const marker = <g data-selectable-id={starId} data-selectable-kind="body" className={`map-star ${selected ? 'selected' : ''}`} onContextMenu={(event) => starHandlersRef.current.openContextMenu(event, starId)} onClick={(event) => { if (suppressClickRef.current) { suppressClickRef.current = false; return }; event.stopPropagation(); setCameraTargetStarId(null); starHandlersRef.current.onSelect(starId, 'body', event.ctrlKey || event.metaKey, { x: 0, y: 0 }, undefined, event.shiftKey) }} onDoubleClick={(event) => { event.stopPropagation(); setCameraTargetStarId(starId); starHandlersRef.current.focusWorldPoint(point) }}>
+        {overviewOpacity > SPACE_MAP_VISUAL.pointerOpacityThreshold && <circle r={overviewRadius} fill="transparent" />}
+        {systemOpacity > SPACE_MAP_VISUAL.pointerOpacityThreshold && <circle r={renderedStarRadius} fill="transparent" />}
+        {!detailMode && <g className="celestial-name">
+          {overviewOpacity > 0 && <><text x="0" y={overviewRadius + SPACE_MAP_VISUAL.textOffset.overviewLabel / zoom} textAnchor="middle" style={{ fontSize: `${SPACE_MAP_VISUAL.fontSize.primary / zoom}px` }} className="map-star-label" opacity={labelOpacity * overviewOpacity}>{star.displayName}</text><text x="0" y={overviewRadius + SPACE_MAP_VISUAL.textOffset.overviewMeta / zoom} textAnchor="middle" style={{ fontSize: `${SPACE_MAP_VISUAL.fontSize.meta / zoom}px` }} className="map-star-meta" opacity={metaOpacity * overviewOpacity}>{starTypes[star.starType ?? '']?.displayName ?? '恒星'} · {planets.length} 颗行星</text></>}
+          {systemOpacity > 0 && <><text x="0" y={renderedStarRadius + SPACE_MAP_VISUAL.textOffset.starLabel / zoom} textAnchor="middle" style={{ fontSize: `${SPACE_MAP_VISUAL.fontSize.primary / zoom}px` }} className="map-star-label" opacity={systemOpacity}>{star.displayName}</text><text x="0" y={renderedStarRadius + SPACE_MAP_VISUAL.textOffset.starMeta / zoom} textAnchor="middle" style={{ fontSize: `${SPACE_MAP_VISUAL.fontSize.meta / zoom}px` }} className="map-star-meta" opacity={metaOpacity * systemOpacity}>{starTypes[star.starType ?? '']?.displayName ?? '恒星'} · {planets.length} 颗行星</text></>}
+        </g>}
+      </g>
+      return { starId, point, planets, localPoint, marker, staticNode: <g key={starId} transform={`translate(${localPoint.x} ${localPoint.y})`}>{marker}</g> }
+    })
+    return { items, pixiStars, labels }
+  }, [visibleStars, selectedIds, overviewRadius, zoom, renderSpace.origin.x, renderSpace.origin.y, renderedStarRadius, overviewOpacity, systemOpacity, hoveredId, detailMode, labelOpacity, metaOpacity, celestialNamesAlwaysVisible])
+
+  const screenLabels: ScreenMapLabel[] = [...starScene.labels]
+  const staticStarNodes = useMemo(() => starScene.items.map(({ staticNode }) => staticNode), [starScene.items])
+  const pixiStars = starScene.pixiStars
+  const pixiBodies: PixiBody[] = []
+  const pixiOrbits: PixiOrbit[] = []
+  const pixiEntities: PixiEntity[] = []
   const renderOrbitingBodies = (entries: [string, PlanetMapEntry][], systemPoint: WorldPoint, centerX = 0, centerY = 0, depth = 0, path = ''): ReactNode[] => entries.map(([bodyId, body], index) => {
     const offset = getOrbitalOffset(body, index, depth, time, planetAuLengthFactor, moonAuLengthFactor)
     const orbit = offset.radius
@@ -512,6 +575,8 @@ export function SystemView({ selectedIds, targetingAction, focusedTask, focusReq
     const bodyVisible = doesDiscIntersectView(absoluteBody, radius, cameraViewBox, SPACE_MAP_VISUAL.bodyCullingPadding / zoom)
     const childNodes = children.length > 0 ? renderOrbitingBodies(children, systemPoint, x, y, depth + 1, bodyPath) : []
     if (!orbitVisible && !bodyVisible && !childNodes.some(Boolean)) return null
+    if (orbitVisible) pixiOrbits.push({ id: bodyPath, ...renderSpace.toLocal(absoluteCenter), radius: orbit, depth })
+    if (bodyVisible) pixiBodies.push({ ...renderSpace.toLocal(absoluteBody), radius, depth, planetType: body.planetType, selected: bodySelected, hovered: hoveredId === bodyPath })
     const typeName = planetTypes[body.planetType ?? '']?.displayName ?? (depth === 0 ? '行星' : '卫星')
     if (detailMode && bodyVisible) screenLabels.push({
       key: bodyPath, kind: 'body', point: absoluteBody, radius,
@@ -523,8 +588,11 @@ export function SystemView({ selectedIds, targetingAction, focusedTask, focusReq
       selectedMeta: bodySelected ? `${typeName} · ${hasSurface ? '双击进入地表' : '无资源点'}` : undefined
     })
     return <g key={bodyPath} data-selectable-id={bodyVisible && systemOpacity > SPACE_MAP_VISUAL.pointerOpacityThreshold ? bodyPath : undefined} data-selectable-kind="body" data-selectable-x={x} data-selectable-y={y} className={`body-group ${bodySelected ? 'selected' : ''}`} onContextMenu={(event) => openContextMenu(event, bodyPath)} onClick={(event) => { if (suppressClickRef.current) { suppressClickRef.current = false; return }; event.stopPropagation(); onSelect(bodyPath, 'body', event.ctrlKey || event.metaKey, { x, y }, undefined, event.shiftKey) }} onDoubleClick={(event) => { event.stopPropagation(); if (hasSurface) onEnterSurface(bodyPath) }}>
-      {orbitVisible && <circle cx={centerX} cy={centerY} r={orbit} className={depth === 0 ? 'orbit-line' : 'orbit-line moon-orbit'} vectorEffect="non-scaling-stroke" pointerEvents="none" />}
-      {bodyVisible && <OrbitingBodyVisual x={x} y={y} radius={radius} zoom={zoom} depth={depth} bodyId={body.displayName ?? bodyId} selected={bodySelected} hasSurface={hasSurface} typeName={typeName} labelOpacity={depth === 0 ? metaOpacity : systemOpacity} hideLabels={detailMode} />}
+      {bodyVisible && <>
+        <circle cx={x} cy={y} r={radius + SPACE_MAP_VISUAL.bodyHitPadding / zoom} className="body-hit" />
+        {!detailMode && <g className="celestial-name"><text x={x} y={y + radius + (depth === 0 ? SPACE_MAP_VISUAL.textOffset.planetLabel : SPACE_MAP_VISUAL.textOffset.moonLabel) / zoom} textAnchor="middle" style={{ fontSize: `${(depth === 0 ? SPACE_MAP_VISUAL.fontSize.label : SPACE_MAP_VISUAL.fontSize.moon) / zoom}px` }} className="body-label" opacity={depth === 0 ? metaOpacity : systemOpacity}>{body.displayName ?? bodyId}</text></g>}
+        {!detailMode && bodySelected && <text x={x} y={y + radius + SPACE_MAP_VISUAL.textOffset.selectedMeta / zoom} textAnchor="middle" style={{ fontSize: `${SPACE_MAP_VISUAL.fontSize.moon / zoom}px` }} className="body-meta">{typeName} · {hasSurface ? '双击进入地表' : '无资源点'}</text>}
+      </>}
       {childNodes}
     </g>
   })
@@ -550,6 +618,9 @@ export function SystemView({ selectedIds, targetingAction, focusedTask, focusReq
       <div className="map-coordinate-row"><span className="live-dot" /><span className="map-coordinate-kind">全局</span> X <span ref={cursorXRef}>—</span> <span>·</span> Y <span ref={cursorYRef}>—</span> AU</div>
       <div className="map-coordinate-row map-coordinate-canvas"><span className="map-coordinate-kind">画布</span> X <span ref={canvasXRef}>—</span> <span>·</span> Y <span ref={canvasYRef}>—</span></div>
     </div></div>
+    <svg className="system-grid-svg" viewBox={`${renderSpace.viewBox.x} ${renderSpace.viewBox.y} ${renderSpace.viewBox.width} ${renderSpace.viewBox.height}`} aria-hidden="true">
+      <SpaceMapDotGrid view={renderSpace.viewBox} origin={renderSpace.origin} zoom={zoom} spacingAu={starMapGridSpacingAu} worldUnitsPerAu={starAuLengthFactor} startZoom={starMapGridFadeStartZoom} endZoom={starMapGridFadeEndZoom} reduceMotion={reduceMotion || prefersReducedMotion} />
+    </svg>
     <svg ref={svgRef} className={`system-svg map-galaxy ${celestialNamesAlwaysVisible ? '' : 'celestial-names-hover-only'} ${objectNamesAlwaysVisible ? '' : 'object-names-hover-only'}`} viewBox={`${renderSpace.viewBox.x} ${renderSpace.viewBox.y} ${renderSpace.viewBox.width} ${renderSpace.viewBox.height}`} onContextMenu={(event) => { event.preventDefault(); if (event.target === event.currentTarget) openContextMenu(event) }} onClickCapture={(event) => {
       if (targetingAction?.stage !== 'distance') return
       event.preventDefault()
@@ -563,24 +634,17 @@ export function SystemView({ selectedIds, targetingAction, focusedTask, focusReq
       if (targetingAction.id === 'orbit' && distanceKm < 0.001) { onNotify('请选择大于零的环绕半径'); return }
       onConfirmDistanceAction(distanceKm, offsetKm, event.shiftKey)
     }} onClick={(event) => { if (suppressClickRef.current) { suppressClickRef.current = false; event.preventDefault() } }} onWheel={onWheel} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerLeave={() => { setTargetCursor(null); setHoveredId(null) }} onPointerUp={onPointerUp} onPointerCancel={() => { setDrag(null); setShiftDrag(null); setTaskDrag(null); setTargetCursor(null) }}>
-      <SpaceMapGradientDefs />
       <rect x={renderSpace.viewBox.x} y={renderSpace.viewBox.y} width={renderSpace.viewBox.width} height={renderSpace.viewBox.height} fill="transparent" onContextMenu={(event) => openContextMenu(event)} onClick={clearFocus} />
-      <SpaceMapDotGrid view={renderSpace.viewBox} origin={renderSpace.origin} zoom={zoom} spacingAu={starMapGridSpacingAu} worldUnitsPerAu={starAuLengthFactor} startZoom={starMapGridFadeStartZoom} endZoom={starMapGridFadeEndZoom} reduceMotion={reduceMotion || prefersReducedMotion} />
-      {visibleStars.map(({ starId, star, point }) => {
-        const selected = selectedIds.includes(starId)
-        const planets = Object.entries(star.planet)
-        const outerOrbit = planets.reduce((largest, [, planet]) => Math.max(largest, projectOrbitalRadius(planet.position?.orbitalRadius ?? 0, planetAuLengthFactor)), 0) || SPACE_MAP_VISUAL.fallbackOuterOrbit
-        const overviewRadius = outerOrbit * Math.max(1, overviewMarkerMinZoom / zoom)
-        const localPoint = renderSpace.toLocal(point)
-        if (detailMode && overviewOpacity > 0) screenLabels.push({ key: `${starId}-overview`, kind: 'star', point, radius: overviewRadius, name: star.displayName, meta: `${starTypes[star.starType ?? '']?.displayName ?? '恒星'} · ${planets.length} 颗行星`, nameOffset: SPACE_MAP_VISUAL.textOffset.overviewLabel, metaOffset: SPACE_MAP_VISUAL.textOffset.overviewMeta, nameSize: SPACE_MAP_VISUAL.fontSize.primary, metaSize: SPACE_MAP_VISUAL.fontSize.meta, opacity: overviewOpacity, nameOpacity: labelOpacity, metaOpacity, visible: celestialNamesAlwaysVisible || hoveredId === starId || selected })
-        if (detailMode && systemOpacity > 0) screenLabels.push({ key: `${starId}-center`, kind: 'star', point, radius: renderedStarRadius, name: star.displayName, meta: `${starTypes[star.starType ?? '']?.displayName ?? '恒星'} · ${planets.length} 颗行星`, nameOffset: SPACE_MAP_VISUAL.textOffset.starLabel, metaOffset: SPACE_MAP_VISUAL.textOffset.starMeta, nameSize: SPACE_MAP_VISUAL.fontSize.primary, metaSize: SPACE_MAP_VISUAL.fontSize.meta, opacity: systemOpacity, metaOpacity, visible: celestialNamesAlwaysVisible || hoveredId === starId || selected })
-        return <g key={starId} transform={`translate(${localPoint.x} ${localPoint.y})`}>
-          <g data-selectable-id={starId} data-selectable-kind="body" className={`map-star ${selected ? 'selected' : ''}`} onContextMenu={(event) => openContextMenu(event, starId)} onClick={(event) => { if (suppressClickRef.current) { suppressClickRef.current = false; return }; event.stopPropagation(); setCameraTargetStarId(null); onSelect(starId, 'body', event.ctrlKey || event.metaKey, { x: 0, y: 0 }, undefined, event.shiftKey) }} onDoubleClick={(event) => { event.stopPropagation(); setCameraTargetStarId(starId); focusWorldPoint(point) }}><StarSystemMarkerVisual name={star.displayName} starType={star.starType} typeName={starTypes[star.starType ?? '']?.displayName ?? '恒星'} planetCount={planets.length} zoom={zoom} overviewRadius={overviewRadius} starRadius={renderedStarRadius} overviewOpacity={overviewOpacity} systemOpacity={systemOpacity} labelOpacity={labelOpacity} metaOpacity={metaOpacity} hideLabels={detailMode} /></g>
-          {starId === activeStarId && systemOpacity > 0 && <g opacity={systemOpacity} className="system-detail-layer" pointerEvents={systemOpacity > SPACE_MAP_VISUAL.pointerOpacityThreshold ? 'auto' : 'none'}>
-            {renderOrbitingBodies(planets as [string, PlanetMapEntry][], point, 0, 0, 0, starId)}
-          </g>}
-        </g>
-      })}
+      {systemOpacity <= 0 ? staticStarNodes : starScene.items.map(({ starId, point, planets, localPoint, marker, staticNode }) =>
+        starId === activeStarId && systemOpacity > 0
+          ? <g key={starId} transform={`translate(${localPoint.x} ${localPoint.y})`}>
+            {marker}
+            <g opacity={systemOpacity} className="system-detail-layer" pointerEvents={systemOpacity > SPACE_MAP_VISUAL.pointerOpacityThreshold ? 'auto' : 'none'}>
+              {renderOrbitingBodies(planets, point, 0, 0, 0, starId)}
+            </g>
+          </g>
+          : staticNode
+      )}
       <g className="map-task-layer">
         {taskMarkers.map(({ key, objectId, index, from, point, anchor, actionId, distanceKm, offsetKm }) => {
           const active = index === 0
@@ -636,10 +700,11 @@ export function SystemView({ selectedIds, targetingAction, focusedTask, focusReq
         const heading = entity.getCapability<MovementCapability>('movement')?.headingDegrees
         const rotation = entity.kind === 'ship' && heading !== undefined ? heading + 90 : 0
         const localPoint = renderSpace.toLocal(point)
+        pixiEntities.push({ id: entity.id, ...localPoint, radius: renderedOrbitalEntityRadius, rotation, kind: entity.kind, definitionId: entity.definitionId, ownerFactionId: entity.ownerFactionId, selected: selectedIds.includes(entity.id), hovered: hoveredId === entity.id })
         if (detailMode) screenLabels.push({ key: entity.id, kind: 'entity', point, radius: renderedOrbitalEntityRadius, name: entity.displayName, nameOffset: SPACE_MAP_VISUAL.textOffset.entityLabel, nameSize: SPACE_MAP_VISUAL.fontSize.label, opacity: 1, visible: objectNamesAlwaysVisible || hoveredId === entity.id || selectedIds.includes(entity.id) })
         return <g key={entity.id} data-selectable-id={entity.id} data-selectable-kind={entity.kind} className={`space-entity ${entity.kind === 'ship' ? 'ship-entity' : ''} ${selectedIds.includes(entity.id) ? 'selected' : ''}`} transform={`translate(${localPoint.x} ${localPoint.y})`} onContextMenu={(event) => openContextMenu(event, entity.id)} onClick={(event) => { if (suppressClickRef.current) { suppressClickRef.current = false; return }; event.stopPropagation(); onSelect(entity.id, entity.kind, event.ctrlKey || event.metaKey, undefined, undefined, event.shiftKey) }} onDoubleClick={(event) => { event.stopPropagation(); setCameraTargetStarId(String(entity.staticData.starId)); focusWorldPoint(point, objectFocusZoom) }}>
           <g className="orbital-visual" transform={`rotate(${rotation} 0 0)`}>
-            <OrbitalEntityGlyph kind={entity.kind} definitionId={entity.definitionId} ownerFactionId={entity.ownerFactionId} radius={renderedOrbitalEntityRadius} />
+            <g opacity="0"><OrbitalEntityGlyph kind={entity.kind} definitionId={entity.definitionId} ownerFactionId={entity.ownerFactionId} radius={renderedOrbitalEntityRadius} /></g>
             <CornerFrame half={renderedOrbitalEntityRadius + SPACE_MAP_VISUAL.entityCornerPadding / zoom} corner={SPACE_MAP_VISUAL.entityCornerLength / zoom} />
           </g>
           {!detailMode && <g className="orbital-name"><text x="0" y={renderedOrbitalEntityRadius + SPACE_MAP_VISUAL.textOffset.entityLabel / zoom} textAnchor="middle" style={{ fontSize: `${SPACE_MAP_VISUAL.fontSize.label / zoom}px` }} className="entity-label">{entity.displayName}</text></g>}
@@ -647,6 +712,7 @@ export function SystemView({ selectedIds, targetingAction, focusedTask, focusReq
       })}
       {targetingAction && (targetCursor || distanceAnchor) && <TargetingGuide action={targetingAction} cursor={targetCursor ?? distanceAnchor!} distanceAnchor={distanceAnchor} markerRadius={renderedOrbitalEntityRadius} zoom={zoom} renderOrigin={renderSpace.origin} renderViewBox={renderSpace.viewBox} starPoints={projectedStarById} lastTaskPoints={lastTaskPointByObject} appendTask={targetingAction.task && Boolean(targetingAction.appendTask || shiftHeld)} />}
     </svg>
+    <SpaceMapPixiLayer view={renderSpace.viewBox} width={canvasSize.width} height={canvasSize.height} zoom={zoom} stars={pixiStars} bodies={pixiBodies} orbits={pixiOrbits} entities={pixiEntities} systemOpacity={systemOpacity} />
     {distanceReadout && <div className="target-distance-readout" style={{ left: distanceReadout.x, top: distanceReadout.y }}>{distanceReadout.km.toLocaleString('zh-CN', { maximumFractionDigits: 1 })} km</div>}
     {detailMode && <ScreenSpaceLabels labels={screenLabels} zoom={zoom} toScreen={renderSpace.toScreen} viewport={mapViewport} />}
     {shiftDrag && <div className="selection-box" style={{ left: Math.min(shiftDrag.startX, shiftDrag.x), top: Math.min(shiftDrag.startY, shiftDrag.y), width: Math.abs(shiftDrag.x - shiftDrag.startX), height: Math.abs(shiftDrag.y - shiftDrag.startY) }} />}

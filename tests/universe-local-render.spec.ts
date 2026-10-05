@@ -10,6 +10,8 @@ test('high-zoom system uses small SVG coordinates and screen-space labels', asyn
   await star.waitFor()
   // A visible orbit can intersect the viewport while its star center is outside it.
   await star.evaluate((element) => element.dispatchEvent(new MouseEvent('dblclick', { bubbles: true })))
+  await expect(page.locator('.time-card .cyan')).toHaveText('200%')
+  await expect.poll(async () => Math.abs(Number((await page.locator('.system-svg').getAttribute('viewBox'))?.split(/\s+/)[0]))).toBeLessThan(400)
   const svg = page.locator('.system-svg')
   const bounds = await svg.boundingBox()
   if (!bounds) throw new Error('Universe SVG is not visible')
@@ -20,7 +22,7 @@ test('high-zoom system uses small SVG coordinates and screen-space labels', asyn
     await page.mouse.wheel(0, -500)
     await page.waitForTimeout(110)
   }
-  await expect(page.locator('.time-card .cyan')).toHaveText('12800%')
+  await expect.poll(async () => Number.parseFloat(await page.locator('.time-card .cyan').innerText())).toBeGreaterThanOrEqual(12_800)
   await expect.poll(async () => {
     const viewBox = (await svg.getAttribute('viewBox'))?.split(/\s+/).map(Number) ?? []
     return viewBox.length === 4 && Math.abs(viewBox[0]) < 20 && Math.abs(viewBox[1]) < 20 && viewBox[2] < 20

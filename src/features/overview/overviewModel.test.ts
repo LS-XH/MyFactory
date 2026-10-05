@@ -3,6 +3,7 @@ import { GameObject } from '../../domain/objects'
 import { PLAYER_FACTION_ID } from '../../domain/factions'
 import { filterOverviewEntries, makeSpaceAssetEntries, makeVisibleSpaceEntries, type OverviewEntry } from './overviewModel'
 import { spaceMap } from '../../domain/spaceMap'
+import { resolvePlanetTypeColor } from '../../config/planetTypeVisuals'
 
 const entries: OverviewEntry[] = [
   { id: 'player-ship', name: '玩家飞船', meta: '', category: 'ship', selectionKind: 'ship', color: '', ownerFactionId: PLAYER_FACTION_ID },
@@ -48,5 +49,6 @@ describe('overview filtering', () => {
     const visible = makeVisibleSpaceEntries([starId, `${starId}/${planetId}`], [])
     expect(visible[0]).toMatchObject({ category: 'planet', celestialKind: 'star' })
     expect(visible[1]).toMatchObject({ category: 'planet', celestialKind: 'planet' })
+    expect(visible[1].color).toBe(resolvePlanetTypeColor(star.planet[planetId].planetType))
   })
 })

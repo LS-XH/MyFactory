@@ -1,6 +1,7 @@
 import { useEffect, useState, type CSSProperties } from 'react'
 import { CircleHelp, GitBranch, Maximize2, Orbit, Pencil, Pickaxe, SlidersHorizontal, Sparkles, Target, X } from 'lucide-react'
 import { ICON_SIZES, UI_COLORS } from '../../config/visualTokens'
+import { resolvePlanetTypeColor } from '../../config/planetTypeVisuals'
 import { resolveItemColor } from '../../shared/icons/itemVisualRegistry'
 import { content, getFactory, getItem, getRecipe, type FactoryDefinition, type FactoryNodeState } from '../../domain/content'
 import { formulasForFactory } from '../../domain/surfaceContent'
@@ -112,7 +113,7 @@ function resolveSpaceInspectorDetails(selectedId: string, surfacePlanet: string,
       name: celestial.displayName,
       subtitle: `${kindName} · ${celestial.typeName}`,
       status: celestial.kind === 'star' ? '稳定' : '已扫描',
-      color: celestial.kind === 'star' ? UI_COLORS.starInfo : celestial.kind === 'planet' ? UI_COLORS.planetInfo : UI_COLORS.moonInfo,
+      color: celestial.kind === 'star' ? UI_COLORS.starInfo : resolvePlanetTypeColor(celestial.planetType, celestial.kind === 'moon' ? UI_COLORS.moonInfo : UI_COLORS.planetInfo),
       metrics,
       facts,
       surfaceTarget: celestial.hasSurface ? celestial.id : undefined

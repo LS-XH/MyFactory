@@ -58,6 +58,7 @@ type GameState = {
   moonDisplayRadius: number
   orbitalEntityDisplayRadius: number
   overviewMarkerMinZoom: number
+  overviewMaskRadiusAu: number
   overviewFadeStartZoom: number
   overviewFadeEndZoom: number
   systemFadeStartZoom: number
@@ -110,6 +111,7 @@ type GameState = {
   setMoonDisplayRadius: (radius: number) => void
   setOrbitalEntityDisplayRadius: (radius: number) => void
   setOverviewMarkerMinZoom: (zoom: number) => void
+  setOverviewMaskRadiusAu: (radius: number) => void
   setOverviewFadeStartZoom: (zoom: number) => void
   setOverviewFadeEndZoom: (zoom: number) => void
   setSystemFadeStartZoom: (zoom: number) => void
@@ -386,6 +388,7 @@ export const useGameStore = create<GameState>()(persist((set) => ({
   setMoonDisplayRadius: (radius) => set({ moonDisplayRadius: clampDisplayRadius(radius, initial.moonDisplayRadius) }),
   setOrbitalEntityDisplayRadius: (radius) => set({ orbitalEntityDisplayRadius: clampDisplayRadius(radius, initial.orbitalEntityDisplayRadius) }),
   setOverviewMarkerMinZoom: (zoom) => set({ overviewMarkerMinZoom: clampOverviewMarkerMinZoom(zoom) }),
+  setOverviewMaskRadiusAu: (radius) => set({ overviewMaskRadiusAu: Math.min(GAME_SETTING_LIMITS.overviewMaskRadiusAu.max, Math.max(GAME_SETTING_LIMITS.overviewMaskRadiusAu.min, Number.isFinite(radius) ? radius : initial.overviewMaskRadiusAu)) }),
   setOverviewFadeStartZoom: (zoom) => set((state) => ({ overviewFadeStartZoom: Math.min(clampStarLayerZoom(zoom, initial.overviewFadeStartZoom), zoomLevelBefore(state.overviewFadeEndZoom)) })),
   setOverviewFadeEndZoom: (zoom) => set((state) => ({ overviewFadeEndZoom: Math.max(clampStarLayerZoom(zoom, initial.overviewFadeEndZoom), zoomLevelAfter(state.overviewFadeStartZoom)) })),
   setSystemFadeStartZoom: (zoom) => set((state) => ({ systemFadeStartZoom: Math.min(clampStarLayerZoom(zoom, initial.systemFadeStartZoom), zoomLevelBefore(state.systemFadeEndZoom)) })),

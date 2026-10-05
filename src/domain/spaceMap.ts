@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import spaceMapJson from '../../assets/legacy/spaceMap.json'
+import spaceMapUrl from '../../assets/legacy/spaceMap.json?url'
 import starTypesJson from '../../assets/legacy/starType.json'
 import planetTypesJson from '../../assets/legacy/planetType.json'
 import { getResourceTypeName } from './resourceTypes'
@@ -25,6 +25,7 @@ type RawResource = z.infer<typeof resourceSchema>
 export type CelestialObject = {
   id: string
   kind: 'star' | 'planet' | 'moon'
+  planetType?: string
   displayName: string
   typeName: string
   starId: string
@@ -39,6 +40,13 @@ export type CelestialObject = {
   totalReserves: number
   hasSurface: boolean
 }
+
+const spaceMapJson = import.meta.env.SSR
+  ? JSON.parse((await import('node:fs')).readFileSync(new URL('../../assets/legacy/spaceMap.json', import.meta.url), 'utf8'))
+  : await fetch(spaceMapUrl).then((response) => {
+    if (!response.ok) throw new Error(`无法加载星图数据 (${response.status})`)
+    return response.json()
+  })
 
 export const spaceMap = z.record(starSchema).parse(spaceMapJson) as SpaceMap
 export const starTypes = starTypesJson as Record<string, { displayName: string }>
@@ -133,6 +141,7 @@ function findPlanet(
       return {
         id: selectedId,
         kind: depth === 0 ? 'planet' : 'moon',
+        planetType: planet.planetType,
         displayName: planet.displayName ?? getCelestialDisplayName(planetId),
         typeName: planetTypes[planet.planetType ?? '']?.displayName ?? '未分类天体',
         starId,

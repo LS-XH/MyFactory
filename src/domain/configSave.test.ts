@@ -39,6 +39,13 @@ describe('file-backed game settings', () => {
     expect(parseConfigSave({ version: 1, settings: oldSettings }).settings.starMapGridSpacingAu).toBe(1)
   })
 
+  it('defaults older files to a fixed overview mask radius and validates its range', () => {
+    const { overviewMaskRadiusAu: _radius, ...oldSettings } = configFile.settings
+    expect(parseConfigSave({ version: 1, settings: oldSettings }).settings.overviewMaskRadiusAu).toBe(DEFAULT_GAME_SETTINGS.overviewMaskRadiusAu)
+    expect(configSaveSchema.safeParse({ ...configFile, settings: { ...configFile.settings, overviewMaskRadiusAu: 120 } }).success).toBe(true)
+    expect(configSaveSchema.safeParse({ ...configFile, settings: { ...configFile.settings, overviewMaskRadiusAu: 201 } }).success).toBe(false)
+  })
+
   it('defaults older files to 800% object focus and validates selectable zoom levels', () => {
     const { objectFocusZoom: _oldMissingField, ...oldSettings } = configFile.settings
     expect(parseConfigSave({ version: 1, settings: oldSettings }).settings.objectFocusZoom).toBe(8)
